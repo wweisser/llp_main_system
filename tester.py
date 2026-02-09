@@ -13,11 +13,11 @@ from hypercorn.asyncio import serve, Config
 
 ################TEST TEST TEST#########################################
 
-def build_state(database_path, key):
+def build_state(cache_path: str, database_path: str, key:str):
     ux_q = asyncio.Queue()
     gui_q = asyncio.Queue()
     sys_state = state.create_state(database_path)
-    cache = memory.create_cache(key, sys_state)
+    cache = memory.create_cache(cache_path, key, sys_state)
     # sys_state = await memory.get_user_value(cache, key)
     # print('sys_state : ', sys_state)
     return gui_q, ux_q, cache
@@ -126,14 +126,15 @@ async def test_intput_process(gui_q, ux_q):
 async def test_env():
     key = "key_name"
     table = 'test'
-    db_parth = 'data_vault.db'
+    db_parth = r'data_vault.db'
+    cache_path = r'C:\Temp\diskcache_test'
 
     qart_app = Quart(__name__)
 
     config = Config()
     config.bind = ["127.0.0.1:5000"]
 
-    gui_q, ux_q, cache = build_state(db_parth, key)
+    gui_q, ux_q, cache = build_state(cache_path, db_parth, key)
     # json_data = memory.fetch_from_cache(cache, key)
 
     start_ws(qart_app, gui_q, ux_q)

@@ -43,14 +43,14 @@ async def parse_archive_request(msg: dict, sys_state: dict, cache, key, parth, t
 async def parse_case_number_request(msg: dict, sys_state: dict, parth: str, table: str, gui_q):
     print('case_number input parser called')
     if msg['id'] == 'cn_asgn':
-        sys_state['case_number'] = msg['data']
-        # que_item = oq.create_q_item('system', 'state', sys_state)
-        # await oq.feed_queue(gui_q, que_item)
+        sys_state['system']['case_number'] = msg['data']
+        que_item = oq.create_q_item('system', 'state', sys_state)
+        await oq.feed_queue(gui_q, que_item)
     elif msg['id'] == 'list_request':
         print('\nCase umber list request received\n')
         val_arr = du.get_val(parth, table, 'case_number', -1, -1)
-        # que_item = oq.create_q_item('case', 'cn_list', val_arr)
-        # await oq.feed_queue(gui_q, que_item)
+        que_item = oq.create_q_item('case', 'cn_list', val_arr)
+        await oq.feed_queue(gui_q, que_item)
         # print('list que item was created und fed to gui que : \n', que_item, '\n')
     else:
         pass

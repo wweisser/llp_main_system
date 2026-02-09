@@ -147,7 +147,7 @@ def respiratory_panel():
 
 def tab_bar():
     return(html.Div([
-        cntrl_btn('case_manager', 'Start Case: ', 'start_time', 'Perfusion Time:', 'perfusion_time', 'Case ID: ', 'cntrl_cm_upper','ha'),
+        cntrl_btn('case_manager', 'Start Case: ', 'start_time', 'Perfusion Time:', 'perfusion_time', 'Case ID: ', 'case_id','ha'),
         paramtr_btn_1('tab1_btn', 'Plots', '', '','tab1', 'ha', 70),
         paramtr_btn_1('tab2_btn', 'Perfusion', '', '','tab2', 'ha', 70),
         paramtr_btn_1('tab3_btn', 'Metabolics', '', '', 'tab3', 'ha', 70),

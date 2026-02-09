@@ -39,6 +39,7 @@ def case_manager_callbacks(app, button):
     )
     def load_cm(confirm_btn, case_data, drp_dwn_opt, new_case_h1, ncn):
         #takes data from case-store, puts it to dropdown
+        print('case number list : ', case_data)
         if isinstance(case_data, list):
             cn_options = []
             max_cn = 0
@@ -106,6 +107,17 @@ def case_manager_callbacks(app, button):
             return 0, True
         else:
             return 0, False
+
+    @app.callback(
+        Output("case_id", "children"),
+        Input("sys_state", "data"),
+        prevent_initial_call=True,
+    )
+    def update_case_id(data):
+        if isinstance(data, dict) and data['system']['state'] != 0:
+            return f'Case ID: {str(data['system']['state'] )}'
+        else:
+            return 'Case ID:'
 
     @app.callback(
         Output("postbox", "data"),

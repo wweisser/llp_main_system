@@ -2,12 +2,12 @@
 from diskcache import Cache
 import state
 
-def create_cache(key: str, sys_state: dict):
-    path = sys_state['system']['db_parth']
-    if path == None:
+def create_cache(cache_path: str, key: str, sys_state: dict):
+    cache_path = r'C:\Temp\diskcache_test'
+    if cache_path == None:
         cache = Cache(directory=None)
     else:
-        cache = Cache(path)
+        cache = Cache(cache_path)
     cache[key] = sys_state
     return cache
 

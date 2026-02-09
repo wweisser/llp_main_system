@@ -289,20 +289,22 @@ if __name__ == "__main__":
 	import os
 
 	table = 'test'
-	parth = r'C:\Users\whwei\OneDrive\coding\llp_system\data_vault.db'
-	sys_state = state.create_state(parth)
-	sys_state['case_number'] = 3
-	# execute_entry(parth, table, sys_state)
-	mem.create_cache('key', sys_state)
+	db_parth = r'data_vault.db'
+	cache_path = r'C:\Temp\diskcache_test'
+	os.makedirs(cache_path, exist_ok=True)
+	sys_state = state.create_state(db_parth)
+	# sys_state['case_number'] = 3
+	# # execute_entry(parth, table, sys_state)
+	mem.create_cache(cache_path, 'key', sys_state)
 
 
-	tables = get_tables_names(parth)
+	tables = get_tables_names(db_parth)
 	print(tables)
 
-	val = get_val(parth, table, 'case_number', 100, 1)
+	val = get_val(db_parth, table, 'case_number', 100, 1)
 	print(val)
 	
-	val_II = get_val(parth, table, 'case_number', -1, -1)
+	val_II = get_val(db_parth, table, 'case_number', -1, -1)
 	print(val_II)
 	# print(type(val_II[2]))
 

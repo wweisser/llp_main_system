@@ -38,13 +38,12 @@ def pack_json(file: dict):
         print("output could not be processed")
         raise   
 
-def create_state(cache_path: str, db_path: str):
+def create_state(db_path: str):
     sys_state = {
         "system":{
             "case_number": 0,
             "autosave": None,
             "db_path": db_path,
-            "cache_path": cache_path,
             "start_time": 0,
             "perfusion_time": 0,
             "perfusion_mode": "",
