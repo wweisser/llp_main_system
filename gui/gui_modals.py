@@ -12,6 +12,9 @@ def case_manager_mdl():
             html.Button("Start Case", id="start_case",className="case_mgr_btn"),
             html.Button("Confirm", id="cm_confirm_btn", className="case_mgr_btn"),
             html.Button("Close", id="cm_close_btn",className="case_mgr_btn"),
+            html.Button("Start Perfsuion", id="start_perfusion",className="case_mgr_btn"),
+            html.Button("default", id="cm_close_btn",className="case_mgr_btn"),
+
             ], className="case_mgr_mdl_lower"),
         ], className="case_mgr_mdl", id="case_mgr_mdl", hidden=True))
 

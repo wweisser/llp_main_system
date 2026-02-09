@@ -45,42 +45,13 @@ def parse_ws_msg(msg: dict):
     if isinstance(msg, dict):
         msg_data = msg['data']
         data = json.loads(msg_data)
+        # print(data['system']['case_number'])
         return data
     else: 
         return None
          
 
 def ws_recv(app):
-    @app.callback(
-        Output("case_number", "data"),
-        Output("data_to_plot", "data"), 
-        Output("sys_state", "data"), 
-        Input("ws", "message"),
-        prevent_initial_call=True
-        )
-    def distribute_msg(msg):
-        if msg:
-            msg_data = msg['data']
-            data = json.loads(msg_data)
-            # Distribution of system state
-            if data['msg_type'] == 'system':
-                if data['id'] == 'state':
-                    return no_update, data['data'], no_update
-                elif data['id'] == 'val':
-                    pass
-                else:
-                    pass
-            # distribution of data to plot
-            elif data['msg_type'] == 'plot':
-                return data['data'], no_update, no_update
-            # distrbution of case number related data
-            elif data['msg_type'] == 'case':
-                if data['id'] == 'cn_list':
-                    return no_update, no_update, data['data'] 
-            else:
-                pass
-        else:
-            raise PreventUpdate
     @app.callback(
         Output("case_number", "data"), 
         Input("ws", "message"),
@@ -117,45 +88,3 @@ def ws_recv(app):
         else:
             raise PreventUpdate
     
-            if data['id'] == 'state':
-                return no_update, data['data'], no_update
-            elif data['id'] == 'val':
-                pass
-            else:
-                pass
-        # distribution of data to plot
-        elif data['msg_type'] == 'plot':
-            return data['data'], no_update, no_update
-        # distrbution of case number related data
-        elif data['msg_type'] == 'case':
-            if data['id'] == 'cn_list':
-                return no_update, no_update, data['data'] 
-        else:
-            pass
-             else:
-        raise PreventUpdate
-    @app.callback(
-        Output("data_to_plot", "data"), 
-        Output("sys_state", "data"), 
-        Output("case_number", "data"),
-        Input("ws", "message"),
-        prevent_initial_call=True
-        )
-    def distribute_msg(msg):
-                         if data['id'] == 'state':
-                    return no_update, data['data'], no_update
-                elif data['id'] == 'val':
-                    pass
-                else:
-                    pass
-            # distribution of data to plot
-            elif data['msg_type'] == 'plot':
-                return data['data'], no_update, no_update
-            # distrbution of case number related data
-            elif data['msg_type'] == 'case':
-                if data['id'] == 'cn_list':
-                    return no_update, no_update, data['data'] 
-            else:
-                pass
-        else:
-            raise PreventUpdate

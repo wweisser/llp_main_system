@@ -1,27 +1,43 @@
+:root{
+    --bg_color_I:black;
+    --bg_color_II:#00242b;
+    --bg_color_mdl:#395d64;
+
+    --text_color_I:#ccebfd;
+    --text_color_II:#f98a02;
+    --text_color_active: rgb(0, 0, 0);
+    --red_alert_color:#ed1111;
+    --hover_color:#005161;
+    --active_color:#009ebd;
+    --yellow_alert_color:#fff30f;
+}
+
 body{
-    background-color: #130c01;
-    color: rgb(255, 176, 5);
+    background-color: var(--bg_color_I);
+    color: var(--bg_color_I);
     height: 100vh;
 }
 .layouts_style{
-    background-color: #130c01;
-    color: rgb(255, 176, 5);
+    background-color: var(--bg_color_I);
+    color: var(--bg_color_I);
     height: 100vh;
 }
 .ha{
-    background-color: #130c01;
-    color: rgb(255, 176, 5);
+    background-color: var(--bg_color_II);
+    color: var(--text_color_I);
     border: none;
+    margin: 2px;
+    border-radius: 6px;
     cursor: pointer;
     transition: background-color 0.4s ease;
     font-family: "Arial";
 }
 .ha:hover {
-    background-color: rgb(110, 97, 70)/* Hover-Farbe */
+    background-color: var(--hover_color);
 }
 .ha:active {
-    background-color: rgb(255, 176, 5);
-    color: #271a01;
+    background-color: var(--active_color);
+    color: var(--text_color_active);
 }
 .stop_button{
     border: none;

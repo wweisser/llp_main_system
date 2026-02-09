@@ -114,8 +114,8 @@ def case_manager_callbacks(app, button):
         prevent_initial_call=True,
     )
     def update_case_id(data):
-        if isinstance(data, dict) and data['system']['state'] != 0:
-            return f'Case ID: {str(data['system']['state'] )}'
+        if isinstance(data, dict) and data['system']['case_number']:
+            return f'Case ID: {str(data['system']['case_number'] )}'
         else:
             return 'Case ID:'
 

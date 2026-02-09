@@ -1,44 +1,47 @@
 
 .case_mgr_mdl{
-    top: 30%;
-    left: 30%;
-    height: 25%;
-    width: 40%;
+    top: 10%;
+    left: 10%;
+    height: 300px;
+    width: 400px;
     border-radius: 10px;
     position: fixed;
     z-index: 4000;
     border-style: solid;
     border-width: 2px; /* Stärke des Rahmens */
-    background-color:rgb(255, 176, 5);
-    color: rgb(19, 14, 3);
+    background-color: var(--bg_color_mdl);
+    color: var(--text_color_I);
     font-family: "Arial";
 }
 .case_mgr_mdl_lower{
-    top: 20%;
-    left: 5%;
-    width: 90%;
-    height: 40%;
+    top: 40px;
+    left: 25px;
+    width: 350px;
+    height: 200px;
     display: grid;
-    grid-template-rows: 1fr 1fr; /* Zwei gleich breite Spalten */
+    grid-template-rows: 1fr 1fr 1fr; /* Zwei gleich breite Spalten */
     grid-template-columns: 1fr 1fr;
      /* Zwei gleich breite Spalten */
     position: relative;
 }
 
 .case_mgr_btn{
-    border-radius:20px;
-    background-color: #130c01;
-    color: rgb(255, 176, 5);
+    border-radius:10px;
+    background-color: var(--text_color_I);
+    color: var(--bg_color_II);
     border: 0;
+    margin: 2px;
+    transition: background-color 0.4s ease;
     position: relative;
 }
 .case_mgr_btn:hover{
-    background-color: rgb(172, 119, 4);
-    color: rgb(255, 176, 5);
+    background-color: var(--active_color);
+    color: var(--bg_color_II);
+
 }
 .case_mgr_btn:active{
-    background-color: #130c01;
-    color: rgb(255, 176, 5);
+    background-color: var(--hover_color);
+    color: var(--text_color_I);
 }
 .cm_drpdwn{
     top: 30%;
