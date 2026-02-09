@@ -42,7 +42,7 @@ def create_state(db_path: str):
     sys_state = {
         "system":{
             "case_number": 0,
-            "autosave": None,
+            "autosave": 0,
             "db_path": db_path,
             "start_time": 0,
             "perfusion_time": 0,

@@ -81,24 +81,26 @@ def effector_module():
 #         ],className="top_line")
 #     )
 
-def flow_panel():
+def permanent_panel():
     return(html.Div([
-        paramtr_btn_1('art_flow_btn', 'Arterial Flow', '---', '    ml/h', 'art_flow', 'ha', 120),
-        paramtr_btn_1('art_pressure_btn', 'Arterial Pressure: ', '---', '  mmHg', 'art_pressure', 'ha', 120),
-        paramtr_btn_1('ven_flow_btn', 'Portal Vene Flow: ', '---', ' ml/h', 'ven_flow', 'ha', 120),
-        paramtr_btn_1('ven_pressure_btn', 'Portal Vene Pressure: ', '---', 'mmHg:', 'ven_pressure', 'ha', 120)
-        ],className="top_panel_I")
+        paramtr_btn_1('art_flow_btn', 'Arterial Flow', '---', '    ml/h', 'art_flow', 'ha', 90),
+        paramtr_btn_1('art_pressure_btn', 'Arterial Pressure: ', '---', '  mmHg', 'art_pressure', 'ha', 90),
+        paramtr_btn_1('ven_flow_btn', 'Portal Vene Flow: ', '---', ' ml/h', 'ven_flow', 'ha', 90),
+        paramtr_btn_1('ven_pressure_btn', 'Portal Vene Pressure: ', '---', 'mmHg:', 'ven_pressure', 'ha', 90),
+        paramtr_btn_1('cSO2_btn', 'Art SO2:    ', '---', '    %', 'cSO2', 'ha', 90),
+        paramtr_btn_1('art_pO2_btn', 'Art pO2: ', '---', ' mmHgh', 'art_pO2', 'ha', 90),
+        ],className="side_panel_II")
     )
 
 def perf_stat_panel():
     return(html.Div([
-        paramtr_btn_1('art_vr_btn', 'Art VR:    ', '---', '    mmHg/ml/min', 'art_vr', 'ha', 80),
-        paramtr_btn_1('art_temp_btn', 'Art Tmp:    ', '---', '    °C', 'art_temp', 'ha', 80),
-        paramtr_btn_1('ven_vr_btn', 'Ven VR:    ', '---', '    mmHg/ml/min', 'ven_vr', 'ha', 80),
-        paramtr_btn_1('ven_temp_btn', 'Ven Tmp:    ', '---', '    °C', 'ven_temp', 'ha', 80),
-        paramtr_btn_1('return_temp_btn', 'Return Tmp:    ', '---', '    °C', 'return_temp', 'ha', 80),
-        paramtr_btn_1('ven_art_rel_btn', 'Flow A:V:    ', '---:---', '', 'ven_art_rel', 'ha', 80),
-        ],className="second_panel")
+        paramtr_btn_1('art_vr_btn', 'Art VR:    ', '---', '    mmHg/ml/min', 'art_vr', 'ha', 100),
+        paramtr_btn_1('art_temp_btn', 'Art Tmp:    ', '---', '    °C', 'art_temp', 'ha', 100),
+        paramtr_btn_1('ven_vr_btn', 'Ven VR:    ', '---', '    mmHg/ml/min', 'ven_vr', 'ha', 100),
+        paramtr_btn_1('ven_temp_btn', 'Ven Tmp:    ', '---', '    °C', 'ven_temp', 'ha', 100),
+        paramtr_btn_1('return_temp_btn', 'Return Tmp:    ', '---', '    °C', 'return_temp', 'ha', 100),
+        paramtr_btn_1('ven_art_rel_btn', 'Flow A:V:    ', '---:---', '', 'ven_art_rel', 'ha', 100),
+        ],className="side_panel_I")
     )
 
 def third_panel():
@@ -121,28 +123,28 @@ def side_panel_1():
         paramtr_btn_1('ven_pCO2_btn', 'Ven pCO2:    ', '---', 'mmHg:', 'ven_pCO2', 'ha', 80),
         paramtr_btn_1('art_pO2_btn', 'Art pO2: ', '---', ' mmHgh', 'art_pO2', 'ha', 80),
         paramtr_btn_1('ven_pO2_btn', 'Ven pO2: ', '---', 'mmHg:', 'ven_pO2', 'ha', 80)
-        ],className="side_panel_1")
+        ],className="side_panel_I")
     )
 
 def ph_panel():
     return(html.Div([
-        paramtr_btn_1('art_pH_btn', 'Art pH:   ', '---', '', 'art_pH', 'ha', 80),
-        paramtr_btn_1('ven_pH_btn', 'Ven pH:   ', '---', '', 'ven_pH', 'ha', 80),
-        paramtr_btn_1('Base_btn', 'Base:    ', '---', '', 'Base', 'ha', 80),
-        paramtr_btn_1('lactate_btn', 'Lactate:    ', '---', '    mmol/L', 'lactate', 'ha', 80),
-        paramtr_btn_1('K_btn', 'Potasium:    ', '---', '    mmol/L', 'K', 'ha', 80),
-        paramtr_btn_1('glucose_btn', 'Glucose:    ', '---', '    mmol/L', 'glucose', 'ha', 80),
-        ],className="top_panel_II")
+        paramtr_btn_1('art_pH_btn', 'Art pH:   ', '---', '', 'art_pH', 'ha', 100),
+        paramtr_btn_1('ven_pH_btn', 'Ven pH:   ', '---', '', 'ven_pH', 'ha', 100),
+        paramtr_btn_1('Base_btn', 'Base:    ', '---', '', 'Base', 'ha', 100),
+        paramtr_btn_1('lactate_btn', 'Lactate:    ', '---', '    mmol/L', 'lactate', 'ha', 100),
+        paramtr_btn_1('K_btn', 'Potasium:    ', '---', '    mmol/L', 'K', 'ha', 100),
+        paramtr_btn_1('glucose_btn', 'Glucose:    ', '---', '    mmol/L', 'glucose', 'ha', 100),
+        ],className="side_panel_I")
     )
 
 def respiratory_panel():
     return(html.Div([
-        paramtr_btn_1('DO2_btn', 'DO2:    ', '---', 'ml/min', 'DO2', 'ha', 80),
-        paramtr_btn_1('VO2_btn', 'VO2:    ', '---', 'ml/min', 'VO2', 'ha', 80),
-        paramtr_btn_1('HB_btn', 'HB:    ', '---', '    mg/dl', 'HB', 'ha', 80),
-        paramtr_btn_1('Hct_btn', 'HCT:    ', '---', '', 'Hct', 'ha', 80),
-        paramtr_btn_1('HCO3_btn', 'HCO3:    ', '---', 'mmol/L', 'HCO3', 'ha', 80),
-        ],className="top_panel_II")
+        paramtr_btn_1('DO2_btn', 'DO2:    ', '---', 'ml/min', 'DO2', 'ha', 100),
+        paramtr_btn_1('VO2_btn', 'VO2:    ', '---', 'ml/min', 'VO2', 'ha', 100),
+        paramtr_btn_1('HB_btn', 'HB:    ', '---', '    mg/dl', 'HB', 'ha', 100),
+        paramtr_btn_1('Hct_btn', 'HCT:    ', '---', '', 'Hct', 'ha', 100),
+        paramtr_btn_1('HCO3_btn', 'HCO3:    ', '---', 'mmol/L', 'HCO3', 'ha', 100),
+        ],className="side_panel_I")
     )
 
 def tab_bar():
@@ -160,29 +162,31 @@ def tab_bar():
 
 def plots_page():
     return(html.Div([
+        permanent_panel(),
         module()
     ], className='plots_page_syle'))
 
 def perfusion_page():
     return(html.Div([
-        flow_panel(),
+        permanent_panel(),
         perf_stat_panel(),
-        third_panel(),
-        gm.paramtr_modal()
     ], className='main_page_syle'))
 
 def metabolics_page():
     return(html.Div([
+        permanent_panel(),
         ph_panel()
     ], className='config_page_syle', hidden=False))
 
 def respiratory_page():
     return(html.Div([
+        permanent_panel(),
         respiratory_panel()
     ], className='cloud_page_syle', hidden=False))
 
 def acive_page():
     return(html.Div([
+        permanent_panel(),
         module()
     ], className='active_page_syle', hidden=False))
 

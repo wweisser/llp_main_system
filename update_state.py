@@ -71,19 +71,26 @@ async def parse_msg(msg: dict, sys_state, cache, key, gui_q, parth: str, table: 
     
 
 # start loop that fetches itmes from the input que
-async def dequeue_loop(gui_q, ux_q, cache, key, parth, table):
+async def dequeue_loop(gui_q, ux_q, cache, key, path, table):
     sys_state = memory.get_state_from_cache(cache, key)
     print("DEQUELOOP HAS STARTET")
+    counter = 0
     while True:
         try:
-            msg = await ux_q.get()
+            msg = await asyncio.wait_for(ux_q.get(), timeout=1.0)
             # print('msg: ', msg)
             if msg != '400'and isinstance(msg, dict):
-                sys_state = await parse_msg(msg, sys_state, cache, key, gui_q, parth, table)
+                sys_state = await parse_msg(msg, sys_state, cache, key, gui_q, path, table)
                 if sys_state:
                     memory.put_state_to_cache(cache, key, sys_state)
         except:
-            print('could not read')
-            raise
-
-
+            pass
+        current_time = datetime.now()
+        sys_state['system']['perfusion_time'] = current_time - sys_state['system']['start_time']
+        gui_item = oq.create_q_item('state', 'state', sys_state)
+        oq.feed_queue(gui_q, gui_item)
+        record_interval = sys_state['system']['autosave']
+        if record_interval != 0 and counter % record_interval == 0:
+            du.execute_entry(path, table, sys_state)
+            counter = 0
+        counter += 1
