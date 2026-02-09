@@ -1,0 +1,168 @@
+body{
+    background-color: #130c01;
+    color: rgb(255, 176, 5);
+    height: 100vh;
+}
+.layouts_style{
+    background-color: #130c01;
+    color: rgb(255, 176, 5);
+    height: 100vh;
+}
+.ha{
+    background-color: #130c01;
+    color: rgb(255, 176, 5);
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.4s ease;
+    font-family: "Arial";
+}
+.ha:hover {
+    background-color: rgb(110, 97, 70)/* Hover-Farbe */
+}
+.ha:active {
+    background-color: rgb(255, 176, 5);
+    color: #271a01;
+}
+.stop_button{
+    border: none;
+    background-color:#910202;
+    color: white;
+}
+.stop_button:hover{
+    background-color:#e30101;
+    color: white;
+}
+.stop_button:active{
+    background-color: white;
+    color: rgb(252, 3, 3); 
+}
+.bolus_button{
+    border: none;
+    background-color:#f88400;
+    color: #130c01;
+}
+.bolus_button:hover{
+    background-color:#decc01;
+    color: #130c01;
+}
+.bolus_button:active{
+    background-color: #8e8200;
+    color: white; 
+}
+.tabbar{
+    top: 91%;
+    left: 0%;
+    width: 100%;
+    height: 10%;
+    position: fixed;
+    display: grid;
+    grid-template-columns: [row1-start] 20% [line1] 10% [line2] 10% [line3] 10% [line4] 10% [line5] 10% [line6] 10% [line7] 20% [end];
+    grid-template-rows: [first] 100% [end];
+    border-style: solid;
+    border-width: 1px;
+    border-color: rgb(255, 176, 5);
+}
+.top_line{
+    top: 0%;
+    left: 0%;
+    width: 100%;
+    height: 5%;
+    position: fixed;
+    display: grid;
+    grid-template-columns: [first] 40% [line2] 40%  [line3] 20% [line4] 20% [line5] 20% [end];
+    font-family: Arial;
+    border-style: solid;
+    border-width: 1px;
+    border-color: rgb(255, 176, 5);
+}
+.top_panel_I{
+    top: 0%;
+    left: 0%;
+    width: 100%;
+    height: 13%;
+    position: fixed;
+    display: grid;
+    grid-template-columns: [first] 25% [line2] 25%  [line3] 25%  [line4] 25% [end];
+    border-top: 1px solid rgb(255, 176, 5);
+}
+.top_panel_II{
+    top: 0%;
+    left: 0%;
+    width: 100%;
+    height: 13%;
+    position: fixed;
+    display: grid;
+    grid-template-columns: [first] 17% [line2] 17%  [line3] 16%  [line4] 17% [line5] 17% [line6] 16% [end];
+    border-top: 1px solid rgb(255, 176, 5);
+}
+.second_panel{
+    top: 13%;
+    left: 0%;
+    width: 100%;
+    height: 12%;
+    position: fixed;
+    display: grid;
+    grid-template-columns: [first] 17% [line2] 17%  [line3] 16%  [line4] 17% [line5] 17% [line6] 16% [end];
+}
+.third_panel{
+    top: 26%;
+    left: 0%;
+    width: 100%;
+    height: 12%;
+    position: fixed;
+    display: grid;
+    grid-template-columns: [first] 17% [line2] 17%  [line3] 16%  [line4] 17% [line5] 17% [line6] 16% [end];
+}
+.side_panel_1{
+    background-color: var(primary_button_color);
+    top: 25%;
+    left: 60%;
+    width: 40%;
+    height: 25%;
+    position: fixed;
+    display: grid;
+    grid-template-columns: [first] 50% [line2] 50%  [end];
+    border-style: solid;
+    border-width: 1px; /* Stärke des Rahmens */
+    border-color: rgb(255, 176, 5); /* Farbe des Rahmens */
+}
+.side_panel_2{
+    background-color: var(primary_button_color);
+    top: 50%;
+    left: 60%;
+    width: 40%;
+    height: 41%;
+    position: fixed;
+    display: grid;
+    grid-template-columns: [first] 33% [line2] 34%  [line2] 33% [end];
+    grid-template-rows: [first] 25% [line2] 25%  [line3] 25%  [line4] 25% [end];
+    border-style: solid;
+    border-width: 1px; /* Stärke des Rahmens */
+    border-color: rgb(255, 176, 5); /* Farbe des Rahmens */
+
+}
+.effector_mod{
+    background-color: #130c01;
+    color: rgb(255, 176, 5);
+    top: 25%;
+    left: 0;
+    height: 66%;
+    width: 60%;
+    position: fixed;
+    border-style: solid;
+    border-width: 1px; /* Stärke des Rahmens */
+    border-color: rgb(255, 176, 5); /* Farbe des Rahmens */
+}
+.progressbar{
+    background-color: #130c01;
+    color: rgb(255, 176, 5);
+    top: 30%;
+    height: 15%;
+    width: 30%;
+    border-style: solid;
+    border-width: 1px; /* Stärke des Rahmens */
+    border-color: rgb(255, 176, 5); /* Farbe des Rahmens */
+}
+
+
+

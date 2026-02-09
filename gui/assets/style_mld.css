@@ -1,0 +1,129 @@
+
+.case_mgr_mdl{
+    top: 30%;
+    left: 30%;
+    height: 25%;
+    width: 40%;
+    border-radius: 10px;
+    position: fixed;
+    z-index: 4000;
+    border-style: solid;
+    border-width: 2px; /* Stärke des Rahmens */
+    background-color:rgb(255, 176, 5);
+    color: rgb(19, 14, 3);
+    font-family: "Arial";
+}
+.case_mgr_mdl_lower{
+    top: 20%;
+    left: 5%;
+    width: 90%;
+    height: 40%;
+    display: grid;
+    grid-template-rows: 1fr 1fr; /* Zwei gleich breite Spalten */
+    grid-template-columns: 1fr 1fr;
+     /* Zwei gleich breite Spalten */
+    position: relative;
+}
+
+.case_mgr_btn{
+    border-radius:20px;
+    background-color: #130c01;
+    color: rgb(255, 176, 5);
+    border: 0;
+    position: relative;
+}
+.case_mgr_btn:hover{
+    background-color: rgb(172, 119, 4);
+    color: rgb(255, 176, 5);
+}
+.case_mgr_btn:active{
+    background-color: #130c01;
+    color: rgb(255, 176, 5);
+}
+.cm_drpdwn{
+    top: 30%;
+    left: 20%;
+    width: 60%;
+    position: relative;
+    color: black;
+    background-color: rgb(249, 249, 249);
+    border-radius:20px;
+}
+.cm_drpdwn > .Select-control{
+    color: black;
+    background-color: rgb(251, 250, 248); 
+    border-radius:20px;
+}
+.new_case_mdl{
+    top: 30%;
+    left: 30%;
+    height: 25%;
+    width: 40%;
+    border-radius: 10px;
+    position: fixed;
+    z-index: 5000;
+    border-style: solid;
+    border-width: 2px;
+    display: grid;
+    grid-template-rows: [first] 20% [line1] 40%  [line2] 40%  [end];
+    background-color: #f7ead5;
+    font-family: "Arial";
+}
+.ncm_input_style{
+    top: 10%;
+    left: 10%;
+    height: 30%;
+    width: 60%;
+    border-radius: 10px;
+    position: relative;
+    font-size: 110%;
+}
+.paramtr_mdl{
+    top: 30%;
+    left: 30%;
+    height: 300px;
+    width: 300px;
+    border-radius:12px;
+    position: fixed;
+    z-index: 3000;
+    border-style: solid;
+    border-width: 2px; /* Stärke des Rahmens */
+    border-color: rgb(255, 176, 5); /* Farbe des Rahmens */
+    background-color: #130c01;
+    font-family: "Arial";
+    display: grid;
+    grid-template-rows: [first] 10% [line2] 80% [line3] 10% [end];
+}
+.Paramtr_mdl_header{
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    height: 40px;
+    margin: 0;
+    background-color:rgb(255, 176, 5);
+    color:#130c01;
+}
+.paramtr_mdl_panel{
+    height: 215px;
+    display: grid;
+    grid-template-columns: [first] 210px [line2] 90px  [end];
+}
+.paramtr_mdl_value{
+    border-bottom-left-radius: 10px;
+    background-color:#130c01;
+    color:rgb(255, 176, 5);
+    border-style: solid;
+    border-width: 1px; /* Stärke des Rahmens */
+    border-color: rgb(255, 176, 5); /* Farbe des Rahmens */
+    display: grid;
+    grid-template-rows: [first] 20% [line2] 60%  [line3] 20% [end];
+}
+.paramtr_mdl_up_down{
+    border-bottom-right-radius: 10px;
+    background-color:#130c01;
+    color:rgb(255, 176, 5);
+    border-style: solid;
+    border-width: 1px; /* Stärke des Rahmens */
+    border-color: rgb(255, 176, 5); /* Farbe des Rahmens */
+    display: grid;
+    grid-template-rows: [first] 40% [line2] 40%  [line3] 20% [end];
+}
