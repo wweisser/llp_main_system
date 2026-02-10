@@ -6,6 +6,7 @@ import gui_modals as gm
 import gui_callbacks as gc
 import gui_distribute as gd
 import gui_case_management as gcm
+import gui_parameter_callbacks as gpc
 
 
 def create_layouts():
@@ -38,7 +39,8 @@ def create_com_callbacks(app):
     return(html.Div([
         gu.ws_recv(app),
         gu.ws_send(app),
-        gd.distribute_state(app)
+        gd.distribute_state(app),
+        gpc.state_to_gui(app)
     ]))
 
 # Why is the frontend blocked when websocket is activated?

@@ -5,7 +5,7 @@ import state_utils as su
 import memory 
 import onque as oq
 import asyncio
-import datetime
+from datetime import datetime
 
 
 async def parse_ser_input(msg: dict, sys_state, cache, key, gui_q):
@@ -49,9 +49,13 @@ async def parse_case_number_request(msg: dict, sys_state: dict, parth: str, tabl
     elif msg['id'] == 'list_request':
         print('\nCase umber list request received\n')
         val_arr = du.get_val(parth, table, 'case_number', -1, -1)
-        que_item = oq.create_q_item('case', 'cn_list', val_arr)
+        que_item = oq.create_q_item('case_number', 'cn_list', val_arr)
         await oq.feed_queue(gui_q, que_item)
         # print('list que item was created und fed to gui que : \n', que_item, '\n')
+    elif msg['id'] == 'start_perfusion':
+        if isinstance(msg['data'], int):
+            sys_state['system']['autosave'] = msg['data']
+            print(f'Autosave interval is set to {msg['data']} in sys_state to \n')
     else:
         pass
     return sys_state
@@ -86,11 +90,17 @@ async def dequeue_loop(gui_q, ux_q, cache, key, path, table):
         except:
             pass
         current_time = datetime.now()
-        sys_state['system']['perfusion_time'] = current_time - sys_state['system']['start_time']
-        gui_item = oq.create_q_item('state', 'state', sys_state)
-        oq.feed_queue(gui_q, gui_item)
+        sys_state['system']['clock_time'] = current_time.strftime("%H:%M:%S")
+        gui_item = oq.create_q_item('system', 'state', sys_state)
+        await oq.feed_queue(gui_q, gui_item)
+
         record_interval = sys_state['system']['autosave']
         if record_interval != 0 and counter % record_interval == 0:
+            print(f'TYPE OF CURRENT TIME : {(current_time)}')
+            print(f'TYPE OF STARTIME : {(sys_state['system']['start_time'])}')
+            sys_state['system']['perfusion_time'] = current_time - sys_state['system']['start_time']
+            print('record interval')
             du.execute_entry(path, table, sys_state)
             counter = 0
+            print('db entry was executed')
         counter += 1

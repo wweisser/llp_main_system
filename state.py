@@ -46,6 +46,7 @@ def create_state(db_path: str):
             "db_path": db_path,
             "start_time": 0,
             "perfusion_time": 0,
+            "clock_time": 0,
             "perfusion_mode": "",
         },
         "organ_type": "liver",

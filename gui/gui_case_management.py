@@ -30,16 +30,16 @@ def case_manager_callbacks(app, button):
 
     @app.callback(
         Output("cm_dropdown", "options"),
-        Input("ncm_confirm_btn", "n_clicks"),
+        # Input("ncm_confirm_btn", "n_clicks"),
         Input("case_number", "data"),
         State("cm_dropdown", "options"),
         State("new_case_h1", "children"),
         State("ncm_input", "value"),
         prevent_initial_call=True,
     )
-    def load_cm(confirm_btn, case_data, drp_dwn_opt, new_case_h1, ncn):
+    def load_cm(case_data, drp_dwn_opt, new_case_h1, ncn):
         #takes data from case-store, puts it to dropdown
-        print('case number list : ', case_data)
+        print('\ncase number list : ', case_data)
         if isinstance(case_data, list):
             cn_options = []
             max_cn = 0
@@ -108,22 +108,12 @@ def case_manager_callbacks(app, button):
         else:
             return 0, False
 
-    @app.callback(
-        Output("case_id", "children"),
-        Input("sys_state", "data"),
-        prevent_initial_call=True,
-    )
-    def update_case_id(data):
-        if isinstance(data, dict) and data['system']['case_number']:
-            return f'Case ID: {str(data['system']['case_number'] )}'
-        else:
-            return 'Case ID:'
 
     @app.callback(
-        Output("postbox", "data"),
-        Input("start_case", "n_clicks"),
+        Output("postbox", "data", allow_duplicate=True),
+        Input("start_case_btn", "n_clicks"),
         prevent_initial_call=True,
     )
     def start_case():
-        post_item = gu.create_postbox_item('case_number', 'case_event', '')
+        post_item = gu.create_postbox_item('case_number', 'start_perfusion', 10)
         return post_item

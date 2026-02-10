@@ -87,8 +87,8 @@ def permanent_panel():
         paramtr_btn_1('art_pressure_btn', 'Arterial Pressure: ', '---', '  mmHg', 'art_pressure', 'ha', 90),
         paramtr_btn_1('ven_flow_btn', 'Portal Vene Flow: ', '---', ' ml/h', 'ven_flow', 'ha', 90),
         paramtr_btn_1('ven_pressure_btn', 'Portal Vene Pressure: ', '---', 'mmHg:', 'ven_pressure', 'ha', 90),
-        paramtr_btn_1('cSO2_btn', 'Art SO2:    ', '---', '    %', 'cSO2', 'ha', 90),
-        paramtr_btn_1('art_pO2_btn', 'Art pO2: ', '---', ' mmHgh', 'art_pO2', 'ha', 90),
+        paramtr_btn_1('cSO2_btn', 'Art SO2:    ', '---', '    %', 'cso2', 'ha', 90),
+        paramtr_btn_1('art_pO2_btn', 'Art pO2: ', '---', ' mmHgh', 'art_po2', 'ha', 90),
         ],className="side_panel_II")
     )
 
@@ -105,12 +105,12 @@ def perf_stat_panel():
 
 def third_panel():
     return(html.Div([
-        paramtr_btn_1('art_pH_btn', 'Art pH:   ', '---', '', 'art_pH', 'ha', 80),
-        paramtr_btn_1('ven_pH_btn', 'Ven pH:   ', '---', '', 'ven_pH', 'ha', 80),
-        paramtr_btn_1('art_pCO2_btn', 'Art pCO2:    ', '---', ' mmHg', 'art_pCO2', 'ha', 80),
-        paramtr_btn_1('ven_pCO2_btn', 'Ven pCO2:    ', '---', 'mmHg:', 'ven_pCO2', 'ha', 80),
-        paramtr_btn_1('art_pO2_btn', 'Art pO2: ', '---', ' mmHgh', 'art_pO2', 'ha', 80),
-        paramtr_btn_1('ven_pO2_btn', 'Ven pO2: ', '---', 'mmHg:', 'ven_pO2', 'ha', 80),
+        paramtr_btn_1('art_pH_btn', 'Art pH:   ', '---', '', 'art_ph', 'ha', 80),
+        paramtr_btn_1('ven_pH_btn', 'Ven pH:   ', '---', '', 'ven_ph', 'ha', 80),
+        paramtr_btn_1('art_pCO2_btn', 'Art pCO2:    ', '---', ' mmHg', 'art_pco2', 'ha', 80),
+        paramtr_btn_1('ven_pCO2_btn', 'Ven pCO2:    ', '---', 'mmHg:', 'ven_pco2', 'ha', 80),
+        paramtr_btn_1('art_pO2_btn', 'Art pO2: ', '---', ' mmHgh', 'art_po2', 'ha', 80),
+        paramtr_btn_1('ven_pO2_btn', 'Ven pO2: ', '---', 'mmHg:', 'ven_po2', 'ha', 80),
         ],className="third_panel")
     )
 
@@ -119,37 +119,42 @@ def side_panel_1():
     return(html.Div([
         paramtr_btn_1('cSO2_btn', 'Art SO2:    ', '---', '    %', 'cSO2', 'ha', 70),
         paramtr_btn_1('SO2_btn', 'Ven SO2:    ', '---', '    %', 'SO2', 'ha', 70),
-        paramtr_btn_1('art_pCO2_btn', 'Art pCO2:    ', '---', ' mmHg', 'art_pCO2', 'ha', 80),
-        paramtr_btn_1('ven_pCO2_btn', 'Ven pCO2:    ', '---', 'mmHg:', 'ven_pCO2', 'ha', 80),
-        paramtr_btn_1('art_pO2_btn', 'Art pO2: ', '---', ' mmHgh', 'art_pO2', 'ha', 80),
-        paramtr_btn_1('ven_pO2_btn', 'Ven pO2: ', '---', 'mmHg:', 'ven_pO2', 'ha', 80)
+        paramtr_btn_1('art_pCO2_btn', 'Art pCO2:    ', '---', ' mmHg', 'art_pco2', 'ha', 80),
+        paramtr_btn_1('ven_pCO2_btn', 'Ven pCO2:    ', '---', 'mmHg:', 'ven_pco2', 'ha', 80),
+        paramtr_btn_1('art_pO2_btn', 'Art pO2: ', '---', ' mmHgh', 'art_po2', 'ha', 80),
+        paramtr_btn_1('ven_pO2_btn', 'Ven pO2: ', '---', 'mmHg:', 'ven_po2', 'ha', 80)
         ],className="side_panel_I")
     )
 
 def ph_panel():
     return(html.Div([
-        paramtr_btn_1('art_pH_btn', 'Art pH:   ', '---', '', 'art_pH', 'ha', 100),
-        paramtr_btn_1('ven_pH_btn', 'Ven pH:   ', '---', '', 'ven_pH', 'ha', 100),
-        paramtr_btn_1('Base_btn', 'Base:    ', '---', '', 'Base', 'ha', 100),
+        paramtr_btn_1('art_pH_btn', 'Art pH:   ', '---', '', 'art_ph', 'ha', 100),
+        paramtr_btn_1('ven_pH_btn', 'Ven pH:   ', '---', '', 'ven_ph', 'ha', 100),
+        paramtr_btn_1('Base_btn', 'Base:    ', '---', '', 'base', 'ha', 100),
         paramtr_btn_1('lactate_btn', 'Lactate:    ', '---', '    mmol/L', 'lactate', 'ha', 100),
-        paramtr_btn_1('K_btn', 'Potasium:    ', '---', '    mmol/L', 'K', 'ha', 100),
+        paramtr_btn_1('K_btn', 'Potasium:    ', '---', '    mmol/L', 'k', 'ha', 100),
         paramtr_btn_1('glucose_btn', 'Glucose:    ', '---', '    mmol/L', 'glucose', 'ha', 100),
         ],className="side_panel_I")
     )
 
 def respiratory_panel():
     return(html.Div([
-        paramtr_btn_1('DO2_btn', 'DO2:    ', '---', 'ml/min', 'DO2', 'ha', 100),
-        paramtr_btn_1('VO2_btn', 'VO2:    ', '---', 'ml/min', 'VO2', 'ha', 100),
-        paramtr_btn_1('HB_btn', 'HB:    ', '---', '    mg/dl', 'HB', 'ha', 100),
-        paramtr_btn_1('Hct_btn', 'HCT:    ', '---', '', 'Hct', 'ha', 100),
-        paramtr_btn_1('HCO3_btn', 'HCO3:    ', '---', 'mmol/L', 'HCO3', 'ha', 100),
+        paramtr_btn_1('DO2_btn', 'DO2:    ', '---', 'ml/min', 'do2', 'ha', 100),
+        paramtr_btn_1('VO2_btn', 'VO2:    ', '---', 'ml/min', 'vo2', 'ha', 100),
+        paramtr_btn_1('HB_btn', 'HB:    ', '---', '    mg/dl', 'hb', 'ha', 100),
+        paramtr_btn_1('art_pCO2_btn', 'Art pCO2:    ', '---', ' mmHg', 'art_pco2', 'ha', 100),
+        paramtr_btn_1('ven_pO2_btn', 'Ven pO2: ', '---', 'mmHg:', 'ven_po2', 'ha', 100),
+        paramtr_btn_1('ven_pCO2_btn', 'Ven pCO2:    ', '---', 'mmHg:', 'ven_pco2', 'ha', 100),
+
+        # paramtr_btn_1('Hct_btn', 'HCT:    ', '---', '', 'Hct', 'ha', 100),
+        # paramtr_btn_1('HCO3_btn', 'HCO3:    ', '---', 'mmol/L', 'hco3', 'ha', 100),
         ],className="side_panel_I")
     )
 
 def tab_bar():
     return(html.Div([
-        cntrl_btn('case_manager', 'Start Case: ', 'start_time', 'Perfusion Time:', 'perfusion_time', 'Case ID: ', 'case_id','ha'),
+        cntrl_btn('case_manager', 'Perfusion Start: ', 'start_time', 'Clock Time:', 'clock_time', 'Case ID: ', 'case_id','ha'),
+        cntrl_btn('', '---', 'perfusion_mode', '---', 'perfuison_time', '', '','ha'),
         paramtr_btn_1('tab1_btn', 'Plots', '', '','tab1', 'ha', 90),
         paramtr_btn_1('tab2_btn', 'Perfusion', '', '','tab2', 'ha', 90),
         paramtr_btn_1('tab3_btn', 'Metabolics', '', '', 'tab3', 'ha', 90),

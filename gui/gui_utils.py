@@ -50,7 +50,6 @@ def parse_ws_msg(msg: dict):
     else: 
         return None
          
-
 def ws_recv(app):
     @app.callback(
         Output("case_number", "data"), 
@@ -59,7 +58,7 @@ def ws_recv(app):
         )
     def distribute_case_msg(msg):
         data = parse_ws_msg(msg)
-        if data and data['msg_type'] == 'case':
+        if data and data['msg_type'] == 'case_number':
             return data['data']
         else:
             raise PreventUpdate
@@ -83,6 +82,7 @@ def ws_recv(app):
         )
     def distribute_system_msg(msg):
         data = parse_ws_msg(msg)
+        # print("state arrived in the front end")
         if data and data['msg_type'] == 'system':
             return data['data']
         else:
