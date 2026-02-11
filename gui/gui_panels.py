@@ -193,17 +193,17 @@ def respiratory_page():
 def acive_page():
     return(html.Div([
         permanent_panel(),
-        module()
     ], className='active_page_syle', hidden=False))
 
 def conn_page():
     return(html.Div([
-        module()
+        permanent_panel(),
     ], className='conn_page_syle', hidden=False))
 
 
 def create_pages():
     return(html.Div([
+        plots_page(),
         perfusion_page(),
         metabolics_page(),
         respiratory_page(),
@@ -212,6 +212,4 @@ def create_pages():
     ], id="layouts", className="layouts_style")
     )
 
-def effector_module():
-    return(html.Div([],className="effector_mod")
-    )
+
