@@ -18,7 +18,9 @@ def create_layouts():
 def create_modals():
     return(html.Div([
         gm.case_manager_mdl(),
-        gm.new_case_mdl()
+        gm.new_case_mdl(),
+        gm.note_mdl(),
+        gm.active_mdl()
     ]))
 
 def create_callbacks(app):

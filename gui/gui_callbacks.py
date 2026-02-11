@@ -33,5 +33,33 @@ def tabbar_callback(app):
         else:
             page = gp.conn_page()
         return 0, 0, 0, 0, 0, 0, page
-
-
+    
+    @app.callback(
+        Output('note_mdl', 'hidden'),
+        Input('note_mdl_btn', 'n_clicks'),
+        State('note_mdl', 'hidden'),
+        prevent_initial_call=True
+    )
+    def open_note_mdl(btn, hidden):
+        print('hidden: ', hidden)
+        if hidden:
+            print('note mdl open')
+            return False
+        else:
+            print('note mdl close')
+            return True
+        
+    @app.callback(
+        Output('active_mdl', 'hidden'),
+        Input('active_mdl_btn', 'n_clicks'),
+        State('active_mdl', 'hidden'),
+        prevent_initial_call=True
+    )
+    def open_note_mdl(btn, hidden):
+        print('hidden: ', hidden)
+        if hidden:
+            print('note mdl open')
+            return False
+        else:
+            print('note mdl close')
+            return True

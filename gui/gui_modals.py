@@ -31,12 +31,30 @@ def new_case_mdl():
         ], id="new_case_mld", hidden=True)
     )
 
+def note_mdl():
+    print('\n text mdl was created \n')
+    return(html.Div([
+        html.Div(children="No Notes listed", id="new_case_h1", className="note_mdl_notes"),
+        dcc.Input(id='note_input', placeholder="Note"),
+        html.Div([
+            html.Button("Enter Note", id="enter_note_btn", className="case_mgr_btn"),
+        ]),
+        ],  id="note_mdl", className="note_mdl", hidden=True)
+    )
+
+def active_mdl():
+    print('\n text mdl was created \n')
+    return(html.Div([
+        # html.Div(children="active elements", id="new_case_h1", className="note_mdl_notes"),
+        ],  id="active_mdl", className="active_mdl", hidden=True)
+    )
+
 def case_manager_modal():
     return(
         html.Div([
             case_manager_mdl(),
             new_case_mdl(),
-            paramtr_modal()
+            # paramtr_modal(),
         ])
     )
 
@@ -62,7 +80,7 @@ def paramtr_modal():
         html.Button("Close", id="paramtr_mdl_close", className="ha", style={"border-radius": "10px", "padding": "0", "width": "300px", "height": "45px"})
     ], className="paramtr_mdl", id="paramtr_mld_id", style={"display": "none"})
 
-# mdl_app.layout = paramtr_modal("header")
+mdl_app.layout = note_mdl()
 
-# if __name__ == '__main__':
-#     mdl_app.run(debug=True)
+if __name__ == '__main__':
+    mdl_app.run(debug=True)

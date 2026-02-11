@@ -154,14 +154,15 @@ def respiratory_panel():
 def tab_bar():
     return(html.Div([
         cntrl_btn('case_manager', 'Perfusion Start: ', 'start_time', 'Clock Time:', 'clock_time', 'Case ID: ', 'case_id','ha'),
-        cntrl_btn('', '---', 'perfusion_mode', '---', 'perfuison_time', '', '','ha'),
-        paramtr_btn_1('tab1_btn', 'Plots', '', '','tab1', 'ha', 90),
-        paramtr_btn_1('tab2_btn', 'Perfusion', '', '','tab2', 'ha', 90),
-        paramtr_btn_1('tab3_btn', 'Metabolics', '', '', 'tab3', 'ha', 90),
-        paramtr_btn_1('tab4_btn', 'Respiration', '', '', 'tab4', 'ha', 90),
-        paramtr_btn_1('tab5_btn', 'Active', '', '', 'tab5', 'ha', 90),
-        paramtr_btn_1('tab6_btn', 'Connections', '', '', 'tab6', 'ha', 90),
-        cntrl_btn('case_manager',  '', 'cntrl_cm_lower', '', 'defaultI', '', 'defaultII', 'ha'),
+        cntrl_btn('active_mdl_btn', '---', 'perfusion_mode', '---', 'perfuison_time', '', '','ha'),
+        paramtr_btn_1('tab1_btn', 'Plots', '', '','tab1', 'tabbar_btn', 90),
+        paramtr_btn_1('tab2_btn', 'Perfusion', '', '','tab2', 'tabbar_btn', 90),
+        paramtr_btn_1('tab3_btn', 'Metabolics', '', '', 'tab3', 'tabbar_btn', 90),
+        paramtr_btn_1('tab4_btn', 'Respiration', '', '', 'tab4', 'tabbar_btn', 90),
+        paramtr_btn_1('tab5_btn', 'Active', '', '', 'tab5', 'tabbar_btn', 90),
+        paramtr_btn_1('tab6_btn', 'Connections', '', '', 'tab6', 'tabbar_btn', 90),
+        cntrl_btn('note_mdl_btn',  'Note', 'cntrl_cm_lower', '', 'defaultI', '', 'defaultII', 'ha'),
+        cntrl_btn('alarm_btn',  'Mute Alarm', 'cntrl_cm_lower', '', 'defaultI', '', 'defaultII', 'ha'),
         ], className="tabbar")
     )
 

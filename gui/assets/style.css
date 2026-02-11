@@ -1,6 +1,7 @@
 :root{
     --bg_color_I:black;
     --bg_color_II:#00242b;
+    --bg_color_III:#2e4e55;
     --bg_color_mdl:#395d64;
 
     --text_color_I:#ccebfd;
@@ -16,6 +17,12 @@ body{
     background-color: var(--bg_color_I);
     color: var(--bg_color_I);
     height: 100vh;
+}
+.background{
+    position: relative;   /* wichtig! */
+    width: 100%;
+    height: 100vh;
+    background: var(--bg_color_I);
 }
 .layouts_style{
     background-color: var(--bg_color_I);
@@ -39,18 +46,20 @@ body{
     background-color: var(--active_color);
     color: var(--text_color_active);
 }
-.stop_button{
+.tabbar_btn{
     border: none;
-    background-color:#910202;
-    color: white;
+    margin: 2px;
+    border-radius: 6px;
+    background-color:var(--bg_color_III);
+    color: var(--text_color_I);
 }
-.stop_button:hover{
-    background-color:#e30101;
-    color: white;
+.tabbar_btn:hover{
+    background-color:var(--hover_color);
+    color: var(--text_color_I);
 }
-.stop_button:active{
-    background-color: white;
-    color: rgb(252, 3, 3); 
+.tabbar_btn:active{
+    background-color: var(--active_color);
+    color: var(--text_color_active);
 }
 .bolus_button{
     border: none;
@@ -66,13 +75,13 @@ body{
     color: white; 
 }
 .tabbar{
-    top: 91%;
+    top: 90%;
     left: 0%;
     width: 100%;
     height: 10%;
     position: fixed;
     display: grid;
-    grid-template-columns: [row1-start] 12% [line1] 8%  [line2] 10% [line3] 10% [line4] 10% [line5] 10% [line6] 10% [line7] 10% [line8] 20% [end];
+    grid-template-columns: [row1-start] 16% [line1] 10%  [line2] 8% [line3] 8% [line4] 8% [line5] 8% [line6] 8% [line7] 8% [line8] 16% [line9] 10% [line10];
     grid-template-rows: [first] 100% [end];
 }
 .top_line{
