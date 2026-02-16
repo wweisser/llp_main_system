@@ -1,6 +1,7 @@
 from dash import html
 import plotly.express as px
 import gui_modals as gm
+import gui_graphs as gg
 
 # alle controll button damit belegen
 def cntrl_btn(button_id, upper_text, upper_text_id, middle_text, middle_text_id, lower_text, lower_text_id, class_name):
@@ -176,18 +177,22 @@ def perfusion_page():
     return(html.Div([
         permanent_panel(),
         perf_stat_panel(),
+        gg.create_graph_panel('flow_I', 'flow_II', 'flow_III')
     ], className='main_page_syle'))
 
 def metabolics_page():
     return(html.Div([
         permanent_panel(),
-        ph_panel()
+        ph_panel(),
+        gg.create_graph_panel('meta_I', 'meta_II', 'meta_III')
+
     ], className='config_page_syle', hidden=False))
 
 def respiratory_page():
     return(html.Div([
         permanent_panel(),
-        respiratory_panel()
+        respiratory_panel(),
+        gg.create_graph_panel('resp_I', 'resp_II', 'resp_III')
     ], className='cloud_page_syle', hidden=False))
 
 def acive_page():

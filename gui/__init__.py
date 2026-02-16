@@ -5,6 +5,7 @@ import gui_panels as gp
 import gui_modals as gm
 import gui_callbacks as gc
 import gui_distribute as gd
+import gui_graphs as gg
 import gui_case_management as gcm
 import gui_parameter_callbacks as gpc
 
@@ -12,7 +13,7 @@ import gui_parameter_callbacks as gpc
 def create_layouts():
     return(html.Div([
         gp.create_pages(),
-        gp.tab_bar()
+        gp.tab_bar(),
     ]))
 
 def create_modals():
