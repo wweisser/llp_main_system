@@ -3,8 +3,7 @@ import plotly.express as px
 import numpy as np
 import pandas as pd
 
-def create_graph(id, class_name):
-    fig = px.scatter(x=None, y=None)
+def center_graph_layout(fig):
     fig.update_layout(
         margin=dict(l=0, r=10, t=15, b=0),
         xaxis=dict(showgrid=False, showline=False, zeroline=False, linewidth=1, linecolor='#ccebfd'),
@@ -12,6 +11,11 @@ def create_graph(id, class_name):
         paper_bgcolor='#00242b',
         plot_bgcolor='black',
     )
+    return fig
+
+def create_graph(id, class_name):
+    fig = px.scatter(x=None, y=None)
+    fig = center_graph_layout(fig)
     return(
         html.Div([
             dcc.Graph(figure=fig,

@@ -51,7 +51,7 @@ async def parse_case_number_request(msg: dict, sys_state: dict, parth: str, tabl
         val_arr = du.get_val(parth, table, 'case_number', -1, -1)
         que_item = oq.create_q_item('case_number', 'cn_list', val_arr)
         await oq.feed_queue(gui_q, que_item)
-        # print('list que item was created und fed to gui que : \n', que_item, '\n')
+        print('list que item was created und fed to gui que : \n', que_item, '\n')
     elif msg['id'] == 'start_perfusion':
         if isinstance(msg['data'], int):
             sys_state['system']['autosave'] = msg['data']
@@ -61,7 +61,7 @@ async def parse_case_number_request(msg: dict, sys_state: dict, parth: str, tabl
     return sys_state
     
 async def parse_msg(msg: dict, sys_state, cache, key, gui_q, parth: str, table: str):
-    print('Input parser called')
+    # print(f'Input parser called : {msg}')
     if msg['msg_type'] == 'ser_input':
         sys_state = await parse_ser_input(msg, sys_state, cache, key, gui_q)
     elif msg['msg_type'] == 'case_number':
@@ -81,7 +81,7 @@ async def dequeue_loop(gui_q, ux_q, cache, key, path, table):
     counter = 0
     while True:
         try:
-            msg = await asyncio.wait_for(ux_q.get(), timeout=1.0)
+            msg = await asyncio.wait_for(ux_q.get(), timeout=3.0)
             # print('msg: ', msg)
             if msg != '400'and isinstance(msg, dict):
                 sys_state = await parse_msg(msg, sys_state, cache, key, gui_q, path, table)
@@ -92,7 +92,7 @@ async def dequeue_loop(gui_q, ux_q, cache, key, path, table):
         current_time = datetime.now()
         sys_state['system']['clock_time'] = current_time.strftime("%H:%M:%S")
         gui_item = oq.create_q_item('system', 'state', sys_state)
-        await oq.feed_queue(gui_q, gui_item)
+        # await oq.feed_queue(gui_q, gui_item)
 
         record_interval = sys_state['system']['autosave']
         if record_interval != 0 and counter % record_interval == 0:

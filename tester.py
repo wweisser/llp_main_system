@@ -26,14 +26,14 @@ def build_state(cache_path: str, database_path: str, key:str):
 async def recv(ux_q):
     while True:
         try:
-            print('waiting for incomig message')
+            print('ws -> waiting for incomig message')
             msg_raw= await websocket.receive()
             print(msg_raw)
             msg = state.get_json(msg_raw)
             await ux_q.put(msg)
-            print('unjsoned msg back from frontend type : ', type(msg), msg)
+            print('ws -> unjsoned msg back from frontend type : ', type(msg), msg)
         except Exception as e:
-            print("could not receive")
+            print("ws -> could not receive")
             print(e)
 
 # fetches item from gui que and trys to send via websocket
@@ -43,9 +43,9 @@ async def send(gui_q):
             msg = await gui_q.get()
             msg_to_send = json.dumps(msg)
             await websocket.send(msg_to_send)
-            print('item was send')
+            # print('ws -> item was send')
         except Exception as e:
-            print("could not send")
+            print("ws -> could not send")
             print(e)
 
 def start_ws(app, gui_q, ux_q):
@@ -144,7 +144,7 @@ async def test_env():
             # tg.create_task(sc.connection_handler(ux_q))
             tg.create_task(serve(qart_app, config))
 ################TEST TEST TEST#########################################
-            # tg.create_task(start_cdi_test_thread(ux_q))
+            tg.create_task(start_cdi_test_thread(ux_q))
             # tg.create_task(test_intput_process(gui_q, ux_q))
 ################TEST TEST TEST#########################################
 

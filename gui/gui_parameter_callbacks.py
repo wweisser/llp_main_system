@@ -8,12 +8,14 @@ import datetime
 def tabbar_callbacks(app):
     @app.callback(
         Output('cntrl_cm_upper', 'children'),
-        Input('sys_state', 'data'),
+        Input('inbox', 'data'),
         prevent_initial_call=True,
     )
-    def update_case_id(sys_state):
-        sys_state
-        return case_number
+    def update_case_id(msg):
+        if isinstance(msg, dict) and msg['msg_type'] == 'system' and msg['id'] == 'state':
+            return msg['system']['case_number']
+        else: 
+            return ""
     
     @app.callback(
         Input('sys_state', 'data'),
@@ -34,28 +36,37 @@ def tabbar_callbacks(app):
 def parameter_to_button(app, parameter, btn):
     @app.callback(
         Output(btn, 'children'),
-        Input('sys_state', 'data'),
+        Input('inbox', 'data'),
         prevent_initial_call=True,
     )
-    def process(data):
-        val = data[parameter]['val']
-        if not isinstance(val, str):
-            val = str(val)
-        return val
+    def process(msg):
+        if isinstance(msg, dict) and msg['msg_type'] == 'system' and msg['id'] == 'state':
+            data = msg['data']
+            val = data[parameter]['val']
+            if not isinstance(val, str):
+                val = str(val)
+            return val
+        else:
+            return ""
+    
     
 
 def system_to_button(app, pre_text, parameter, btn):
     @app.callback(
         Output(btn, 'children'),
-        Input('sys_state', 'data'),
+        Input('inbox', 'data'),
         prevent_initial_call=True,
     )
-    def process(data):
-        val = data['system'][parameter]
-        if not isinstance(val, str):
-            val = str(val)
-        string = f'{pre_text} {val}'    
-        return string
+    def process(msg):
+        if isinstance(msg, dict) and msg['msg_type'] == 'system' and msg['id'] == 'state':
+            data = msg['data']
+            val = data['system'][parameter]
+            if not isinstance(val, str):
+                val = str(val)
+            string = f'{pre_text} {val}'    
+            return string
+        else:
+            return ""
 
 def state_to_gui(app):
     return(html.Div([

@@ -1,15 +1,16 @@
 from dash_extensions.enrich import Input, Output, State, no_update
 from dash.exceptions import PreventUpdate
-from dash import html, dcc
+from dash import html, dcc, no_update
 import json
 
 def create_msg_distribution():
     print('distribution stores created')
     return(html.Div([
-        dcc.Store(id='postbox'),
-        dcc.Store(id='data_to_plot'),
-        dcc.Store(id='sys_state'),
-        dcc.Store(id='case_number')
+        dcc.Store(id='postbox', storage_type='memory'),
+        dcc.Store(id='inbox', storage_type='memory'),
+        dcc.Store(id='data_to_plot', storage_type='memory'),
+        dcc.Store(id='sys_state', storage_type='memory'),
+        dcc.Store(id='case_number', storage_type='memory')
     ]))
 
 def create_postbox_item(msg_type: str, id: str, data):
@@ -52,39 +53,52 @@ def parse_ws_msg(msg: dict):
          
 def ws_recv(app):
     @app.callback(
-        Output("case_number", "data"), 
+        Output("inbox", "data"), 
         Input("ws", "message"),
         prevent_initial_call=True
         )
     def distribute_case_msg(msg):
+        # print('\nRAW MESSAGE : ', msg)
         data = parse_ws_msg(msg)
-        if data and data['msg_type'] == 'case_number':
-            return data['data']
+        if data and isinstance(data, dict):
+            print('Case Number Store entry : ', data)
+            return data
         else:
-            raise PreventUpdate
+            print("inbox -> corrupt inbox file")
+            return no_update
+
+    # @app.callback(
+    #     Output('module', 'children', allow_duplicate=True),
+    #     Input("case_manager", "n_clicks"),
+    #     State("case_number", "data"),
+    #     prevent_initial_call=True 
+    # )
+    # def check_input(y, x):
+    #     print('\nRAW MESSAGE : ', x)
+    #     return(x)
+
+    # @app.callback(
+    #     Output("data_to_plot", "data"), 
+    #     Input("ws", "message"),
+    #     prevent_initial_call=True
+    #     )
+    # def distribute_plot_msg(msg):
+    #     data = parse_ws_msg(msg)
+    #     if data and data['msg_type'] == 'plot':
+    #         return data['data']
+    #     else:
+    #         return no_update
     
-    @app.callback(
-        Output("data_to_plot", "data"), 
-        Input("ws", "message"),
-        prevent_initial_call=True
-        )
-    def distribute_plot_msg(msg):
-        data = parse_ws_msg(msg)
-        if data and data['msg_type'] == 'plot':
-            return data['data']
-        else:
-            raise PreventUpdate
-    
-    @app.callback(
-        Output("sys_state", "data"), 
-        Input("ws", "message"),
-        prevent_initial_call=True
-        )
-    def distribute_system_msg(msg):
-        data = parse_ws_msg(msg)
-        # print("state arrived in the front end")
-        if data and data['msg_type'] == 'system':
-            return data['data']
-        else:
-            raise PreventUpdate
+    # @app.callback(
+    #     Output("sys_state", "data"), 
+    #     Input("ws", "message"),
+    #     prevent_initial_call=True
+    #     )
+    # def distribute_system_msg(msg):
+    #     data = parse_ws_msg(msg)
+    #     # print("state arrived in the front end")
+    #     if data and data['msg_type'] == 'system':
+    #         return data['data']
+    #     else:
+    #         return no_update
     

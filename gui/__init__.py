@@ -15,8 +15,8 @@ def create_layouts():
         gp.create_pages(),
         gp.tab_bar(),
     ]))
-
 def create_modals():
+
     return(html.Div([
         gm.case_manager_mdl(),
         gm.new_case_mdl(),
@@ -33,7 +33,7 @@ def create_callbacks(app):
 def create_communication(app):
     print('Websocket was created')
     return(html.Div([
-        dcc.Store(id="pbox"),
+        # dcc.Store(id="pbox"),
         gu.create_msg_distribution(),
         WebSocket(url="ws://127.0.0.1:5000/ws", id="ws"),
     ]))
@@ -50,9 +50,9 @@ def create_com_callbacks(app):
 
 def create_gui(app):
     return(html.Div([
-        create_layouts(),
+        create_communication(app),
         create_modals(),
-        create_communication(app)
+        create_layouts(),
     ], className="background"))
 
 def run_app():
