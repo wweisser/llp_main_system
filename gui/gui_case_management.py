@@ -1,4 +1,4 @@
-from dash import Input, Output, State
+from dash import Input, Output, State, no_update
 import gui_utils as gu
 
 def check_case_number(cn_arr, numb):
@@ -16,7 +16,6 @@ def case_manager_callbacks(app, button):
         Input(button, "n_clicks"),
         Input("cm_close_btn", "n_clicks"),
         State("case_mgr_mdl", "hidden"),
-        # State("case_number", "data"),
         prevent_initial_call=True,
     )
     def csm_button(btn_click, modal_close_btn, hidden):
@@ -32,32 +31,14 @@ def case_manager_callbacks(app, button):
 
     @app.callback(
         Output("cm_dropdown", "options"),
-        # Input("ncm_confirm_btn", "n_clicks"),
-        Input("inbox", "data"),
-        State("cm_dropdown", "options"),
-        # State("new_case_h1", "children"),
-        State("ncm_input", "value"),
+        Input("case_id_store", "data"),
         prevent_initial_call=True,
     )
-    def load_cm(data, drp_dwn_opt, ncn):
+    def load_cm(case_id_list):
         #takes data from case-store, puts it to dropdown
-        print(f'\ncase number list : {data}\n')
-        if data and isinstance(data, dict) and data['msg_type'] == 'case_number' and data['id'] == 'cn_list':
-            case_data = data['data']
-            if isinstance(case_data, list):
-                max_cn = 0
-                new_cn_options = []
-                for numb in case_data:
-                    if isinstance(numb, int):
-                        if numb > max_cn:
-                            max_cn = numb
-                            new_cn_options.append(str(numb))
-                    else:
-                        print('currupt data in casenumber list : ', numb)
-                return new_cn_options
-        # if new_case_h1 == "Number is valid, press confirm":
-        #     drp_dwn_opt.append(ncn)
-        #     return drp_dwn_opt
+        print(f'\ncase_id_list : {case_id_list}\n')
+        if case_id_list and isinstance(case_id_list, list):
+            return case_id_list
         else:
             print('casenumber list in case_store item was not a list')
             return []
@@ -72,28 +53,12 @@ def case_manager_callbacks(app, button):
     )
     def confirm_btn(confirm_btn_click, val):
         #sends the current value of the dropdown via websocket
+        print('asinged value : ', val)
         if val:
             post_item = gu.create_postbox_item('case_number', 'cn_asgn', val)
             return post_item, True
         else:
             return None, False
-
-    @app.callback(
-        Output("new_case_h1", "children"),
-        Input("ncm_input", "value"),
-        State("cm_dropdown", "options"),
-        prevent_initial_call=True,
-    )
-    def cm_new_case(input_val, cn_dropdown_options):
-        cn_check = check_case_number(cn_dropdown_options, input_val)
-        print(f'\ncn check : {cn_check}')
-        if check_case_number(cn_dropdown_options, input_val):
-            return "Number already assinged"
-        elif not cn_dropdown_options:
-            return "Case number list was not updated"
-        else:
-            print(f'number {input_val} is valid\n')
-            return "Number is valid, press confirm"
 
     @app.callback(
         Output("ncm_close_btn", "n_clicks"),
@@ -109,34 +74,61 @@ def case_manager_callbacks(app, button):
         print(f'\nNew Case H1 : {h1_child}\n')
         if not nc_mdl_hidden and nc_close_btn:
             return 0, True
-        elif not nc_mdl_hidden and h1_child == "Number is valid, press confirm":
+        elif not nc_mdl_hidden and h1_child == "Number was added to ID-list. Press Close":
             return 0, True
         else:
             return 0, False
 
+    # @app.callback(
+    #     Output("cm_dropdown", "options",  allow_duplicate=True),
+    #     Input("ncm_close_btn", "n_clicks"),
+    #     State("ncm_input", "value"),
+    #     State("new_case_h1", "children"),
+    #     State("case_id_store", "data"),
+    #     prevent_initial_call=True,
+    # )
+    # def confirm_ncn(nc_confirm_btn, nc_input, nc_h1, old_options):
+    #     print(nc_input, old_options)
+    #     if nc_input and nc_h1 == "Number is valid, press confirm":
+    #         old_options.append(nc_input)
+    #         return old_options
+    #     else:
+    #         print('old options issued to output', type(old_options))
+    #         old_options
+
     @app.callback(
-        Output("cm_dropdown", "value"),
-        Input("ncm_close_btn", "n_clicks"),
+        Output("case_id_store", "data", allow_duplicate=True),
+        Output("new_case_h1", "children"),
+        Input("ncm_confirm_btn", "n_clicks"),
         State("ncm_input", "value"),
-        State("new_case_h1", "children"),
+        State("case_id_store", "data"),
+        prevent_initial_call=True,
     )
-    def confirm_ncn(nc_confirm_btn, nc_input, nc_h1):
-        if nc_h1 == "Number is valid, press confirm":
-            print(f'option value : {nc_input}')
-            return nc_input
+    def cm_new_case(ncn_confirm_btn, input_val, case_id_list):
+        if input_val.isdigit():
+            cn_check = check_case_number(case_id_list, input_val)
+            print(f'cn check : {cn_check}')
+            if check_case_number(case_id_list, input_val):
+                return no_update, "Number already assinged"
+            elif not case_id_list:
+                return no_update, "Case number list was not updated"
+            else:
+                case_id_list.append(input_val)
+                print(f'number {input_val} is valid\n')
+                return case_id_list, "Number was added to ID-list. Press Close"
         else:
-            None
+            return no_update, 'Entry is not a digit'
 
     @app.callback(
         Output("postbox", "data", allow_duplicate=True),
         Input("start_case_btn", "n_clicks"),
-        State("sys_state", "data"),
+        State("state_data_store", "data"),
         prevent_initial_call=True,
     )
     def start_case(sc_btn, sys_state):
         print(f'drop Value : {sys_state}')
         if sys_state and isinstance(sys_state, dict):
-            cn = sys_state['system']['case_number']
+            cn = sys_state['data']['system']['case_number']
             if cn != 0:
                 send_item = gu.create_postbox_item('case_number', 'start_perfusion', 10)
                 print(send_item)

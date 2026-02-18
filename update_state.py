@@ -72,28 +72,37 @@ async def parse_msg(msg: dict, sys_state, cache, key, gui_q, parth: str, table: 
         print("ux_q item is not valid")
         return None
     return sys_state
-    
+
+async def gui_updater(cache, key, gui_q):
+    print('GUI UPDATER STARTED')
+    while True:
+        sys_state = memory.get_state_from_cache(cache, key)
+        current_time = datetime.now()
+        sys_state['system']['clock_time'] = current_time.strftime("%H:%M:%S")
+        gui_item = oq.create_q_item('system', 'state', sys_state)
+        await oq.feed_queue(gui_q, gui_item)
+        await asyncio.sleep(3.0)
 
 # start loop that fetches itmes from the input que
 async def dequeue_loop(gui_q, ux_q, cache, key, path, table):
     sys_state = memory.get_state_from_cache(cache, key)
-    print("DEQUELOOP HAS STARTET")
+    print("DEQUELOOP HAS STARTED")
     counter = 0
     while True:
         try:
-            msg = await asyncio.wait_for(ux_q.get(), timeout=3.0)
+            msg = await asyncio.wait_for(ux_q.get(), timeout=1.0)
             # print('msg: ', msg)
             if msg != '400'and isinstance(msg, dict):
                 sys_state = await parse_msg(msg, sys_state, cache, key, gui_q, path, table)
                 if sys_state:
                     memory.put_state_to_cache(cache, key, sys_state)
+                    # sys_state['system']['clock_time'] = current_time.strftime("%H:%M:%S")
+                    # gui_item = oq.create_q_item('system', 'state', sys_state)
+                    # await oq.feed_queue(gui_q, gui_item)
         except:
             pass
-        current_time = datetime.now()
-        sys_state['system']['clock_time'] = current_time.strftime("%H:%M:%S")
-        gui_item = oq.create_q_item('system', 'state', sys_state)
-        # await oq.feed_queue(gui_q, gui_item)
 
+        current_time = datetime.now()
         record_interval = sys_state['system']['autosave']
         if record_interval != 0 and counter % record_interval == 0:
             print(f'TYPE OF CURRENT TIME : {(current_time)}')

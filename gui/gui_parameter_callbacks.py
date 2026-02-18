@@ -18,7 +18,7 @@ def tabbar_callbacks(app):
             return ""
     
     @app.callback(
-        Input('sys_state', 'data'),
+        Input('state_data_store', 'data'),
         prevent_initial_call=True,
     )
     def update_perfsuion_state(perfusion_time, perfusion_mode):
@@ -36,7 +36,7 @@ def tabbar_callbacks(app):
 def parameter_to_button(app, parameter, btn):
     @app.callback(
         Output(btn, 'children'),
-        Input('inbox', 'data'),
+        Input('state_data_store', 'data'),
         prevent_initial_call=True,
     )
     def process(msg):
@@ -49,12 +49,10 @@ def parameter_to_button(app, parameter, btn):
         else:
             return ""
     
-    
-
 def system_to_button(app, pre_text, parameter, btn):
     @app.callback(
         Output(btn, 'children'),
-        Input('inbox', 'data'),
+        Input('state_data_store', 'data'),
         prevent_initial_call=True,
     )
     def process(msg):
@@ -66,16 +64,15 @@ def system_to_button(app, pre_text, parameter, btn):
             string = f'{pre_text} {val}'    
             return string
         else:
-            return ""
+            return f'{pre_text}'  
 
 def state_to_gui(app):
     return(html.Div([
-        system_to_button(app, 'Case Number:    ', 'case_number', 'case_id'),
-        system_to_button(app, 'Start:     ', 'start_time', 'start_time'),
+        system_to_button(app, 'Case ID:    ', 'case_number', 'case_id'),
+        system_to_button(app, 'Start of Perfusion:     ', 'start_time', 'start_time'),
         system_to_button(app, 'Perfusion: ', 'perfusion_time', 'perfuison_time'),
-        system_to_button(app, '🕑', 'clock_time', 'clock_time'),
+        system_to_button(app, 'Clocktime:', 'clock_time', 'clock_time'),
         system_to_button(app, 'Mode: ', 'perfusion_mode', 'perfusion_mode'),
-
 
         parameter_to_button(app, 'art_flow', 'art_flow'),
         parameter_to_button(app, 'art_pressure', 'art_pressure'),

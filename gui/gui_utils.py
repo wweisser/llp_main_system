@@ -3,15 +3,19 @@ from dash.exceptions import PreventUpdate
 from dash import html, dcc, no_update
 import json
 
+
+#creates distribution stores and postbox
 def create_msg_distribution():
     print('distribution stores created')
     return(html.Div([
         dcc.Store(id='postbox', storage_type='memory'),
         dcc.Store(id='inbox', storage_type='memory'),
-        dcc.Store(id='data_to_plot', storage_type='memory'),
-        dcc.Store(id='sys_state', storage_type='memory'),
-        dcc.Store(id='case_number', storage_type='memory')
+        dcc.Store(id='graph_data_store', storage_type='memory'),
+        dcc.Store(id='state_data_store', storage_type='memory'),
+        dcc.Store(id='case_id_store', storage_type='memory')
     ]))
+
+#send functions
 
 def create_postbox_item(msg_type: str, id: str, data):
     msg_item = {
@@ -41,16 +45,39 @@ def ws_send(app):
             return send_val
         else:
             return '400'
-        
+
+# reveive functions
+# parser methods
 def parse_ws_msg(msg: dict):
     if isinstance(msg, dict):
         msg_data = msg['data']
         data = json.loads(msg_data)
-        # print(data['system']['case_number'])
+        print('UNPACKED DATA')
+        print(f'\n hier kommt was an {data['msg_type']}')
         return data
     else: 
         return None
-         
+    
+def parse_case_id(msg: dict):
+    if msg['id'] == 'cn_list' and isinstance(msg['data'], list):
+        cn_list = msg['data']
+        inter_list = []
+        for id in cn_list:
+            if isinstance(id, int):
+                is_in_list = False 
+                for x in inter_list:
+                    if x == id:
+                        is_in_list = True
+                if not is_in_list:
+                    inter_list.append(id)
+        drp_dwn_list = []
+        for id in inter_list:
+            drp_dwn_list.append(str(id))
+        return drp_dwn_list
+    else: 
+        return None
+                    
+# reveive callbacks
 def ws_recv(app):
     @app.callback(
         Output("inbox", "data"), 
@@ -61,44 +88,50 @@ def ws_recv(app):
         # print('\nRAW MESSAGE : ', msg)
         data = parse_ws_msg(msg)
         if data and isinstance(data, dict):
-            print('Case Number Store entry : ', data)
             return data
         else:
             print("inbox -> corrupt inbox file")
             return no_update
 
-    # @app.callback(
-    #     Output('module', 'children', allow_duplicate=True),
-    #     Input("case_manager", "n_clicks"),
-    #     State("case_number", "data"),
-    #     prevent_initial_call=True 
-    # )
-    # def check_input(y, x):
-    #     print('\nRAW MESSAGE : ', x)
-    #     return(x)
 
-    # @app.callback(
-    #     Output("data_to_plot", "data"), 
-    #     Input("ws", "message"),
-    #     prevent_initial_call=True
-    #     )
-    # def distribute_plot_msg(msg):
-    #     data = parse_ws_msg(msg)
-    #     if data and data['msg_type'] == 'plot':
-    #         return data['data']
-    #     else:
-    #         return no_update
-    
-    # @app.callback(
-    #     Output("sys_state", "data"), 
-    #     Input("ws", "message"),
-    #     prevent_initial_call=True
-    #     )
-    # def distribute_system_msg(msg):
-    #     data = parse_ws_msg(msg)
-    #     # print("state arrived in the front end")
-    #     if data and data['msg_type'] == 'system':
-    #         return data['data']
-    #     else:
-    #         return no_update
-    
+    @app.callback(
+        Output("graph_data_store", "data"), 
+        Input("inbox", "data"),
+        prevent_initial_call=True
+        )
+    def distribute_plot_msg(msg):
+        if msg and msg['msg_type'] == 'visual':
+            # print(msg['data'])
+            return msg['data']
+        else:
+            return no_update
+
+    @app.callback(
+        Output("state_data_store", "data"), 
+        Input("inbox", "data"),
+        prevent_initial_call=True
+        )
+    def distribute_system_msg(msg):
+        if msg and msg['msg_type'] == 'system':
+            # print(msg['data'])
+            return msg
+        else:
+            return no_update
+
+    @app.callback(
+        Output("case_id_store", "data", allow_duplicate=True), 
+        Input("inbox", "data"),
+        prevent_initial_call=True
+        )
+    def distribute_system_msg(msg):
+        print(f'inbox content {msg['msg_type']}\n')
+        if msg and msg['msg_type'] == 'case_number':
+            print(f'\n CASE DATA : {msg}\n')
+            case_ids = parse_case_id(msg)
+            if case_ids:
+                print(f'case id list was created and fowarted to store')
+                return case_ids
+            else:
+                return no_update
+        else:
+            return no_update

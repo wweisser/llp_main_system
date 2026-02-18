@@ -143,6 +143,7 @@ async def test_env():
             tg.create_task(us.dequeue_loop(gui_q, ux_q, cache, key, db_parth, table))
             # tg.create_task(sc.connection_handler(ux_q))
             tg.create_task(serve(qart_app, config))
+            tg.create_task(us.gui_updater(cache, key, gui_q))
 ################TEST TEST TEST#########################################
             tg.create_task(start_cdi_test_thread(ux_q))
             # tg.create_task(test_intput_process(gui_q, ux_q))
