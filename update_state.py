@@ -59,6 +59,14 @@ async def parse_case_number_request(msg: dict, sys_state: dict, parth: str, tabl
     else:
         pass
     return sys_state
+
+async def parse_entry_request(msg: dict, sys_state: dict, gui_q):
+    print('entry request')
+    if msg['id'] == 'note':
+        sys_state['notes'] = sys_state['notes'] + '\n' + msg['data']
+        que_item = oq.create_q_item('system', 'state', sys_state)
+        await oq.feed_queue(gui_q, que_item)
+    return sys_state
     
 async def parse_msg(msg: dict, sys_state, cache, key, gui_q, parth: str, table: str):
     # print(f'Input parser called : {msg}')
@@ -68,6 +76,8 @@ async def parse_msg(msg: dict, sys_state, cache, key, gui_q, parth: str, table: 
         sys_state = await parse_case_number_request(msg, sys_state, parth, table, gui_q)
     elif msg['msg_type'] == 'archive':
         sys_state = await parse_archive_request(msg, sys_state, cache, key, parth, table, gui_q)
+    elif msg['msg_type'] == 'entry_request':
+        sys_state = await parse_entry_request(msg, sys_state, gui_q)
     else:
         print("ux_q item is not valid")
         return None
@@ -96,12 +106,8 @@ async def dequeue_loop(gui_q, ux_q, cache, key, path, table):
                 sys_state = await parse_msg(msg, sys_state, cache, key, gui_q, path, table)
                 if sys_state:
                     memory.put_state_to_cache(cache, key, sys_state)
-                    # sys_state['system']['clock_time'] = current_time.strftime("%H:%M:%S")
-                    # gui_item = oq.create_q_item('system', 'state', sys_state)
-                    # await oq.feed_queue(gui_q, gui_item)
         except:
             pass
-
         current_time = datetime.now()
         record_interval = sys_state['system']['autosave']
         if record_interval != 0 and counter % record_interval == 0:

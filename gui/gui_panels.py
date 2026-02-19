@@ -1,4 +1,4 @@
-from dash import html
+from dash import html, dcc
 import plotly.express as px
 import gui_modals as gm
 import gui_graphs as gg
@@ -69,18 +69,16 @@ def create_med_module(id_med_module):
         ], id=id_med_module)
     )
 
+def value_entry_element(val: str):
+    return(html.Div([
+        dcc.Input(id=f'{val}_entry_field', placeholder=f"enter {val} value", className='bga_entry_field'),
+        html.Button(id=f'{val}_entry_btn', children='Store', className='bga_entry_btn'),
+    ], className='bga_entry_element'))
+
 def effector_module():
     return(html.Div([
         ], className="effector_module")
     )
-
-# def top_line():
-#     return(html.Div([
-#         cntrl_btn('perfusion_timer', 'Start Case: ', 'start_time', 'Perfusion Time:', 'perfusion_time', 'ha'),
-#         cntrl_btn('mode_timer', 'Start mode: ', 'start_mode', 'Mode Time:', 'mode_time', 'ha'),
-#         cntrl_btn('case_manager', 'Case ID: ', 'cntrl_cm_upper', '', 'cntrl_cm_lower', 'ha'),
-#         ],className="top_line")
-#     )
 
 def permanent_panel():
     return(html.Div([
@@ -167,6 +165,21 @@ def tab_bar():
         ], className="tabbar")
     )
 
+def bga_entry_panel():
+    return(html.Div([
+        value_entry_element('na'),
+        value_entry_element('glucose'),
+        value_entry_element('lactate'),
+        value_entry_element('ca'),
+        value_entry_element('cl'),
+        value_entry_element('hb'),
+        value_entry_element('hct'),
+        value_entry_element('met_hb'),
+        value_entry_element('fco'),
+        value_entry_element('fhhb'),
+        value_entry_element('fohb'),
+    ], className='bga_entry_panel'))
+
 def plots_page():
     return(html.Div([
         permanent_panel(),
@@ -197,13 +210,14 @@ def respiratory_page():
 
 def acive_page():
     return(html.Div([
+        bga_entry_panel(),
         permanent_panel(),
-    ], className='active_page_syle', hidden=False))
+    ], className='config_page_syle', hidden=False))
 
 def conn_page():
     return(html.Div([
         permanent_panel(),
-    ], className='conn_page_syle', hidden=False))
+    ], className='config_page_syle', hidden=False))
 
 
 def create_pages():

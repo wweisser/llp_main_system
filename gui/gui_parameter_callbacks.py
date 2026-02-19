@@ -87,7 +87,7 @@ def state_to_gui(app):
         parameter_to_button(app, 'base', 'base'),
         parameter_to_button(app, 'cso2', 'cso2'),
         # parameter_to_button(app, 'na', 'btn'),
-        # parameter_to_button(app, 'k', 'btn'),
+        parameter_to_button(app, 'k', 'k'),
         # parameter_to_button(app, 'ca', 'btn'),
         # parameter_to_button(app, 'cl', 'btn'),
         parameter_to_button(app, 'vo2', 'vo2'),

@@ -34,7 +34,7 @@ def new_case_mdl():
 def note_mdl():
     print('\n text mdl was created \n')
     return(html.Div([
-        html.Div(children="No Notes listed", id="note_h1", className="note_mdl_notes"),
+        dcc.Textarea(value="No Notes listed", id="note_h1", className="note_mdl_notes", readOnly=True),
         dcc.Input(id='note_input', placeholder="Note"),
         html.Div([
             html.Button("Enter Note", id="enter_note_btn", className="case_mgr_btn"),

@@ -44,7 +44,7 @@ def ws_send(app):
             print('sended value : ', send_val)
             return send_val
         else:
-            return '400'
+            return no_update
 
 # reveive functions
 # parser methods

@@ -106,13 +106,12 @@
 
 .note_mdl_notes{
     margin: 1%;
-    height: 90%;
-    width: 98%;
+    height: 83%;
+    width: 96%;
     background-color: var(--bg_color_II);
     color: var(--text_color_I);
     font-family: "Arial";
 }
-
 .active_mdl{
     top: 40%;
     left: 20%;
@@ -123,11 +122,41 @@
     border-width: 1px;
     z-index: 4000;
     border-style: solid;
-    border-width: 2px; /* Stärke des Rahmens */
-    border-color: var(--text_color_I); /* Farbe des Rahmens */
+    border-width: 2px;
+    border-color: var(--text_color_I); 
     background-color: var(--bg_color_II);
     color: var(--text_color_II);
     font-family: "Arial";
+}
+.bga_entry_panel{
+    top: 0%;
+    left: 0%;
+    width: 20%;
+    height: 89%;
+    position: absolute;
+    border-width: 1px;
+    border-color: var(--text_color_I);
+    background-color: var(--bg_color_II);
+    display: grid;
+    grid-template-rows: repeat(15, 1fr);
+}
+.bga_entry_element{
+    border-color: var(--text_color_I);
+    background-color: var(--bg_color_II);
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+}
+.bga_entry_btn{
+    background-color: var(--bg_color_II);
+    color: var(--text_color_I);
+    transition: background-color 0.4s ease;
+}
+.bga_entry_btn:hover {
+    background-color: var(--hover_color);
+}
+.bga_entry_btn:active {
+    background-color: var(--active_color);
+    color: var(--text_color_active);
 }
 .paramtr_mdl{
     top: 30%;
