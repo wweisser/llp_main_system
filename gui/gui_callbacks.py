@@ -1,5 +1,6 @@
 from dash import Input, Output, State
 import gui_panels as gp
+from dash.exceptions import PreventUpdate
 import gui_utils as gu
 # import onque as oq
 
@@ -86,6 +87,20 @@ def tabbar_callback(app):
     )
     def enter_note(sys_state):
         return sys_state['data']['notes']
+
+def bga_value_callback(app, val:str):
+    @app.callback(
+        Output('postbox', 'data', allow_duplicate=True),
+        Input('store_btn', 'n_clicks'),
+        Input(f'{val}_entry_field', 'value'),
+        prevent_initial_call=True
+    )
+    def ship_bga_value(btn, val):
+        if val and val.isdigit():
+            return val
+        else:
+            raise PreventUpdate
+        
 
     # #automaticaly scrolls the note modal all the way down
     # app.clientside_callback(

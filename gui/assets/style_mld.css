@@ -1,10 +1,10 @@
 
 .case_mgr_mdl{
-    top: 0%;
+    top: 1%;
     left: 20%;
     height: 300px;
     width: 400px;
-    border-radius: 10px;
+    border-radius: 6px;
     position: fixed;
     z-index: 4000;
     border-style: solid;
@@ -138,7 +138,7 @@
     border-color: var(--text_color_I);
     background-color: var(--bg_color_II);
     display: grid;
-    grid-template-rows: repeat(15, 1fr);
+    grid-template-rows: repeat(20, 1fr);
 }
 .bga_entry_element{
     border-color: var(--text_color_I);

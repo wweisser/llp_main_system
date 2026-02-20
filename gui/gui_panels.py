@@ -178,6 +178,12 @@ def bga_entry_panel():
         value_entry_element('fco'),
         value_entry_element('fhhb'),
         value_entry_element('fohb'),
+        value_entry_element('bilirubin'),
+        value_entry_element('bile_ph'),
+        value_entry_element('bile_glucose'),
+        value_entry_element('bile_hco3'),
+        value_entry_element('bile_bilirubin'),
+
     ], className='bga_entry_panel'))
 
 def plots_page():
