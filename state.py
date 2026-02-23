@@ -42,7 +42,7 @@ def create_state(db_path: str):
     sys_state = {
         "system":{
             "case_number": 0,
-            "autosave": 0,
+            "autosave": None,
             "db_path": db_path,
             "start_time": 0,
             "perfusion_time": 0,
@@ -260,6 +260,14 @@ def create_state(db_path: str):
             "total_volume": 0
         }, 
         "glucose":{
+            "active": True,
+            "unit": "[mg/dl]", 
+            "val": 0, 
+            "lower_limit": 0,
+            "upper_limit": 0,
+            "total_volume": 0
+        },
+        "bilirubin":{
             "active": True,
             "unit": "[mg/dl]", 
             "val": 0, 

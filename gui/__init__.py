@@ -16,7 +16,6 @@ def create_layouts():
         gp.tab_bar(),
     ]))
 def create_modals():
-
     return(html.Div([
         gm.case_manager_mdl(),
         gm.new_case_mdl(),

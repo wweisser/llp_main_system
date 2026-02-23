@@ -19,11 +19,12 @@ async def parse_ser_input(msg: dict, sys_state, cache, key, gui_q):
         # await oq.feed_queue(gui_q, que_item)
     return sys_state
 
-async def parse_archive_request(msg: dict, sys_state: dict, cache, key, parth, table, gui_q):
+async def parse_archive_request(msg: dict, sys_state: dict, cache, key, parth, table, ux_q):
     # print('message id : ', msg['id'])
     if msg['id'] == 'start_record':
-        sys_state['system']['autosave'] = asyncio.create_task(dm.start_autosave(cache, key, parth, table))
-        sys_state['system']['start_time'] = datetime.now()
+        record_task = asyncio.create_task(dm.start_case_record(cache, key, ux_q, sys_state))
+        if record_task:
+            return record_task
     elif msg['id'] == 'stop_record':
         sys_state['autosave'] = False
         memory.put_state_to_cache(cache, key, sys_state)
@@ -81,6 +82,7 @@ async def parse_msg(msg: dict, sys_state, cache, key, gui_q, parth: str, table: 
     else:
         print("ux_q item is not valid")
         return None
+    memory.put_state_to_cache(cache, key, sys_state)
     return sys_state
 
 async def gui_updater(cache, key, gui_q):
@@ -94,28 +96,29 @@ async def gui_updater(cache, key, gui_q):
         await asyncio.sleep(3.0)
 
 # start loop that fetches itmes from the input que
-async def dequeue_loop(gui_q, ux_q, cache, key, path, table):
+async def dequeue_loop(gui_q, ux_q, cache, key, path, table, system_tasks):
     sys_state = memory.get_state_from_cache(cache, key)
     print("DEQUELOOP HAS STARTED")
-    counter = 0
     while True:
         try:
             msg = await asyncio.wait_for(ux_q.get(), timeout=1.0)
             # print('msg: ', msg)
             if msg != '400'and isinstance(msg, dict):
-                sys_state = await parse_msg(msg, sys_state, cache, key, gui_q, path, table)
+                parse_object = await parse_msg(msg, sys_state, cache, key, gui_q, path, table)
                 if sys_state:
                     memory.put_state_to_cache(cache, key, sys_state)
+                elif isinstance(parse_object, asyncio.Task):
+                    system_tasks.append(parse_object)
         except:
             pass
-        current_time = datetime.now()
-        record_interval = sys_state['system']['autosave']
-        if record_interval != 0 and counter % record_interval == 0:
-            print(f'TYPE OF CURRENT TIME : {(current_time)}')
-            print(f'TYPE OF STARTIME : {(sys_state['system']['start_time'])}')
-            sys_state['system']['perfusion_time'] = current_time - sys_state['system']['start_time']
-            print('record interval')
-            du.execute_entry(path, table, sys_state)
-            counter = 0
-            print('db entry was executed')
-        counter += 1
+        # current_time = datetime.now()
+        # record_interval = sys_state['system']['autosave']
+        # if record_interval != 0 and counter % record_interval == 0:
+        #     print(f'TYPE OF CURRENT TIME : {(current_time)}')
+        #     print(f'TYPE OF STARTIME : {(sys_state['system']['start_time'])}')
+        #     sys_state['system']['perfusion_time'] = current_time - sys_state['system']['start_time']
+        #     print('record interval')
+        #     du.execute_entry(path, table, sys_state)
+        #     counter = 0
+        #     print('db entry was executed')
+        # counter += 1

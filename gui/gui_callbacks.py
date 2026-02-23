@@ -2,7 +2,6 @@ from dash import Input, Output, State
 import gui_panels as gp
 from dash.exceptions import PreventUpdate
 import gui_utils as gu
-# import onque as oq
 
 def tabbar_callback(app):
     @app.callback(
@@ -100,20 +99,3 @@ def bga_value_callback(app, val:str):
             return val
         else:
             raise PreventUpdate
-        
-
-    # #automaticaly scrolls the note modal all the way down
-    # app.clientside_callback(
-    # """
-    # function(value) {
-    #     const ta = document.getElementById("note_h1");
-    #     if (ta) {
-    #         ta.scrollTop = ta.scrollHeight;
-    #     }
-    #     return value;
-    # }
-    # """,
-    # Output("note_h1", "value", allow_duplicate=True),
-    # Input("note_h1", "value"),
-    # prevent_initial_call=True
-    # )

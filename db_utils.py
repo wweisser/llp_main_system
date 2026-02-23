@@ -31,6 +31,7 @@ def get_val(parth: str, table: str, val: str, range: int, case_number: int):
 				values = c.fetchmany(range)
 			else:
 				values = c.fetchall()
+				print('values : ', values)
 		val_arr = []	
 		for val in values:
 			val_arr.append(val[0])
@@ -55,7 +56,8 @@ def create_table(c, conn, table_name):
     c.execute(f"""CREATE TABLE IF NOT EXISTS {table_name} (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         case_number INTEGER,
-        datetime NUMERIC NOT NULL,
+        clock_time NUMERIC NOT NULL,
+        perfusion_time NUMERIC NOT NULL,
         notes TEXT,
         art_flow NUMERIC,
         art_pressure NUMERIC,
@@ -84,6 +86,7 @@ def create_table(c, conn, table_name):
         hb NUMERIC,
         lactate NUMERIC,
         glucose NUMERIC,
+		bilirubin NUMERIC,
 		system_volume NUMERIC,
         filter_flow NUMERIC, 
         substitude_flow NUMERIC,
@@ -91,6 +94,7 @@ def create_table(c, conn, table_name):
         biliary_ph NUMERIC,
         biliary_hco3 NUMERIC,
         biliary_glucose NUMERIC,
+		biliary_bilirubin NUMERIC,
         med1 NUMERIC,
         med2 NUMERIC,
         med3 NUMERIC,
@@ -105,7 +109,7 @@ def create_table(c, conn, table_name):
         med12 NUMERIC,
         med13 NUMERIC,
         med14 NUMERIC,
-        med15
+        med15 NUMERNIC
     )""")
     conn.commit()
     return 0
@@ -116,10 +120,12 @@ def execute_entry(parth: str, table: str,  sys_state: dict):
 		c = conn.cursor() 
 		t = datetime.now()
 		dt_str = t.strftime("%Y_%m_%d %H:%M:%S")
+		print('db entry')
 		c.execute(
 			f"""INSERT INTO {table} (
 				case_number,
-				datetime,
+				clock_time,
+				perfusion_time,
 				notes,
 				art_flow,
 				art_pressure,
@@ -149,6 +155,7 @@ def execute_entry(parth: str, table: str,  sys_state: dict):
 				hb,  
 				lactate,
 				glucose,
+				bilirubin,
 				system_volume,
 				filter_flow, 
 				substitude_flow,
@@ -156,6 +163,7 @@ def execute_entry(parth: str, table: str,  sys_state: dict):
 				biliary_ph,
 				biliary_hco3,
 				biliary_glucose,
+				biliary_bilirubin,
 				med1,
 				med2,
 				med3,
@@ -174,7 +182,8 @@ def execute_entry(parth: str, table: str,  sys_state: dict):
 			)
 			VALUES(
 				:case_number,
-				:datetime,
+				:clock_time,
+				:perfusion_time,
 				:notes,
 				:art_flow,
 				:art_pressure,
@@ -204,6 +213,7 @@ def execute_entry(parth: str, table: str,  sys_state: dict):
 				:hb,  
 				:lactate,
 				:glucose,
+				:bilirubin,
 				:system_volume,
 				:filter_flow, 
 				:substitude_flow,
@@ -211,6 +221,7 @@ def execute_entry(parth: str, table: str,  sys_state: dict):
 				:biliary_ph,
 				:biliary_hco3,
 				:biliary_glucose,
+				:biliary_bilirubin,
 				:med1,
 				:med2,
 				:med3,
@@ -227,8 +238,9 @@ def execute_entry(parth: str, table: str,  sys_state: dict):
 				:med14,
 				:med15
 			)""",
-			{'case_number':     sys_state['case_number'],
-			'datetime':         dt_str,
+			{'case_number':     sys_state['system']['case_number'],
+			'clock_time': 		sys_state['system']['clock_time'],
+			'perfusion_time':   sys_state['system']['perfusion_time'], 
 			'notes':            sys_state['notes'],
 			'art_flow':         sys_state['art_flow']['val'],
 			'art_pressure':     sys_state['art_pressure']['val'],
@@ -257,6 +269,7 @@ def execute_entry(parth: str, table: str,  sys_state: dict):
 			'hb':               sys_state['hb']['val'],
 			'lactate':          sys_state['lactate']['val'],
 			'glucose':          sys_state['glucose']['val'],
+			'bilirubin':		sys_state['bilirubin']['val'],
 			'system_volume':    sys_state['system_volume'],
 			'filter_flow':      sys_state['filter_flow']['val'],
 			'substitude_flow':  sys_state['substitude_flow']['val'],
@@ -264,6 +277,7 @@ def execute_entry(parth: str, table: str,  sys_state: dict):
 			'biliary_ph':		0,
 			'biliary_hco3':		0,
 			'biliary_glucose':	0,
+			'biliary_bilirubin':0,
 			'med1':             0,
 			'med2':             0,
 			'med3':             0,
@@ -280,10 +294,12 @@ def execute_entry(parth: str, table: str,  sys_state: dict):
 			'med14':            0,
 			'med15':            0
 			})
+		print('value commited to db')
 		conn.commit()
 		conn.close()
-	except:
+	except Exception as e:
 		print('ERROR : data entry could not be executed')
+		print(e)
 
 if __name__ == "__main__":
 	import os
@@ -293,9 +309,10 @@ if __name__ == "__main__":
 	cache_path = r'C:\Temp\diskcache_test'
 	os.makedirs(cache_path, exist_ok=True)
 	sys_state = state.create_state(db_parth)
-	# sys_state['case_number'] = 3
-	# # execute_entry(parth, table, sys_state)
-	mem.create_cache(cache_path, 'key', sys_state)
+	sys_state['system']['case_number'] = 1
+	# print(sys_state)
+	execute_entry(db_parth, table, sys_state)
+	# mem.create_cache(cache_path, 'key', sys_state)
 
 
 	tables = get_tables_names(db_parth)
@@ -308,13 +325,13 @@ if __name__ == "__main__":
 	print(val_II)
 	# print(type(val_II[2]))
 
-	# with sqlite3.connect(parth) as conn:
+	# with sqlite3.connect(db_parth) as conn:
 	# 	c = conn.cursor() 
 	# 	create_table(c, conn, 'test')
+	# 	tables = get_tables_names('data_vault.db')
+	# 	print(tables)
 
-	# with sqlite3.connect(parth) as conn:
+	# with sqlite3.connect(db_parth) as conn:
 	# 	c = conn.cursor() 
 	# 	delete_table(c, 'test')
 
-	# tables = get_tables_names('data_vault.db')
-	# print(tables)

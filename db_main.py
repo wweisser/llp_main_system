@@ -2,9 +2,10 @@ import db_utils as du
 import memory
 import onque as oq
 import asyncio
-import state
+from datetime import datetime
 
 async def db_entry(parth: str, table: str,  sys_state: dict):
+    print('Data entry')
     return await asyncio.to_thread(du.execute_entry(parth, table, sys_state))
 
 async def db_to_gui(gui_q, parth: str, val: str, range: int, case_number: int):
@@ -16,23 +17,28 @@ async def db_to_gui(gui_q, parth: str, val: str, range: int, case_number: int):
 
     return await asyncio.to_thread(execute(gui_q, parth, val, range, case_number))
 
-async def start_case_record(cache, key, ux_q):
-    archive_item = state.create_state()
+async def start_case_record(cache, key, ux_q, sys_state):
+    archive_item = sys_state
     counter = 0
-    if archive_item['autosave']and archive_item['case_number'] != None:
+    if archive_item['case_number'] != None:
+        sys_state['system']['start_time'] = datetime.now()
+        sys_state['system']['autosave'] = True
         print('autosave online')
-    while True:
-        counter += 1
-        archive_item = await memory.get_state_from_cache(cache, key)
-        if archive_item['system']['autosave'] and archive_item['system']['case_number'] != 0:
-            if counter > 30:
-                oq.create_q_item('archive_request', 'entry', archive_item)
-                counter = 0
-            # Hier ggf noch eine mittelwerfunktion dazwischenschalten
-        else:
-            print('autosave offline')
-        await asyncio.sleep(1)
-
+        while True:
+            if archive_item['system']['autosave'] and archive_item['system']['case_number'] != 0:
+                if counter > 10:
+                    archive_item = await memory.get_state_from_cache(cache, key)
+                    record_item = oq.create_q_item('archive_request', 'entry', archive_item)
+                    oq.feed_queue(ux_q, record_item)
+                    counter = 0
+                # Hier ggf noch eine mittelwerfunktion dazwischenschalten
+            else:
+                print('autosave was canceled')
+                break
+            counter += 1
+            await asyncio.sleep(1)
+    else:
+        return None
 
 
 #if __name__ == '__main__':

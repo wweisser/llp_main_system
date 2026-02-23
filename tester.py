@@ -136,18 +136,25 @@ async def test_env():
 
     gui_q, ux_q, cache = build_state(cache_path, db_parth, key)
     # json_data = memory.fetch_from_cache(cache, key)
-
+    system_tasks = []
     start_ws(qart_app, gui_q, ux_q)
     if qart_app and gui_q and ux_q:
-        async with asyncio.TaskGroup() as tg:
-            tg.create_task(us.dequeue_loop(gui_q, ux_q, cache, key, db_parth, table))
-            # tg.create_task(sc.connection_handler(ux_q))
-            tg.create_task(serve(qart_app, config))
-            tg.create_task(us.gui_updater(cache, key, gui_q))
+        # async with asyncio.TaskGroup() as tg:
+        #     tg.create_task(us.dequeue_loop(gui_q, ux_q, cache, key, db_parth, table))
+        #     # tg.create_task(sc.connection_handler(ux_q))
+        #     tg.create_task(serve(qart_app, config))
+        #     tg.create_task(us.gui_updater(cache, key, gui_q))
+        system_tasks.append(asyncio.create_task(us.dequeue_loop(gui_q, ux_q, cache, key, db_parth, table, system_tasks)))
+        # system_tasks.append(asyncio.create_task(sc.connection_handler(ux_q)))
+        system_tasks.append(asyncio.create_task(serve(qart_app, config)))
+        system_tasks.append(asyncio.create_task(us.gui_updater(cache, key, gui_q)))
+
 ################TEST TEST TEST#########################################
-            tg.create_task(start_cdi_test_thread(ux_q))
+        system_tasks.append(asyncio.create_task(start_cdi_test_thread(ux_q)))
+            # tg.create_task(start_cdi_test_thread(ux_q))
             # tg.create_task(test_intput_process(gui_q, ux_q))
 ################TEST TEST TEST#########################################
+        await asyncio.gather(*system_tasks)
 
 # if __name__ == '__main__':
 

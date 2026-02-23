@@ -79,23 +79,6 @@ def case_manager_callbacks(app, button):
         else:
             return 0, False
 
-    # @app.callback(
-    #     Output("cm_dropdown", "options",  allow_duplicate=True),
-    #     Input("ncm_close_btn", "n_clicks"),
-    #     State("ncm_input", "value"),
-    #     State("new_case_h1", "children"),
-    #     State("case_id_store", "data"),
-    #     prevent_initial_call=True,
-    # )
-    # def confirm_ncn(nc_confirm_btn, nc_input, nc_h1, old_options):
-    #     print(nc_input, old_options)
-    #     if nc_input and nc_h1 == "Number is valid, press confirm":
-    #         old_options.append(nc_input)
-    #         return old_options
-    #     else:
-    #         print('old options issued to output', type(old_options))
-    #         old_options
-
     @app.callback(
         Output("case_id_store", "data", allow_duplicate=True),
         Output("new_case_h1", "children"),
