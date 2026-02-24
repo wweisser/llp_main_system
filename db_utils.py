@@ -36,8 +36,9 @@ def get_val(parth: str, table: str, val: str, range: int, case_number: int):
 		for val in values:
 			val_arr.append(val[0])
 		return val_arr
-	except:
+	except Exception as e:
 		print('value array could not be extracted from database')
+		print(e)
 		return None
 
 def data_request():

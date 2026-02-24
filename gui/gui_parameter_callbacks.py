@@ -69,7 +69,7 @@ def system_to_button(app, pre_text, parameter, btn):
 def state_to_gui(app):
     return(html.Div([
         system_to_button(app, 'Case ID:    ', 'case_number', 'case_id'),
-        system_to_button(app, 'Start of Perfusion:     ', 'start_time', 'start_time'),
+        system_to_button(app, 'Start: ', 'start_time', 'start_time'),
         system_to_button(app, 'Perfusion: ', 'perfusion_time', 'perfuison_time'),
         system_to_button(app, 'Clocktime:', 'clock_time', 'clock_time'),
         system_to_button(app, 'Mode: ', 'perfusion_mode', 'perfusion_mode'),

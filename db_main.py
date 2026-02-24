@@ -10,28 +10,28 @@ async def db_entry(parth: str, table: str,  sys_state: dict):
 
 async def db_to_gui(gui_q, parth: str, val: str, range: int, case_number: int):
 
-    def execute(gui_q, parth: str, val: str, range: int, case_number: int):
+    async def execute(gui_q, parth: str, val: str, range: int, case_number: int):
         val_arr = du.get_val(parth, val, range, case_number)
         q_item = oq.create_q_item('db', 'val_arr', val_arr)
-        oq.feed_queue(gui_q, q_item)
+        await oq.feed_queue(gui_q, q_item)
 
     return await asyncio.to_thread(execute(gui_q, parth, val, range, case_number))
 
-async def start_case_record(cache, key, ux_q, sys_state):
+async def start_case_record(sys_state, ux_q, cache, key):
     archive_item = sys_state
     counter = 0
-    if archive_item['case_number'] != None:
-        sys_state['system']['start_time'] = datetime.now()
-        sys_state['system']['autosave'] = True
+    if archive_item['system']['case_number'] != 0:
+        # sys_state['system']['start_time'] = datetime.now()
+        # sys_state['system']['autosave'] = True
         print('autosave online')
         while True:
             if archive_item['system']['autosave'] and archive_item['system']['case_number'] != 0:
                 if counter > 10:
-                    archive_item = await memory.get_state_from_cache(cache, key)
-                    record_item = oq.create_q_item('archive_request', 'entry', archive_item)
-                    oq.feed_queue(ux_q, record_item)
+                    archive_item = memory.get_state_from_cache(cache, key)
+                    record_item = oq.create_q_item('archive', 'entry', archive_item)
+                    await oq.feed_queue(ux_q, record_item)
+                    print('entry request was send')
                     counter = 0
-                # Hier ggf noch eine mittelwerfunktion dazwischenschalten
             else:
                 print('autosave was canceled')
                 break

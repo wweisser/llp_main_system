@@ -109,11 +109,20 @@ def case_manager_callbacks(app, button):
         prevent_initial_call=True,
     )
     def start_case(sc_btn, sys_state):
-        print(f'drop Value : {sys_state}')
         if sys_state and isinstance(sys_state, dict):
             cn = sys_state['data']['system']['case_number']
             if cn != 0:
-                send_item = gu.create_postbox_item('case_number', 'start_perfusion', 10)
+                send_item = gu.create_postbox_item('archive', 'start_record', 10)
                 print(send_item)
-                return None
+                return send_item
         else: None
+
+    @app.callback(
+        Output("postbox", "data", allow_duplicate=True),
+        Input("stop_case_btn", "n_clicks"),
+        prevent_initial_call=True,
+    )
+    def stop_case(sc_btn):
+        send_item = gu.create_postbox_item('archive', 'stop_record', 10)
+        print(send_item)
+        return send_item

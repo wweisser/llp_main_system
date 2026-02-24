@@ -98,19 +98,19 @@ body{
     font-family: Arial;
 }
 .side_panel_II{
+    top: 1%;
     right: 0%;
-    top: 0%;
     width: 15%;
-    height: 90%;
+    height: 92%;
     position: fixed;
     display: grid;
     grid-template-rows: [first] 16% [line2] 16%  [line3] 16%  [line4] 16% [line5] 16% [line6] 16% [end];
 }
 .side_panel_I{
-    top: 0%;
+    top: 1%;
     left: 0%;
     width: 20%;
-    height: 90%;
+    height: 92%;
     position: fixed;
     display: grid;
     grid-template-rows: [first] 16% [line2] 16%  [line3] 16%  [line4] 16% [line5] 16% [line6] 16% [end];
@@ -141,7 +141,7 @@ body{
     height: 25%;
     position: fixed;
     display: grid;
-    grid-template-columns: [first] 50% [line2] 50%  [end];
+    grid-template-columns: [first] 50% [line2] 50% [end];
 }
 .side_panel_2{
     background-color: var(primary_button_color);
