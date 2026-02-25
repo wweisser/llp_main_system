@@ -106,12 +106,20 @@ async def gui_updater(cache, key, gui_q):
             sys_state = memory.get_state_from_cache(cache, key)
             current_time = datetime.now()
             sys_state['system']['clock_time'] = current_time.strftime("%H:%M:%S")
-            if sys_state['system']['start_time'] != 0:
-                start_time_dt = datetime.strptime(sys_state['system']['start_time'], "%d.%m.%Y %H:%M:%S")
-                delta = current_time - start_time_dt
-                h, remain = divmod(delta.seconds, 3600)
+            st = sys_state['system']['start_time']
+            pt = sys_state['system']['perfusion_time']
+            if sys_state['system']['autosave'] and st != 0:
+                start_time_dt = datetime.strptime(st, "%d.%m.%Y %H:%M:%S")
+                if pt != 0:
+                    pt_old = datetime.strptime(pt, "%H:%M:%S")
+                    pt = pt_old + (current_time - current_time_old)
+                else:
+                    pt = current_time - start_time_dt
+                current_time_old = current_time
+                h, remain = divmod(pt.seconds, 3600)
                 min, sec = divmod(remain, 60)
                 sys_state['system']['perfusion_time'] = f"{h:02}:{min:02}:{sec:02}"
+            memory.put_state_to_cache(cache, key, sys_state)
             gui_item = oq.create_q_item('system', 'state', sys_state)
             await oq.feed_queue(gui_q, gui_item)
         except Exception as e:
