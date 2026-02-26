@@ -5,10 +5,16 @@ import state
 import memory
 import onque as oq
 import ser_connection as sc
+import gui
 import asyncio
 import json
+import uvicorn
+from fastapi import FastAPI, WebSocket
+from dash import Dash
+# from gui import app as dashboard1
+from fastapi.middleware.wsgi import WSGIMiddleware
 
-from quart import websocket, Quart
+# from quart import websocket, Quart
 from hypercorn.asyncio import serve, Config
 
 ################TEST TEST TEST#########################################
@@ -18,12 +24,10 @@ def build_state(cache_path: str, database_path: str, key:str):
     gui_q = asyncio.Queue()
     sys_state = state.create_state(database_path)
     cache = memory.create_cache(cache_path, key, sys_state)
-    # sys_state = await memory.get_user_value(cache, key)
-    # print('sys_state : ', sys_state)
     return gui_q, ux_q, cache
 
 # trys to receive a mesage and puts it on an input que 
-async def recv(ux_q):
+async def recv(websocket, ux_q):
     while True:
         try:
             print('ws -> waiting for incomig message')
@@ -37,7 +41,7 @@ async def recv(ux_q):
             print(e)
 
 # fetches item from gui que and trys to send via websocket
-async def send(gui_q):
+async def send(websocket, gui_q):
     while True:
         try:
             msg = await gui_q.get()
@@ -52,15 +56,36 @@ def start_ws(app, gui_q, ux_q):
 #starts websocket and calls in every iteration of the while loop recv and send function
     print('STARTING WEBSOCKET')
     @app.websocket("/ws")
-    async def ws():
+    async def ws(websocket: WebSocket):
         await websocket.accept()
         print('\nWEBSOCKET ONLINE\n')
-        # while True:
-            # CONTINUE HERE SEND UND RECV HAVE TO ALIGN #
-        print('ws loop active')
-        recv_task = asyncio.create_task(recv(ux_q))
-        send_task = asyncio.create_task(send(gui_q))
+        recv_task = asyncio.create_task(recv(websocket, ux_q))
+        send_task = asyncio.create_task(send(websocket, gui_q))
         await asyncio.gather(recv_task, send_task)
+
+def main():
+    key = "key_name"
+    table = 'test'
+    db_parth = r'data_vault.db'
+    cache_path = r'C:\Temp\diskcache_test'
+    gui_q, ux_q, cache = build_state(cache_path, db_parth, key)
+
+    try:
+        fast_api_app = FastAPI()
+        fast_api_app.mount("/dashboard1", WSGIMiddleware(gui.app.server))
+        start_ws(fast_api_app, gui_q, ux_q)
+        @fast_api_app.get("/")
+        def index():
+            return "Hello"
+    except Exception as e:
+        print("main -> server client collapsed")
+        print(e)
+
+    uvicorn.run(fast_api_app, host="0.0.0.0", port=5000)
+
+if __name__ == "__main__":
+    main()
+# asyncio.run(main())
 
 ################TEST TEST TEST#########################################
 
@@ -123,43 +148,89 @@ async def test_intput_process(gui_q, ux_q):
 
 ################TEST TEST TEST#########################################
 
-async def test_env():
-    key = "key_name"
-    table = 'test'
-    db_parth = r'data_vault.db'
-    cache_path = r'C:\Temp\diskcache_test'
+# async def start_backend(quart_app, cache_path, db_path, key, table):
+#     config = Config()
+#     config.bind = ["127.0.0.1:5000"]
+#     gui_q, ux_q, cache = build_state(cache_path, db_path, key)
+#     # json_data = memory.fetch_from_cache(cache, key)
+#     system_tasks = []    
+#     if quart_app and gui_q and ux_q:
+#         # async with asyncio.TaskGroup() as tg:
+#         #     tg.create_task(us.dequeue_loop(gui_q, ux_q, cache, key, db_parth, table))
+#         #     # tg.create_task(sc.connection_handler(ux_q))
+#         #     tg.create_task(serve(qart_app, config))
+#         #     tg.create_task(us.gui_updater(cache, key, gui_q))
+#         system_tasks.append(asyncio.create_task(us.dequeue_loop(gui_q, ux_q, cache, key, db_path, table, system_tasks)))
+#         # system_tasks.append(asyncio.create_task(sc.connection_handler(ux_q)))
+#         system_tasks.append(asyncio.create_task(serve(quart_app, config)))
+#         system_tasks.append(asyncio.create_task(us.gui_updater(cache, key, gui_q, db_path, table)))
 
-    qart_app = Quart(__name__)
+# ################TEST TEST TEST#########################################
+#         system_tasks.append(asyncio.create_task(start_cdi_test_thread(ux_q)))
+#             # tg.create_task(start_cdi_test_thread(ux_q))
+#             # tg.create_task(test_intput_process(gui_q, ux_q))
+# ################TEST TEST TEST#########################################
+#         await asyncio.gather(*system_tasks)
 
-    config = Config()
-    config.bind = ["127.0.0.1:5000"]
+# async def test_env():
+#     key = "key_name"
+#     table = 'test'
+#     db_parth = r'data_vault.db'
+#     cache_path = r'C:\Temp\diskcache_test'
 
-    gui_q, ux_q, cache = build_state(cache_path, db_parth, key)
-    # json_data = memory.fetch_from_cache(cache, key)
-    system_tasks = []
-    start_ws(qart_app, gui_q, ux_q)
-    if qart_app and gui_q and ux_q:
-        # async with asyncio.TaskGroup() as tg:
-        #     tg.create_task(us.dequeue_loop(gui_q, ux_q, cache, key, db_parth, table))
-        #     # tg.create_task(sc.connection_handler(ux_q))
-        #     tg.create_task(serve(qart_app, config))
-        #     tg.create_task(us.gui_updater(cache, key, gui_q))
-        system_tasks.append(asyncio.create_task(us.dequeue_loop(gui_q, ux_q, cache, key, db_parth, table, system_tasks)))
-        # system_tasks.append(asyncio.create_task(sc.connection_handler(ux_q)))
-        system_tasks.append(asyncio.create_task(serve(qart_app, config)))
-        system_tasks.append(asyncio.create_task(us.gui_updater(cache, key, gui_q)))
+#     qart_app = Quart(__name__)
 
-################TEST TEST TEST#########################################
-        system_tasks.append(asyncio.create_task(start_cdi_test_thread(ux_q)))
-            # tg.create_task(start_cdi_test_thread(ux_q))
-            # tg.create_task(test_intput_process(gui_q, ux_q))
-################TEST TEST TEST#########################################
-        await asyncio.gather(*system_tasks)
+#     config = Config()
+#     config.bind = ["127.0.0.1:5000"]
 
+#     gui_q, ux_q, cache = build_state(cache_path, db_parth, key)
+#     # json_data = memory.fetch_from_cache(cache, key)
+#     system_tasks = []
+#     start_ws(qart_app, gui_q, ux_q)
+#     if qart_app and gui_q and ux_q:
+#         # async with asyncio.TaskGroup() as tg:
+#         #     tg.create_task(us.dequeue_loop(gui_q, ux_q, cache, key, db_parth, table))
+#         #     # tg.create_task(sc.connection_handler(ux_q))
+#         #     tg.create_task(serve(qart_app, config))
+#         #     tg.create_task(us.gui_updater(cache, key, gui_q))
+#         system_tasks.append(asyncio.create_task(us.dequeue_loop(gui_q, ux_q, cache, key, db_parth, table, system_tasks)))
+#         # system_tasks.append(asyncio.create_task(sc.connection_handler(ux_q)))
+#         # system_tasks.append(asyncio.create_task(serve(qart_app, config)))
+#         system_tasks.append(asyncio.create_task(us.gui_updater(cache, key, gui_q, db_parth, table)))
+
+# ################TEST TEST TEST#########################################
+#         system_tasks.append(asyncio.create_task(start_cdi_test_thread(ux_q)))
+#             # tg.create_task(start_cdi_test_thread(ux_q))
+#             # tg.create_task(test_intput_process(gui_q, ux_q))
+# ################TEST TEST TEST#########################################
+#         await asyncio.gather(*system_tasks)
+    # dash_app = gui.run_app(qart_app)
+    # # qart_app.wsgi_app = dash_app.server
+    # @qart_app.route('/api')
+    # async def get_data():    
+    #     return {'status': 'success'}
 # if __name__ == '__main__':
 
-async def main():
-    await test_env()
+# def main():
+#     key = "key_name"
+#     table = 'test'
+#     db_parth = r'data_vault.db'
+#     cache_path = r'C:\Temp\diskcache_test'
 
+#     gui_q, ux_q, cache = build_state(cache_path, db_parth, key)
+#     try:
+#         fast_api_app = FastAPI()
+#         fast_api_app.mount("/dashboard1", WSGIMiddleware(gui.app.server))
+#         start_ws(fast_api_app, gui_q, ux_q)
+#         @fast_api_app.get("/")
+#         def index():
+#             return "Hello"
+#     except Exception as e:
+#         print("main -> server client collapsed")
+#         print(e)
 
-asyncio.run(main())
+#     uvicorn.run(fast_api_app, host="127.0.0.1")
+
+# if __name__ == "__main__":
+#     main()
+# asyncio.run(main())

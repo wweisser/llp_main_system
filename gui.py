@@ -34,7 +34,8 @@ def create_communication(app):
     return(html.Div([
         # dcc.Store(id="pbox"),
         gu.create_msg_distribution(),
-        WebSocket(url="ws://127.0.0.1:5000/ws", id="ws"),
+        # WebSocket(url="ws://127.0.0.1:5000/ws", id="ws"),
+        WebSocket(url="/ws", id="ws")
     ]))
 
 def create_com_callbacks(app):
@@ -55,13 +56,19 @@ def create_gui(app):
     ], className="background"))
 
 def run_app():
-    gui_app = dash.Dash(__name__)
+    print("gui ausgelöst")
+    # gui_app = dash.Dash(server=quart_server, url_base_pathname='/lop/')
+    gui_app = dash.Dash(__name__, requests_pathname_prefix='/dashboard1/')
     gui_app.layout = create_gui(gui_app)
     create_com_callbacks(gui_app)
     create_callbacks(gui_app)
-    print("gui ausgelöst")
-    gui_app.run(debug=True)
+    # gui_app.run(debug=True)
+    # gui_app.run(host="0.0.0.0", port=5000, debug=False)
+    return gui_app
+
+# app = dash.Dash(__name__, requests_pathname_prefix='/dashboard1/')### THE ONLY CHANGE FROM THE ABOVE, PLEASE ADD IN THIS LINE
+app = run_app()
 
 
-if __name__ == '__main__':
-    run_app()
+# if __name__ == '__main__':
+#     run_app()
