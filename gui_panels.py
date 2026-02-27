@@ -46,11 +46,11 @@ def create_prb(id_prg):
         id=id_prg)
         )
 
-def module():
-    return(html.Div([
-        html.Div(id="dummy", children="dummy")
-        ], id="module", className="modul_lyt")
-    )
+# def module():
+#     return(html.Div([
+#         html.Div(id="dummy", children="dummy")
+#         ], id="module", className="modul_lyt")
+#     )
 
 def create_med_module(id_med_module):
     return(html.Div([
@@ -88,7 +88,7 @@ def permanent_panel():
         paramtr_btn_1('ven_pressure_btn', 'Portal Vene Pressure: ', '---', 'mmHg:', 'ven_pressure', 'ha', 90),
         paramtr_btn_1('cSO2_btn', 'Art SO2:    ', '---', '    %', 'cso2', 'ha', 90),
         paramtr_btn_1('art_pO2_btn', 'Art pO2: ', '---', ' mmHgh', 'art_po2', 'ha', 90),
-        ],className="side_panel_II")
+        ], id='permanent_panel',className="side_panel_II")
     )
 
 def perf_stat_panel():
@@ -99,31 +99,8 @@ def perf_stat_panel():
         paramtr_btn_1('ven_temp_btn', 'Ven Tmp:    ', '---', '    °C', 'ven_temp', 'ha', 100),
         paramtr_btn_1('return_temp_btn', 'Return Tmp:    ', '---', '    °C', 'return_temp', 'ha', 100),
         paramtr_btn_1('ven_art_rel_btn', 'Flow A:V:    ', '---:---', '', 'ven_art_rel', 'ha', 100),
-        ],className="side_panel_I")
+        ], id='perf_stat_panel',className="side_panel_I", hidden=True)
     )
-
-# def third_panel():
-#     return(html.Div([
-#         paramtr_btn_1('art_pH_btn', 'Art pH:   ', '---', '', 'art_ph', 'ha', 80),
-#         paramtr_btn_1('ven_pH_btn', 'Ven pH:   ', '---', '', 'ven_ph', 'ha', 80),
-#         paramtr_btn_1('art_pCO2_btn', 'Art pCO2:    ', '---', ' mmHg', 'art_pco2', 'ha', 80),
-#         paramtr_btn_1('ven_pCO2_btn', 'Ven pCO2:    ', '---', 'mmHg:', 'ven_pco2', 'ha', 80),
-#         paramtr_btn_1('art_pO2_btn', 'Art pO2: ', '---', ' mmHgh', 'art_po2', 'ha', 80),
-#         paramtr_btn_1('ven_pO2_btn', 'Ven pO2: ', '---', 'mmHg:', 'ven_po2', 'ha', 80),
-#         ],className="third_panel")
-#     )
-
-
-# def side_panel_1():
-#     return(html.Div([
-#         paramtr_btn_1('cSO2_btn', 'Art SO2:    ', '---', '    %', 'cSO2', 'ha', 70),
-#         paramtr_btn_1('SO2_btn', 'Ven SO2:    ', '---', '    %', 'SO2', 'ha', 70),
-#         paramtr_btn_1('art_pCO2_btn', 'Art pCO2:    ', '---', ' mmHg', 'art_pco2', 'ha', 80),
-#         paramtr_btn_1('ven_pCO2_btn', 'Ven pCO2:    ', '---', 'mmHg:', 'ven_pco2', 'ha', 80),
-#         paramtr_btn_1('art_pO2_btn', 'Art pO2: ', '---', ' mmHgh', 'art_po2', 'ha', 80),
-#         paramtr_btn_1('ven_pO2_btn', 'Ven pO2: ', '---', 'mmHg:', 'ven_po2', 'ha', 80)
-#         ],className="side_panel_I")
-#     )
 
 def ph_panel():
     return(html.Div([
@@ -133,7 +110,7 @@ def ph_panel():
         paramtr_btn_1('lactate_btn', 'Lactate:    ', '---', '    mmol/L', 'lactate', 'ha', 100),
         paramtr_btn_1('K_btn', 'Potasium:    ', '---', '    mmol/L', 'k', 'ha', 100),
         paramtr_btn_1('glucose_btn', 'Glucose:    ', '---', '    mmol/L', 'glucose', 'ha', 100),
-        ],className="side_panel_I")
+        ], id='ph_panel',className="side_panel_I", hidden=True)
     )
 
 def respiratory_panel():
@@ -144,10 +121,7 @@ def respiratory_panel():
         paramtr_btn_1('art_pCO2_btn', 'Art pCO2:    ', '---', ' mmHg', 'art_pco2', 'ha', 100),
         paramtr_btn_1('ven_pO2_btn', 'Ven pO2: ', '---', 'mmHg:', 'ven_po2', 'ha', 100),
         paramtr_btn_1('ven_pCO2_btn', 'Ven pCO2:    ', '---', 'mmHg:', 'ven_pco2', 'ha', 100),
-
-        # paramtr_btn_1('Hct_btn', 'HCT:    ', '---', '', 'Hct', 'ha', 100),
-        # paramtr_btn_1('HCO3_btn', 'HCO3:    ', '---', 'mmol/L', 'hco3', 'ha', 100),
-        ],className="side_panel_I")
+        ], id='respiratory_panel',className="side_panel_I", hidden=True)
     )
 
 def tab_bar():
@@ -162,7 +136,7 @@ def tab_bar():
         paramtr_btn_1('tab6_btn', 'Connections', '', '', 'tab6', 'tabbar_btn', 90),
         cntrl_btn('note_mdl_btn',  'Note', 'cntrl_cm_lower', '', '', '', 'note_lower', 'ha'),
         cntrl_btn('alarm_btn',  'Mute Alarm', 'mute_btn', '', '', '', 'alarm_lower', 'ha'),
-        ], className="tabbar")
+        ], id='tab_bar', className="tabbar")
     )
 
 def bga_entry_panel():
@@ -183,58 +157,63 @@ def bga_entry_panel():
         value_entry_element('bile_glucose'),
         value_entry_element('bile_hco3'),
         value_entry_element('bile_bilirubin'),
-
-    ], className='bga_entry_panel'))
-
-def plots_page():
-    return(html.Div([
-        permanent_panel(),
-        module()
-    ], className='plots_page_syle'))
-
-def perfusion_page():
-    return(html.Div([
-        # permanent_panel(),
-        perf_stat_panel(),
-        # gg.create_graph_panel('flow_I', 'flow_II', 'flow_III')
-    ], className='main_page_syle'))
-
-def metabolics_page():
-    return(html.Div([
-        # permanent_panel(),
-        ph_panel(),
-        # gg.create_graph_panel('meta_I', 'meta_II', 'meta_III')
-
-    ], className='config_page_syle', hidden=False))
-
-def respiratory_page():
-    return(html.Div([
-        # permanent_panel(),
-        respiratory_panel(),
-        # gg.create_graph_panel('resp_I', 'resp_II', 'resp_III')
-    ], className='cloud_page_syle', hidden=False))
-
-def acive_page():
-    return(html.Div([
-        bga_entry_panel(),
-        # permanent_panel(),
-    ], className='config_page_syle', hidden=False))
-
-def conn_page():
-    return(html.Div([
-        # permanent_panel(),
-    ], className='config_page_syle', hidden=False))
-
+    ], id='bga_entry_panel', className='bga_entry_panel', hidden=True))
 
 def create_pages():
     return(html.Div([
-        plots_page(),
-        perfusion_page(),
-        metabolics_page(),
-        respiratory_page(),
-        acive_page(),
-        conn_page(),
+        bga_entry_panel(),
+        tab_bar(),
+        respiratory_panel(),
+        ph_panel(),
+        perf_stat_panel(),
+        permanent_panel()
+        # plots_page(),
+        # perfusion_page(),
+        # metabolics_page(),
+        # respiratory_page(),
+        # acive_page(),
+        # conn_page(),
     ], id="layouts", className="layouts_style")
     )
+
+# def plots_page():
+#     return(html.Div([
+#         permanent_panel(),
+#         module()
+#     ], className='plots_page_syle'))
+
+# def perfusion_page():
+#     return(html.Div([
+#         # permanent_panel(),
+#         perf_stat_panel(),
+#         # gg.create_graph_panel('flow_I', 'flow_II', 'flow_III')
+#     ], className='main_page_syle'))
+
+# def metabolics_page():
+#     return(html.Div([
+#         # permanent_panel(),
+#         ph_panel(),
+#         # gg.create_graph_panel('meta_I', 'meta_II', 'meta_III')
+
+#     ], className='config_page_syle', hidden=False))
+
+# def respiratory_page():
+#     return(html.Div([
+#         # permanent_panel(),
+#         respiratory_panel(),
+#         # gg.create_graph_panel('resp_I', 'resp_II', 'resp_III')
+#     ], className='cloud_page_syle', hidden=False))
+
+# def acive_page():
+#     return(html.Div([
+#         bga_entry_panel(),
+#         # permanent_panel(),
+#     ], className='config_page_syle', hidden=False))
+
+# def conn_page():
+#     return(html.Div([
+#         # permanent_panel(),
+#     ], className='config_page_syle', hidden=False))
+
 
 

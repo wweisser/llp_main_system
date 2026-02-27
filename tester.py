@@ -19,76 +19,6 @@ from hypercorn.asyncio import serve, Config
 
 ################TEST TEST TEST#########################################
 
-def build_state(cache_path: str, database_path: str, key:str):
-    ux_q = asyncio.Queue()
-    gui_q = asyncio.Queue()
-    sys_state = state.create_state(database_path)
-    cache = memory.create_cache(cache_path, key, sys_state)
-    return gui_q, ux_q, cache
-
-# trys to receive a mesage and puts it on an input que 
-async def recv(websocket, ux_q):
-    while True:
-        try:
-            print('ws -> waiting for incomig message')
-            msg_raw= await websocket.receive()
-            print(msg_raw)
-            msg = state.get_json(msg_raw)
-            await ux_q.put(msg)
-            print('ws -> unjsoned msg back from frontend type : ', type(msg), msg)
-        except Exception as e:
-            print("ws -> could not receive")
-            print(e)
-
-# fetches item from gui que and trys to send via websocket
-async def send(websocket, gui_q):
-    while True:
-        try:
-            msg = await gui_q.get()
-            msg_to_send = json.dumps(msg)
-            await websocket.send(msg_to_send)
-            # print('ws -> item was send')
-        except Exception as e:
-            print("ws -> could not send")
-            print(e)
-
-def start_ws(app, gui_q, ux_q):
-#starts websocket and calls in every iteration of the while loop recv and send function
-    print('STARTING WEBSOCKET')
-    @app.websocket("/ws")
-    async def ws(websocket: WebSocket):
-        await websocket.accept()
-        print('\nWEBSOCKET ONLINE\n')
-        recv_task = asyncio.create_task(recv(websocket, ux_q))
-        send_task = asyncio.create_task(send(websocket, gui_q))
-        await asyncio.gather(recv_task, send_task)
-
-def main():
-    key = "key_name"
-    table = 'test'
-    db_parth = r'data_vault.db'
-    cache_path = r'C:\Temp\diskcache_test'
-    gui_q, ux_q, cache = build_state(cache_path, db_parth, key)
-
-    try:
-        fast_api_app = FastAPI()
-        fast_api_app.mount("/dashboard1", WSGIMiddleware(gui.app.server))
-        start_ws(fast_api_app, gui_q, ux_q)
-        @fast_api_app.get("/")
-        def index():
-            return "Hello"
-    except Exception as e:
-        print("main -> server client collapsed")
-        print(e)
-
-    uvicorn.run(fast_api_app, host="0.0.0.0", port=5000)
-
-if __name__ == "__main__":
-    main()
-# asyncio.run(main())
-
-################TEST TEST TEST#########################################
-
 def create_postbox_item(msg_type: str, id: str, data):
     msg_item = {
         'msg_type': 'ux',
@@ -129,13 +59,14 @@ def create_test_bytearray():
     return test_bytearray
 
 async def start_cdi_test_thread(q):
+    print('start_cdi_test_thread -> CDI 500 test thread was started')
     while True:
         test_barr = ""
         test_barr = create_test_bytearray()
         if test_barr != "":
             q_item = sc.input_to_q_item(test_barr)
         await oq.feed_queue(q, q_item)
-        await asyncio.sleep(4)
+        await asyncio.sleep(6)
 
 async def test_intput_process(gui_q, ux_q):
     print('input process test')
@@ -147,6 +78,103 @@ async def test_intput_process(gui_q, ux_q):
     print('\nITEM FETCHED FROM GUI QUE : \n', gui_item)
 
 ################TEST TEST TEST#########################################
+
+def build_state(cache_path: str, database_path: str, key:str):
+    ux_q = asyncio.Queue()
+    gui_q = asyncio.Queue()
+    sys_state = state.create_state(database_path)
+    cache = memory.create_cache(cache_path, key, sys_state)
+    return gui_q, ux_q, cache
+
+# trys to receive a mesage and puts it on an input que 
+async def ws_recv(websocket, ux_q):
+    while True:
+        try:
+            print('ws_recv -> waiting for incomig message')
+            msg_raw= await websocket.receive()
+            if msg_raw and isinstance(msg_raw, dict):
+                if msg_raw['type'] == 'websocket.disconnect':
+                    print('ws_recv -> websocked disconnected')
+                    break    
+            print('ws_recv -> ', msg_raw, 'type : ', type(msg_raw))
+            msg = state.get_json(msg_raw['text'])
+            print('ws_recv -> unjsoned msg : ', msg, type(msg) )
+            await ux_q.put(msg)
+        except Exception as e:
+            print("ws -> could not receive")
+            print(e)
+
+# fetches item from gui que and trys to send via websocket
+async def ws_send(websocket, gui_q):
+    while True:
+        try:
+            msg = await gui_q.get()
+            if isinstance(msg, dict):
+                msg_to_send = json.dumps(msg)
+                print('ws_send -> message to send', type(msg_to_send))
+                await websocket.send_text(msg_to_send)
+                print('ws_send -> item was send')
+            else:
+                print('ws_send -> item to send was not dict')
+        except Exception as e:
+            print('ws_send -> could not send')
+            print(e)
+
+def start_ws(app, gui_q, ux_q):
+#starts websocket and calls in every iteration of the while loop recv and send function
+    print('STARTING WEBSOCKET')
+    @app.websocket("/ws")
+    async def ws(websocket: WebSocket):
+        await websocket.accept()
+        print('\nstart_ws -> WEBSOCKET ONLINE\n')
+        recv_task = asyncio.create_task(ws_recv(websocket, ux_q))
+        send_task = asyncio.create_task(ws_send(websocket, gui_q))
+        await asyncio.gather(recv_task, send_task)
+
+async def create_system_tasks(app, key, cache, db_path, table, gui_q, ux_q):
+    system_tasks = []
+    if app and gui_q and ux_q:
+        system_tasks.append(asyncio.create_task(us.dequeue_loop(gui_q, ux_q, cache, key, db_path, table, system_tasks)))
+        # system_tasks.append(asyncio.create_task(sc.connection_handler(ux_q)))
+        system_tasks.append(asyncio.create_task(us.gui_updater(cache, key, gui_q, db_path, table)))
+################TEST TEST TEST#########################################
+        system_tasks.append(asyncio.create_task(start_cdi_test_thread(ux_q)))
+################TEST TEST TEST#########################################
+        # await asyncio.gather(*system_tasks)
+        return system_tasks
+    else:
+        return None
+
+
+
+async def main():
+    key = "key_name"
+    table = 'test'
+    db_path = r'data_vault.db'
+    cache_path = r'C:\Temp\diskcache_test'
+    gui_q, ux_q, cache = build_state(cache_path, db_path, key)
+
+    try:
+        fast_api_app = FastAPI()
+        fast_api_app.mount("/dashboard1", WSGIMiddleware(gui.app.server))
+        start_ws(fast_api_app, gui_q, ux_q)
+        @fast_api_app.get("/")
+        def index():
+            return "Hello"
+    except Exception as e:
+        print("main -> server client collapsed")
+        print(e)
+    system_tasks = await create_system_tasks(fast_api_app, key, cache, db_path, table, gui_q, ux_q)
+    config = uvicorn.Config(fast_api_app, host="0.0.0.0", port=8000)
+    server = uvicorn.Server(config)
+    await server.serve()
+    await asyncio.gather(*system_tasks)
+
+
+if __name__ == "__main__":
+    # main()
+    asyncio.run(main())
+
 
 # async def start_backend(quart_app, cache_path, db_path, key, table):
 #     config = Config()

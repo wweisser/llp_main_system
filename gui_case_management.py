@@ -21,8 +21,7 @@ def case_manager_callbacks(app, button):
     def csm_button(btn_click, modal_close_btn, hidden):
         if hidden:
             post_item = gu.create_postbox_item('case_number','list_request', '')
-            print('Case number list request was send')
-            # print('\n current data : ', data)
+            print('csm_button -> casenumber list request : ', post_item)
             return post_item, False
         else:
             print('modal is hidden again')

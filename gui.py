@@ -40,13 +40,12 @@ def create_communication(app):
 
 def create_com_callbacks(app):
     return(html.Div([
-        gu.ws_recv(app),
-        gu.ws_send(app),
-        gd.distribute_state(app),
+        gu.gui_ws_recv(app),
+        gu.gui_ws_send(app),
+        # gd.distribute_state(app),
         gpc.state_to_gui(app)
     ]))
 
-# Why is the frontend blocked when websocket is activated?
 
 def create_gui(app):
     return(html.Div([
@@ -55,20 +54,20 @@ def create_gui(app):
         create_layouts(),
     ], className="background"))
 
-def run_app():
+def create_app():
     print("gui ausgelöst")
-    # gui_app = dash.Dash(server=quart_server, url_base_pathname='/lop/')
     gui_app = dash.Dash(__name__, requests_pathname_prefix='/dashboard1/')
+    # gui_app = dash.Dash(__name__)
     gui_app.layout = create_gui(gui_app)
     create_com_callbacks(gui_app)
     create_callbacks(gui_app)
-    # gui_app.run(debug=True)
-    # gui_app.run(host="0.0.0.0", port=5000, debug=False)
+
     return gui_app
 
-# app = dash.Dash(__name__, requests_pathname_prefix='/dashboard1/')### THE ONLY CHANGE FROM THE ABOVE, PLEASE ADD IN THIS LINE
-app = run_app()
+app = create_app()
 
 
-# if __name__ == '__main__':
-#     run_app()
+if __name__ == '__main__':
+    app = create_app()
+    app.run(debug=True)
+

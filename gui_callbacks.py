@@ -3,15 +3,20 @@ import gui_panels as gp
 from dash.exceptions import PreventUpdate
 import gui_utils as gu
 
+
+
 def tabbar_callback(app):
     @app.callback(
+        Output('perf_stat_panel', 'className'),
+        Output('ph_panel', 'className'),
+        Output('respiratory_panel', 'className'),
+        Output('bga_entry_panel', 'className'),
         Output('tab1_btn', 'n_clicks'),
         Output('tab2_btn', 'n_clicks'),
         Output('tab3_btn', 'n_clicks'),
         Output('tab4_btn', 'n_clicks'),
         Output('tab5_btn', 'n_clicks'),
         Output('tab6_btn', 'n_clicks'),
-        Output('layouts', 'children'),
         Input('tab1_btn', 'n_clicks'),
         Input('tab2_btn', 'n_clicks'),
         Input('tab3_btn', 'n_clicks'),
@@ -21,20 +26,25 @@ def tabbar_callback(app):
         prevent_initial_call=True
     )
     def page_setter(btn1, btn2, btn3, btn4, btn5, btn6):
+        hide = 'hide'
+        show = 'side_panel_I'  # oder 'flex', je nach Layout
+
         if btn1:
-            page = gp.plots_page()
+            ret_arr = [hide, hide, hide, hide]
         elif btn2:
-            page = gp.perfusion_page()
+            ret_arr = [show, hide, hide, hide]
         elif btn3:
-            page = gp.metabolics_page()
+            ret_arr = [hide, show, hide, hide]
         elif btn4:
-            page = gp.respiratory_page()
+            ret_arr = [hide, hide, show, hide]
         elif btn5:
-            page = gp.acive_page()
+            ret_arr = [hide, hide, hide, show]
         else:
-            page = gp.conn_page()
-        return 0, 0, 0, 0, 0, 0, page
-    
+            ret_arr = [hide, hide, hide, hide]
+
+        btn_reset = [0, 0, 0, 0, 0, 0]
+        return ret_arr + btn_reset
+  
     @app.callback(
         Output('note_mdl', 'hidden'),
         Input('note_mdl_btn', 'n_clicks'),

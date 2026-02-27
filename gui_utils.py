@@ -32,16 +32,15 @@ def create_postbox_item(msg_type: str, id: str, data):
     msg_item = json.dumps(msg_item)
     return msg_item
 
-def ws_send(app):
+def gui_ws_send(app):
     @app.callback(
         Output("ws", "send"), 
         Input("postbox", "data"),
         prevent_initial_call=True
     )
     def send(send_val):
-        print('value to send : ', send_val, 'type : ', type(send_val))
         if isinstance(send_val, str):
-            print('sended value : ', send_val)
+            print('gui_ws_send -> sended value : ', send_val)
             return send_val
         else:
             return no_update
@@ -78,7 +77,7 @@ def parse_case_id(msg: dict):
         return None
                     
 # reveive callbacks
-def ws_recv(app):
+def gui_ws_recv(app):
     @app.callback(
         Output("inbox", "data"), 
         Input("ws", "message"),
