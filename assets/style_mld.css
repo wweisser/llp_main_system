@@ -123,10 +123,17 @@
     z-index: 4000;
     border-style: solid;
     border-width: 2px;
+    display: grid;
+    grid-template-columns: [first] 60% [line1] 40%  [end];
     border-color: var(--text_color_I); 
     background-color: var(--bg_color_II);
     color: var(--text_color_II);
     font-family: "Arial";
+}
+.ventilaton_setings{
+    display: grid;
+    grid-template-rows: [first] 15% [line1] 85%  [end];
+    grid-template-columns: [first] 50% [line1] 50%  [end];
 }
 .bga_entry_panel{
     top: 0%;

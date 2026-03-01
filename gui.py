@@ -42,7 +42,7 @@ def create_com_callbacks(app):
     return(html.Div([
         gu.gui_ws_recv(app),
         gu.gui_ws_send(app),
-        create_active_callbacks(app)
+        ga.create_active_callbacks(app),
         # gd.distribute_state(app),
         gpc.state_to_gui(app)
     ]))

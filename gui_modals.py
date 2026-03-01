@@ -44,23 +44,16 @@ def note_mdl():
 
 def create_active_mdl():
     print('\n Active mdl was created \n')
-    marks_set_po2 = []
-    marks_set_pco2 = []
-    x = 80 
-    while x<=200:
-        x = x + 5
-        marks_set_po2.append(str(x))
-    y = 20
-    while y<=60:
-        y = y + 1
-        marks_set_pco2.append(str(y))
+    marks_set_po2 = {80: '80', 100: '100', 120: '120', 140: '140', 160: '160', 180: '180', 200: '200'}
+    marks_set_pco2 = {20: '20' , 30: '30', 40: '40', 50: '50', 60: '60'}
     return(html.Div([
-            html.Span('100', id="set_po2_h1"),
-            html.Span('45', id="set_pco2_h1"),
-            dcc.Slider(id='set_po2_slider', min=80, max=200, step=1, value=100, marks=marks_set_po2, vertical=True, updatemode ='drag'),
-            dcc.Slider(id='set_pco2_slider', min=20, max=60, step=1, value=45, marks=marks_set_pco2, vertical=True, updatemode ='drag'),
-        ],  id="active_mdl", className="active_mdl", hidden=True)
-
+        html.Div([
+                html.Span('Set pO2: 100 mmHg', id="set_po2_h1"),
+                html.Span('Set pCO2: 45 mmHg', id="set_pco2_h1"),
+                dcc.Slider(id='set_po2_slider', min=80, max=200, step=1, value=100, marks=marks_set_po2, vertical=True, verticalHeight=250, dots=False),
+                dcc.Slider(id='set_pco2_slider', min=20, max=60, step=1, value=45, marks=marks_set_pco2, vertical=True, verticalHeight=250, dots=False),
+            ],  id="ventilaton_setings", className="ventilaton_setings" ),
+        ], id="active_mdl", className="active_mdl", hidden=True)
     )
 
 def case_manager_modal():

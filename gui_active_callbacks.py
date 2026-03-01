@@ -8,7 +8,7 @@ def create_active_callbacks(app):
             prevent_initial_call=True,
         )
     def po2_slider(val):
-        return val
+        return f'Set pO2: {val} mmHg'
     
     @app.callback(
             Output('set_pco2_h1', 'children'),
@@ -16,4 +16,4 @@ def create_active_callbacks(app):
             prevent_initial_call=True,
         )
     def pco2_slider(val):
-        return val
+        return f'Set pCO2: {val} mmHg'
