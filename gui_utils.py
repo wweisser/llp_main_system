@@ -1,5 +1,4 @@
 from dash_extensions.enrich import Input, Output, State, no_update
-from dash.exceptions import PreventUpdate
 from dash import html, dcc, no_update
 import json
 

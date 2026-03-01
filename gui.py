@@ -4,7 +4,7 @@ import gui_utils as gu
 import gui_panels as gp
 import gui_modals as gm
 import gui_callbacks as gc
-import gui_distribute as gd
+import gui_active_callbacks as ga
 import gui_graphs as gg
 import gui_case_management as gcm
 import gui_parameter_callbacks as gpc
@@ -20,7 +20,7 @@ def create_modals():
         gm.case_manager_mdl(),
         gm.new_case_mdl(),
         gm.note_mdl(),
-        gm.active_mdl()
+        gm.create_active_mdl()
     ]))
 
 def create_callbacks(app):
@@ -42,6 +42,7 @@ def create_com_callbacks(app):
     return(html.Div([
         gu.gui_ws_recv(app),
         gu.gui_ws_send(app),
+        create_active_callbacks(app)
         # gd.distribute_state(app),
         gpc.state_to_gui(app)
     ]))
@@ -50,14 +51,15 @@ def create_com_callbacks(app):
 def create_gui(app):
     return(html.Div([
         create_communication(app),
-        create_modals(),
+        gm.create_modals(),
+        # create_modals(),
         create_layouts(),
     ], className="background"))
 
 def create_app():
     print("gui ausgelöst")
-    gui_app = dash.Dash(__name__, requests_pathname_prefix='/dashboard1/')
-    # gui_app = dash.Dash(__name__)
+    # gui_app = dash.Dash(__name__, requests_pathname_prefix='/dashboard1/')
+    gui_app = dash.Dash(__name__)
     gui_app.layout = create_gui(gui_app)
     create_com_callbacks(gui_app)
     create_callbacks(gui_app)

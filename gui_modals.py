@@ -42,11 +42,25 @@ def note_mdl():
         ],  id="note_mdl", className="note_mdl", hidden=True)
     )
 
-def active_mdl():
-    print('\n text mdl was created \n')
+def create_active_mdl():
+    print('\n Active mdl was created \n')
+    marks_set_po2 = []
+    marks_set_pco2 = []
+    x = 80 
+    while x<=200:
+        x = x + 5
+        marks_set_po2.append(str(x))
+    y = 20
+    while y<=60:
+        y = y + 1
+        marks_set_pco2.append(str(y))
     return(html.Div([
-        # html.Div(children="active elements", id="new_case_h1", className="note_mdl_notes"),
+            html.Span('100', id="set_po2_h1"),
+            html.Span('45', id="set_pco2_h1"),
+            dcc.Slider(id='set_po2_slider', min=80, max=200, step=1, value=100, marks=marks_set_po2, vertical=True, updatemode ='drag'),
+            dcc.Slider(id='set_pco2_slider', min=20, max=60, step=1, value=45, marks=marks_set_pco2, vertical=True, updatemode ='drag'),
         ],  id="active_mdl", className="active_mdl", hidden=True)
+
     )
 
 def case_manager_modal():
@@ -79,6 +93,14 @@ def paramtr_modal():
             ], className="paramtr_mdl_panel"),
         html.Button("Close", id="paramtr_mdl_close", className="ha", style={"border-radius": "10px", "padding": "0", "width": "300px", "height": "45px"})
     ], className="paramtr_mdl", id="paramtr_mld_id", style={"display": "none"})
+
+def create_modals():
+    return(html.Div([
+        case_manager_mdl(),
+        new_case_mdl(),
+        note_mdl(),
+        create_active_mdl()
+    ]))
 
 mdl_app.layout = note_mdl()
 
