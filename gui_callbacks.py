@@ -1,6 +1,6 @@
 from dash import Input, Output, State
-import gui_panels as gp
 from dash.exceptions import PreventUpdate
+import gui_panels as gp
 import gui_utils as gu
 
 

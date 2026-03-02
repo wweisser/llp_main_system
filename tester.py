@@ -1,4 +1,4 @@
-import serial
+#import serial
 import random
 import update_state as us
 import state
@@ -15,7 +15,7 @@ from dash import Dash
 from fastapi.middleware.wsgi import WSGIMiddleware
 
 # from quart import websocket, Quart
-from hypercorn.asyncio import serve, Config
+#from hypercorn.asyncio import serve, Config
 
 ################TEST TEST TEST#########################################
 
@@ -135,7 +135,7 @@ async def create_system_tasks(app, key, cache, db_path, table, gui_q, ux_q):
     system_tasks = []
     if app and gui_q and ux_q:
         system_tasks.append(asyncio.create_task(us.dequeue_loop(gui_q, ux_q, cache, key, db_path, table, system_tasks)))
-        # system_tasks.append(asyncio.create_task(sc.connection_handler(ux_q)))
+        system_tasks.append(asyncio.create_task(sc.connection_handler(ux_q)))
         system_tasks.append(asyncio.create_task(us.gui_updater(cache, key, gui_q, db_path, table)))
 ################TEST TEST TEST#########################################
         system_tasks.append(asyncio.create_task(start_cdi_test_thread(ux_q)))

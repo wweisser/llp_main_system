@@ -4,6 +4,8 @@ import asyncio
 import cdi_connect as cc
 import ser_utils as su
 import onque as oq
+import platform
+
 
 class serial_connection:
     def __init__(self, comport, serial_port, read_task):
@@ -47,20 +49,24 @@ def create_con(port, ux_q):
     except Exception as e:
         print(f"read task for {port.device} could not be created\n", e)
     return None
+
     
 def create_con_arr(ux_q):
-    """Creates a serial_connection object for every port in the port_list"""
+# Creates a serial_connection object for every port in the port_list
     port_list = serial.tools.list_ports.comports()
     connections_arr = []
     for port in port_list:
-        con = create_con(port, ux_q)
-        if con:
-            connections_arr.append(con)
+        if port.hwid == 'n/a' and "ttyS" in port.device:
+            continue
+        else:
+            con = create_con(port, ux_q)
+            if con:
+                connections_arr.append(con)
     return connections_arr
 
 def check_con(con):
-    """Takes a serial_connection object and checks the state of the serial connection and the read task.
-    Returns 'active' or 'connection_dead' or 'read_task_dead'"""
+# Takes a serial_connection object and checks the state of the serial connection and the read task.
+# Returns 'active' or 'connection_dead' or 'read_task_dead'
     ser_port_open = con.state_serial_port()
     read_task_active = con.get_state_of_task()
     if ser_port_open != 'open':
@@ -70,20 +76,22 @@ def check_con(con):
     else:
         return 'active'
 
-def check_for_new_con(con_arr, ux_q):
+def check_for_new_con(conn_arr, ux_q):
     """Aligns the serial_connection array with the port_list.
     Creates a new serial_connection object and adds it con_arr. Con_arr is then returend """
     port_list = serial.tools.list_ports.comports()
     for port in port_list:
+        if port.hwid == 'n/a' and "tty" in port.device:
+            continue
         port_present = False
-        for con in con_arr:
-            if port.device == con.comport:
+        for conn in conn_arr:
+            if port.device == conn.comport:
                 port_present = True
         if not port_present:
-            con = create_con(port, ux_q)
-            if con:
-                con_arr.append(con)
-    return con_arr
+            conn = create_con(port, ux_q)
+            if conn:
+                conn_arr.append(conn)
+    return conn_arr
 
 def check_for_dead_con(con_arr, ux_q):
     """Discards dead serial_connection objects or restarts the read tasks.
@@ -93,7 +101,6 @@ def check_for_dead_con(con_arr, ux_q):
         for con in con_arr:
             state_of_con = check_con(con)
             if state_of_con == 'read_task_dead':
-                print(f'connection to {con.comport} has died')
                 to_remove.append(con)
         for con in to_remove:
             con_arr.remove(con)
@@ -113,22 +120,24 @@ async def read_ser(ser, ux_q):
     buffer = ''
     while True:
         if ser and ser.is_open:
+            # print("serial port : ", ser)
             try:
                 buffer = await loop.run_in_executor(None, ser.readline)
                 if buffer != b'' and buffer != "":
-                    # print(buffer)
                     q_item = input_to_q_item(buffer)
+                    # print('que item : ', q_item)
                     await oq.feed_queue(ux_q, q_item)
             except Exception as e:
                 print(f'read task cancelled on {ser.port}')
+                print(e)
                 break
 
-async def check_con_state(con_arr, ux_q):
+async def check_con_state(conn_arr, ux_q):
     while True:
-        con_arr = check_for_new_con(con_arr, ux_q)
-        con_arr = check_for_dead_con(con_arr, ux_q)
         try:
-            await asyncio.sleep(1)
+            conn_arr = check_for_new_con(conn_arr, ux_q)
+            conn_arr = check_for_dead_con(conn_arr, ux_q)
+            await asyncio.sleep(5)
         except:
             print("check_con_state was cancelled during sleep")
             raise
@@ -145,7 +154,8 @@ if __name__ == '__main__':
     ux_q = None
     try:
         task = asyncio.run(connection_handler(ux_q))
-    except KeyboardInterrupt:
-        print('keyboard interupt')
+    except Exception as e:
+        print('connection handler could not be started')
+        print(e)
 
 
