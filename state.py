@@ -49,15 +49,42 @@ def create_state(db_path: str):
             "clock_time": 0,
             "perfusion_mode": "",
         },
-        "organ_type": "liver",
+        "controls": {
+            "set_air_flow": 0,
+            "air_flow": 0,
+            "set_oxygen_flow": 0,
+            "oxygen_flow": 0,
+            "set_flow_ha": 0,
+            "set_flow_pv": 0,
+            "set_pressure_ha": 0,
+            "set_pressure_pv": 0,
+        },
         "notes": "",
+        "dialysis":{
+            "set_hct": 0,
+            "system_volume": 0,
+            "filter_flow": 0,
+            "substitude_flow": 0,
+        },
+        "bga":{
+        },
+        "lab":{
+            "ast": 0,
+            "alt": 0,
+            "bilirubin": 0,
+            "urea": 0,
+            "ap": 0,
+            "kod": 0,
+            "albumin": 0,
+            "factor_v": 0,
+            "gamma": 0,
+        },
         "art_flow":{
             "active": True,
             "unit": "[ml/min]", 
             "val": 0, 
             "lower_limit": 0, 
             "upper_limit": 0,
-            "total_volume": 0
         }, 
         "art_pressure":{
             "active": True,
@@ -65,7 +92,6 @@ def create_state(db_path: str):
             "val": 0, 
             "lower_limit": 0,
             "upper_limit": 0,
-            "total_volume": 0
         }, 
         "art_temp":{
             "active": True,
@@ -73,7 +99,6 @@ def create_state(db_path: str):
             "val": 0, 
             "lower_limit": 0,
             "upper_limit": 0,
-            "total_volume": 0
         }, 
         "ven_flow":{
             "active": True,
@@ -81,7 +106,6 @@ def create_state(db_path: str):
             "val": 0, 
             "lower_limit": 0,
             "upper_limit": 0,
-            "total_volume": 0
         }, 
         "ven_pressure":{
             "active": True,
@@ -89,7 +113,6 @@ def create_state(db_path: str):
             "val": 0, 
             "lower_limit": 0,
             "upper_limit": 0,
-            "total_volume": 0
         }, 
         "ven_temp":{
             "active": True,
@@ -97,7 +120,6 @@ def create_state(db_path: str):
             "val": 0, 
             "lower_limit": 0, 
             "upper_limit": 0,
-            "total_volume": 0
         }, 
         "return_temp":{
             "active": True,
@@ -105,7 +127,6 @@ def create_state(db_path: str):
             "val": 0, 
             "lower_limit": 0,
             "upper_limit": 0,
-            "total_volume": 0
         }, 
         "art_ph":{
             "active": True,
@@ -113,7 +134,6 @@ def create_state(db_path: str):
             "val": 0, 
             "lower_limit": 0,
             "upper_limit": 0,
-            "total_volume": 0
         }, 
         "art_pco2":{
             "active": True,
@@ -121,7 +141,6 @@ def create_state(db_path: str):
             "val": 0, 
             "lower_limit": 0,
             "upper_limit": 0,
-            "total_volume": 0
         }, 
         "art_po2":{
             "active": True,
@@ -129,7 +148,6 @@ def create_state(db_path: str):
             "val": 0, 
             "lower_limit": 0,
             "upper_limit": 0,
-            "total_volume": 0
         }, 
         "hco3":{
             "active": True,
@@ -137,7 +155,6 @@ def create_state(db_path: str):
             "val": 0, 
             "lower_limit": 0,
             "upper_limit": 0,
-            "total_volume": 0
         }, 
         "base":{
             "active": True,
@@ -145,7 +162,6 @@ def create_state(db_path: str):
             "val": 0, 
             "lower_limit": 0,
             "upper_limit": 0,
-            "total_volume": 0
         }, 
         "cso2":{
             "active": True,
@@ -153,7 +169,6 @@ def create_state(db_path: str):
             "val": 0, 
             "lower_limit": 0,
             "upper_limit": 0,
-            "total_volume": 0
         }, 
         "na":{
             "active": True,
@@ -161,7 +176,6 @@ def create_state(db_path: str):
             "val": 0, 
             "lower_limit": 0,
             "upper_limit": 0,
-            "total_volume": 0
         }, 
         "k":{
             "active": True,
@@ -169,7 +183,6 @@ def create_state(db_path: str):
             "val": 0, 
             "lower_limit": 0,
             "upper_limit": 0,
-            "total_volume": 0
         }, 
         "ca":{
             "active": True,
@@ -177,7 +190,6 @@ def create_state(db_path: str):
             "val": 0, 
             "lower_limit": 0,
             "upper_limit": 0,
-            "total_volume": 0
         }, 
         "cl":{
             "active": True,
@@ -185,7 +197,6 @@ def create_state(db_path: str):
             "val": 0, 
             "lower_limit": 0,
             "upper_limit": 0,
-            "total_volume": 0
         },
         "vo2":{
             "active": True,
@@ -193,7 +204,6 @@ def create_state(db_path: str):
             "val": 0, 
             "lower_limit": 0,
             "upper_limit": 0,
-            "total_volume": 0
         }, 
         "do2":{
             "active": True,
@@ -201,7 +211,6 @@ def create_state(db_path: str):
             "val": 0, 
             "lower_limit": 0,
             "upper_limit": 0,
-            "total_volume": 0
         }, 
         "ven_ph":{
             "active": True,
@@ -209,7 +218,6 @@ def create_state(db_path: str):
             "val": 0, 
             "lower_limit": 0,
             "upper_limit": 0,
-            "total_volume": 0
         }, 
         "ven_pco2":{
             "active": True,
@@ -217,7 +225,6 @@ def create_state(db_path: str):
             "val": 0, 
             "lower_limit": 0,
             "upper_limit": 0,
-            "total_volume": 0
         }, 
         "ven_po2":{
             "active": True,
@@ -225,7 +232,6 @@ def create_state(db_path: str):
             "val": 0, 
             "lower_limit": 0,
             "upper_limit": 0,
-            "total_volume": 0
         }, 
         "so2":{
             "active": True,
@@ -233,7 +239,6 @@ def create_state(db_path: str):
             "val": 0, 
             "lower_limit": 0,
             "upper_limit": 0,
-            "total_volume": 0
         }, 
         "hct":{
             "active": True,
@@ -241,7 +246,6 @@ def create_state(db_path: str):
             "val": 0, 
             "lower_limit": 0,
             "upper_limit": 0,
-            "total_volume": 0
         }, 
         "hb":{
             "active": True,
@@ -249,7 +253,6 @@ def create_state(db_path: str):
             "val": 0, 
             "lower_limit": 0,
             "upper_limit": 0,
-            "total_volume": 0
         }, 
         "lactate":{
             "active": True,
@@ -257,7 +260,6 @@ def create_state(db_path: str):
             "val": 0, 
             "lower_limit": 0,
             "upper_limit": 0,
-            "total_volume": 0
         }, 
         "glucose":{
             "active": True,
@@ -265,32 +267,6 @@ def create_state(db_path: str):
             "val": 0, 
             "lower_limit": 0,
             "upper_limit": 0,
-            "total_volume": 0
-        },
-        "bilirubin":{
-            "active": True,
-            "unit": "[mg/dl]", 
-            "val": 0, 
-            "lower_limit": 0,
-            "upper_limit": 0,
-            "total_volume": 0
-        },
-        "system_volume": 0,
-        "filter_flow":{
-            "active": True,
-            "unit": "[ml/h]", 
-            "val": 0, 
-            "lower_limit": 0,
-            "upper_limit": 0,
-            "total_volume": 0
-        }, 
-        "substitude_flow":{
-            "active": True,
-            "unit": "[ml/h]", 
-            "val": 0, 
-            "lower_limit": 0,
-            "upper_limit": 0,
-            "total_volume": 0
         }
     }
     return sys_state

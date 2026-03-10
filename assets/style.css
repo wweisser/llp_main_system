@@ -49,7 +49,7 @@ body{
 .priority_btn:hover {
     background-color: var(--active_color);
 }
-.ha:active {
+.priority_btn:active {
     background-color: var(--text_color_I);
 }
 .ha{

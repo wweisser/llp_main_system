@@ -1,6 +1,6 @@
 #import serial
 import random
-import update_state as us
+import system_update as su
 import state
 import memory
 import onque as oq
@@ -134,9 +134,9 @@ def start_ws(app, gui_q, ux_q):
 async def create_system_tasks(app, key, cache, db_path, table, gui_q, ux_q):
     system_tasks = []
     if app and gui_q and ux_q:
-        system_tasks.append(asyncio.create_task(us.dequeue_loop(gui_q, ux_q, cache, key, db_path, table, system_tasks)))
+        system_tasks.append(asyncio.create_task(su.dequeue_loop(gui_q, ux_q, cache, key, db_path, table, system_tasks)))
         # system_tasks.append(asyncio.create_task(sc.connection_handler(ux_q)))
-        system_tasks.append(asyncio.create_task(us.gui_updater(cache, key, gui_q, db_path, table)))
+        system_tasks.append(asyncio.create_task(su.gui_updater(cache, key, gui_q, db_path, table)))
 ################TEST TEST TEST#########################################
         system_tasks.append(asyncio.create_task(start_cdi_test_thread(ux_q)))
 ################TEST TEST TEST#########################################

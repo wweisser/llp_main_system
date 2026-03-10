@@ -47,7 +47,7 @@ def create_active_mdl():
     print('\n Active mdl was created \n')
     marks_set_po2 = {80: '80', 100: '100', 120: '120', 140: '140', 160: '160', 180: '180', 200: '200'}
     marks_set_pco2 = {20: '20' , 30: '30', 40: '40', 50: '50', 60: '60'}
-    marks_gas_flow = {0: '0', 400: '400', 800: '800', 800: '1200', 1200: '400', 1600: '1600', 2000: '2000'}
+    marks_gas_flow = {0: '0', 400: '400', 800: '800', 800: '1200', 1200: '1400', 1600: '1600', 2000: '2000'}
     return(html.Div([
         html.Div([
             gp.paramtr_btn_1('co_pilot_btn', 'Auto Gas Regulation', '', '', 'air_flow','priority_btn', 80),
