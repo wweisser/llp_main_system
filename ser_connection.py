@@ -4,7 +4,7 @@ import asyncio
 import cdi_connect as cc
 import ser_utils as su
 import onque as oq
-import platform
+
 
 
 class serial_connection:

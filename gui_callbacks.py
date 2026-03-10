@@ -16,16 +16,16 @@ def tabbar_callback(app):
         Output('tab3_btn', 'n_clicks'),
         Output('tab4_btn', 'n_clicks'),
         Output('tab5_btn', 'n_clicks'),
-        Output('tab6_btn', 'n_clicks'),
+        # Output('tab6_btn', 'n_clicks'),
         Input('tab1_btn', 'n_clicks'),
         Input('tab2_btn', 'n_clicks'),
         Input('tab3_btn', 'n_clicks'),
         Input('tab4_btn', 'n_clicks'),
         Input('tab5_btn', 'n_clicks'),
-        Input('tab6_btn', 'n_clicks'),
+        # Input('tab6_btn', 'n_clicks'),
         prevent_initial_call=True
     )
-    def page_setter(btn1, btn2, btn3, btn4, btn5, btn6):
+    def page_setter(btn1, btn2, btn3, btn4, btn5):
         hide = 'hide'
         show = 'side_panel_I'  # oder 'flex', je nach Layout
 
@@ -39,10 +39,10 @@ def tabbar_callback(app):
             ret_arr = [hide, hide, show, hide]
         elif btn5:
             ret_arr = [hide, hide, hide, show]
-        else:
-            ret_arr = [hide, hide, hide, hide]
+        # else:
+        #     ret_arr = [hide, hide, hide, hide]
 
-        btn_reset = [0, 0, 0, 0, 0, 0]
+        btn_reset = [0, 0, 0, 0, 0]
         return ret_arr + btn_reset
   
     @app.callback(
@@ -60,20 +60,20 @@ def tabbar_callback(app):
             print('note mdl close')
             return True
         
-    @app.callback(
-        Output('active_mdl', 'hidden'),
-        Input('active_mdl_btn', 'n_clicks'),
-        State('active_mdl', 'hidden'),
-        prevent_initial_call=True
-    )
-    def open_note_mdl(btn, hidden):
-        print('hidden: ', hidden)
-        if hidden:
-            print('note mdl open')
-            return False
-        else:
-            print('note mdl close')
-            return True
+    # @app.callback(
+    #     Output('active_mdl', 'hidden'),
+    #     Input('active_mdl_btn', 'n_clicks'),
+    #     State('active_mdl', 'hidden'),
+    #     prevent_initial_call=True
+    # )
+    # def open_note_mdl(btn, hidden):
+    #     print('hidden: ', hidden)
+    #     if hidden:
+    #         print('note mdl open')
+    #         return False
+    #     else:
+    #         print('note mdl close')
+    #         return True
     
     @app.callback(
         Output('postbox', 'data', allow_duplicate=True),

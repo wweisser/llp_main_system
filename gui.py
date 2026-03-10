@@ -58,8 +58,8 @@ def create_gui(app):
 
 def create_app():
     print("gui ausgelöst")
-    gui_app = dash.Dash(__name__, requests_pathname_prefix='/dashboard1/')
-    # gui_app = dash.Dash(__name__)
+    # gui_app = dash.Dash(__name__, requests_pathname_prefix='/dashboard1/')
+    gui_app = dash.Dash(__name__)
     gui_app.layout = create_gui(gui_app)
     create_com_callbacks(gui_app)
     create_callbacks(gui_app)

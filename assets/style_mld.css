@@ -3,8 +3,8 @@
     top: 1%;
     left: 20%;
     height: 300px;
-    width: 400px;
-    border-radius: 6px;
+    width: 32%;
+    border-radius: 10px;
     position: fixed;
     z-index: 4000;
     border-style: solid;
@@ -90,7 +90,7 @@
 .note_mdl{
     bottom: 11%;
     left: 53%;
-    height: 49%;
+    height: 45%;
     width: 32%;
     border-radius: 10px;
     position: absolute;
@@ -115,8 +115,8 @@
 .active_mdl{
     bottom: 11%;
     left: 20%;
-    height: 49%;
-    width: 33%;
+    height: 45%;
+    width: 32%;
     border-radius: 10px;
     position: absolute;
     border-width: 1px;
@@ -127,14 +127,15 @@
     grid-template-columns: [first] 60% [line1] 40%  [end];
     border-color: var(--text_color_I); 
     background-color: var(--bg_color_II);
-    color: var(--text_color_II);
+    color: var(--text_color_I);
     font-family: "Arial";
 }
 .ventilaton_setings{
     display: grid;
-    grid-template-rows: [first] 15% [line1] 85%  [end];
+    grid-template-rows: [first] 15% [line1] 15% [line2] 70%  [end];
     grid-template-columns: [first] 50% [line1] 50%  [end];
 }
+
 .bga_entry_panel{
     top: 0%;
     left: 0%;

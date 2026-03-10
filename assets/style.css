@@ -3,7 +3,7 @@
     --bg_color_II:#00242b;
     --bg_color_III:#2e4e55;
     --bg_color_mdl:#395d64;
-
+    /* --bg_color_priority:#4f66a5; */
     --text_color_I:#ccebfd;
     --text_color_II:#f98a02;
     --text_color_active: rgb(0, 0, 0);
@@ -35,6 +35,22 @@ body{
     color: var(--bg_color_I);
     height: 100vh;
     overflow: hidden;
+}
+.priority_btn{
+    background-color: var(--bg_color_III);
+    color: var(--text_color_II);
+    border: none;
+    margin: 2px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.4s ease;
+    font-family: "Arial";
+}
+.priority_btn:hover {
+    background-color: var(--active_color);
+}
+.ha:active {
+    background-color: var(--text_color_I);
 }
 .ha{
     background-color: var(--bg_color_II);
