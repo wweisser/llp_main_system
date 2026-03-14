@@ -165,7 +165,7 @@ async def main():
         print("main -> server client collapsed")
         print(e)
     system_tasks = await create_system_tasks(fast_api_app, key, cache, db_path, table, gui_q, ux_q)
-    config = uvicorn.Config(fast_api_app, host="0.0.0.0", port=8000)
+    config = uvicorn.Config(fast_api_app, host="0.0.0.0", port=8050)
     server = uvicorn.Server(config)
     await server.serve()
     await asyncio.gather(*system_tasks)

@@ -46,12 +46,6 @@ def create_prb(id_prg):
         id=id_prg)
         )
 
-# def module():
-#     return(html.Div([
-#         html.Div(id="dummy", children="dummy")
-#         ], id="module", className="modul_lyt")
-#     )
-
 def create_med_module(id_med_module):
     return(html.Div([
         html.Div([
@@ -157,7 +151,7 @@ def bga_entry_panel():
         value_entry_element('bile_glucose'),
         value_entry_element('bile_hco3'),
         value_entry_element('bile_bilirubin'),
-    ], id='bga_entry_panel', className='bga_entry_panel', hidden=True))
+    ], id='bga_entry_panel', className='hide', hidden=True))
 
 def create_pages():
     return(html.Div([

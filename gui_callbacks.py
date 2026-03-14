@@ -7,10 +7,13 @@ import gui_utils as gu
 
 def tabbar_callback(app):
     @app.callback(
+        Output('drop_down_menu', 'className'),
+            
         Output('perf_stat_panel', 'className'),
         Output('ph_panel', 'className'),
         Output('respiratory_panel', 'className'),
         Output('bga_entry_panel', 'className'),
+
         Output('tab1_btn', 'n_clicks'),
         Output('tab2_btn', 'n_clicks'),
         Output('tab3_btn', 'n_clicks'),
@@ -30,17 +33,17 @@ def tabbar_callback(app):
         show = 'side_panel_I'  # oder 'flex', je nach Layout
 
         if btn1:
-            ret_arr = [hide, hide, hide, hide]
+            ret_arr = [show, hide, hide, hide, hide]
         elif btn2:
-            ret_arr = [show, hide, hide, hide]
+            ret_arr = [hide, show, hide, hide, hide]
         elif btn3:
-            ret_arr = [hide, show, hide, hide]
+            ret_arr = [hide, hide, show, hide, hide]
         elif btn4:
-            ret_arr = [hide, hide, show, hide]
+            ret_arr = [hide, hide, hide, show, hide]
         elif btn5:
-            ret_arr = [hide, hide, hide, show]
-        # else:
-        #     ret_arr = [hide, hide, hide, hide]
+            ret_arr = [hide, hide, hide, hide, 'bga_panel']
+        # elif btn6:
+        #     ret_arr = [hide, hide, hide, hide, hide]
 
         btn_reset = [0, 0, 0, 0, 0]
         return ret_arr + btn_reset

@@ -18,3 +18,13 @@
     border-width: 1px;
     border-color: rgb(255, 176, 5);
 }
+
+.bga_panel{
+    top: 0%;
+    left: 0%;
+    position: relative;
+    height: 88%;
+    width: 20%;
+    display: grid;
+    grid-template-rows:  repeat(16, 1fr);
+}

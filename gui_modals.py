@@ -50,8 +50,8 @@ def create_active_mdl():
     marks_gas_flow = {0: '0', 400: '400', 800: '800', 800: '1200', 1200: '1400', 1600: '1600', 2000: '2000'}
     return(html.Div([
         html.Div([
-            gp.paramtr_btn_1('co_pilot_btn', 'Auto Gas Regulation', '', '', 'air_flow','priority_btn', 80),
-            gp.paramtr_btn_1('hope_btn', 'HOPE', '100% 2l/min', '', '','priority_btn', 45),
+            gp.paramtr_btn_1('output_gas_btn', 'Gas Flow', '0', 'ml/min', 'gas_flow','ha', 80),
+            gp.paramtr_btn_1('fio2_btn', 'FiO2', '0', '%', 'fio2','ha', 80),
             gp.paramtr_btn_1('set_po2_btn', 'set pO2', '0', 'mmHg', 'set_po2','ha', 80),
             gp.paramtr_btn_1('set_pco2_btn', 'set pCO2', '0', 'mmHg', 'set_pco2','ha', 80),
             dcc.Slider(id='set_po2_slider', min=80, max=200, step=1, value=100, marks=marks_set_po2, vertical=True, verticalHeight=190, dots=False),
