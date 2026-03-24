@@ -81,10 +81,11 @@ async def test_intput_process(gui_q, ux_q):
 
 def build_state(cache_path: str, database_path: str, key:str):
     ux_q = asyncio.Queue()
+    tx_q = asyncio.Queue()
     gui_q = asyncio.Queue()
     sys_state = state.create_state(database_path)
     cache = memory.create_cache(cache_path, key, sys_state)
-    return gui_q, ux_q, cache
+    return gui_q, ux_q, tx_q, cache
 
 # trys to receive a mesage and puts it on an input que 
 async def ws_recv(websocket, ux_q):
@@ -144,15 +145,28 @@ async def create_system_tasks(app, key, cache, db_path, table, gui_q, ux_q):
         return system_tasks
     else:
         return None
-
-
+    
+def create_sys_param(fast_api_app, gui_q, ux_q, tx_q, cache, com_port_hub, db_path, table):
+    sp = {
+        "app": fast_api_app,
+        "gui_q": gui_q, 
+        "ux_q": ux_q,
+        "tx_q": tx_q, 
+        "cache": cache, 
+        "com_port_hub": com_port_hub,
+        "db_path": db_path,
+        "table": table,
+    }
+    return sp
 
 async def main():
     key = "key_name"
     table = 'test'
     db_path = r'data_vault.db'
     cache_path = r'C:\Temp\diskcache_test'
-    gui_q, ux_q, cache = build_state(cache_path, db_path, key)
+    gui_q, ux_q, tx_q, cache = build_state(cache_path, db_path, key)
+    com_port_hub = None
+    sp = create_sys_param(fast_api_app, gui_q, ux_q, tx_q, cache, com_port_hub, db_path, table)
 
     try:
         fast_api_app = FastAPI()

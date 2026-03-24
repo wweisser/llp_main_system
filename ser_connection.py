@@ -8,10 +8,11 @@ import onque as oq
 
 
 class serial_connection:
-    def __init__(self, comport, serial_port, read_task):
+    def __init__(self, comport, serial_port, read_task, device):
         self.comport = comport
         self.serial_port = serial_port
         self.read_task = read_task
+        self.device = device
     
     def get_state_of_task(self):
         """checks for the state of a read task, returns 'active', if intact an running"""
@@ -43,8 +44,8 @@ def create_con(port, ux_q):
         print(f"serial port for {port.device} could not be created\n", e)
     try:
         if ser:
-            read_task = asyncio.create_task(read_ser(ser, ux_q))
-            con = serial_connection(port.device, ser, read_task)
+            con_task = asyncio.create_task(read_ser(ser, ux_q))
+            con = serial_connection(port.device, ser, con_task, 'default')
             return con
     except Exception as e:
         print(f"read task for {port.device} could not be created\n", e)
@@ -106,13 +107,23 @@ def check_for_dead_con(con_arr, ux_q):
             con_arr.remove(con)
     return con_arr
 
+async def check_con_state(conn_arr, ux_q):
+    while True:
+        try:
+            conn_arr = check_for_new_con(conn_arr, ux_q)
+            conn_arr = check_for_dead_con(conn_arr, ux_q)
+            await asyncio.sleep(5)
+        except:
+            print("check_con_state was cancelled during sleep")
+            raise
+
 #Disconnetion handler for serial devices
-def input_to_q_item(buffer):
+def input_to_q_item(buffer, com_port):
     device = su.select_device(buffer)
     ser_input = ""
     if device == 'cdi':
         ser_input = buffer.decode('utf-8')
-    q_item = oq.create_q_item('ser_input', device, ser_input)
+    q_item = oq.create_q_item(device, com_port, ser_input)
     return q_item
 
 async def read_ser(ser, ux_q):
@@ -124,6 +135,7 @@ async def read_ser(ser, ux_q):
             try:
                 buffer = await loop.run_in_executor(None, ser.readline)
                 if buffer != b'' and buffer != "":
+                    
                     q_item = input_to_q_item(buffer)
                     # print('que item : ', q_item)
                     await oq.feed_queue(ux_q, q_item)
@@ -131,16 +143,6 @@ async def read_ser(ser, ux_q):
                 print(f'read task cancelled on {ser.port}')
                 print(e)
                 break
-
-async def check_con_state(conn_arr, ux_q):
-    while True:
-        try:
-            conn_arr = check_for_new_con(conn_arr, ux_q)
-            conn_arr = check_for_dead_con(conn_arr, ux_q)
-            await asyncio.sleep(5)
-        except:
-            print("check_con_state was cancelled during sleep")
-            raise
 
 async def connection_handler(ux_q):
     con_arr = create_con_arr(ux_q)

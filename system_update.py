@@ -9,10 +9,10 @@ import asyncio
 from datetime import datetime
 
 
-async def parse_ser_input(msg: dict, sys_state, cache, key, gui_q):
+async def parse_cdi_input(msg: dict, sys_state: dict, cache, key):
     #is called form deque loop if there is a serial input. Parses the input put it to state and to gui.
     # print('message id : ', msg['id'])
-    if msg['id'] == 'cdi':
+    if msg['msg_type'] == 'cdi':
         cdi_arr = cc.build_cdi_arr(msg['data'])
         sys_state = su.cdi_to_state(sys_state, cdi_arr)
         memory.put_state_to_cache(cache, key, sys_state)
@@ -74,12 +74,26 @@ async def parse_note_entry_request(msg: dict, sys_state: dict, gui_q):
         que_item = oq.create_q_item('system', 'state', sys_state)
         await oq.feed_queue(gui_q, que_item)
     return sys_state
+
+async def parse_controll_request(msg: dict, sys_state: dict):
+    return sys_state
+
+async def parse_hub_input(msg: dict, sys_state: dict, com_port_hub):
+    if not com_port_hub:
+        com_port_hub = msg['id']
     
-async def parse_msg(msg: dict, sys_state, cache, key, gui_q, ux_q, parth: str, table: str):
+    return sys_state
+
+
+async def parse_msg(msg: dict, sys_state, cache, key, gui_q, ux_q, parth: str, table: str, com_port_hub):
     # print(f'Input parser called : {msg}')
-    if msg['msg_type'] == 'ser_input':
-        print('parse_msg -> serial input received')
-        sys_state = await parse_ser_input(msg, sys_state, cache, key, gui_q)
+    if msg['msg_type'] == 'cdi':
+        print('parse_msg -> cdi input received')
+        sys_state = await parse_cdi_input(msg, sys_state, cache, key)
+
+    elif msg['msg_type'] == 'hub':
+        print('parse_msg -> hub input received')
+        sys_state = await parse_hub_input(msg, sys_state)
 
     elif msg['msg_type'] == 'case_number':
         print('parse_msg -> case number request received')
@@ -93,6 +107,9 @@ async def parse_msg(msg: dict, sys_state, cache, key, gui_q, ux_q, parth: str, t
         print('parse_msg -> entry request received')
         sys_state = await parse_note_entry_request(msg, sys_state, gui_q)
 
+    elif msg['msg_type'] == 'controll':
+        print('parse_msg -> controll request received')
+        sys_state = await parse_controll_request(msg, sys_state, com_port_hub)
     else:
         print("parse_msg -> ux_q item is not valid")
         return None
