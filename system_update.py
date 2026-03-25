@@ -75,21 +75,23 @@ async def parse_note_entry_request(msg: dict, sys_state: dict, gui_q):
         await oq.feed_queue(gui_q, que_item)
     return sys_state
 
-async def parse_controll_request(msg: dict, sys_state: dict):
+async def parse_controll_request(msg: dict, sys_state: dict, c):
+
     return sys_state
 
-async def parse_hub_input(msg: dict, sys_state: dict, com_port_hub):
+async def parse_hub_input(msg: dict, sys_state: dict, com_port_hub: str, tx_q):
     if not com_port_hub:
         com_port_hub = msg['id']
-    
+    que_item = oq.create_q_item('hub_request', com_port_hub, msg)
+    oq.feed_queue(tx_q, que_item)
     return sys_state
 
 
-async def parse_msg(msg: dict, sys_state, cache, key, gui_q, ux_q, parth: str, table: str, com_port_hub):
+async def parse_msg(msg: dict, sys_state, sp):
     # print(f'Input parser called : {msg}')
     if msg['msg_type'] == 'cdi':
         print('parse_msg -> cdi input received')
-        sys_state = await parse_cdi_input(msg, sys_state, cache, key)
+        sys_state = await parse_cdi_input(msg, sys_state, sp['cache'], sp['key'])
 
     elif msg['msg_type'] == 'hub':
         print('parse_msg -> hub input received')
@@ -97,44 +99,44 @@ async def parse_msg(msg: dict, sys_state, cache, key, gui_q, ux_q, parth: str, t
 
     elif msg['msg_type'] == 'case_number':
         print('parse_msg -> case number request received')
-        sys_state = await parse_case_number_request(msg, sys_state, gui_q, parth, table)
+        sys_state = await parse_case_number_request(msg, sys_state, sp['gui_q'], sp['parth'], sp['table'])
 
     elif msg['msg_type'] == 'archive':
         print('parse_msg -> archive request received')
-        sys_state = await parse_archive_request(msg, sys_state, ux_q, cache, key, parth, table)
+        sys_state = await parse_archive_request(msg, sys_state, sp['ux_q'], sp['cache'], sp['key'], sp['parth'], sp['table'])
     
     elif msg['msg_type'] == 'entry_request':
         print('parse_msg -> entry request received')
-        sys_state = await parse_note_entry_request(msg, sys_state, gui_q)
+        sys_state = await parse_note_entry_request(msg, sys_state, sp['gui_q'])
 
     elif msg['msg_type'] == 'controll':
         print('parse_msg -> controll request received')
-        sys_state = await parse_controll_request(msg, sys_state, com_port_hub)
+        sys_state = await parse_controll_request(msg, sys_state, sp['com_port_hub'], sp['tx_q'])
     else:
         print("parse_msg -> ux_q item is not valid")
         return None
-    memory.put_state_to_cache(cache, key, sys_state)
+    memory.put_state_to_cache(sp['cache'], sp['key'], sys_state)
     return sys_state
 
 # start loop that fetches itmes from the input que
-async def dequeue_loop(gui_q, ux_q, cache, key, path, table, system_tasks):
-    sys_state = memory.get_state_from_cache(cache, key)
+async def dequeue_loop(sp: list, system_tasks):
+    sys_state = memory.get_state_from_cache(sp['cache'], sp['key'])
     print("DEQUELOOP HAS STARTED")
     while True:
         try:
-            msg = await asyncio.wait_for(ux_q.get(), timeout=1.0)
+            msg = await asyncio.wait_for(sp['ux_q'].get(), timeout=1.0)
             print('dequeue_loop -> msg: ', msg)
             if msg != '400'and isinstance(msg, dict):
-                parse_object = await parse_msg(msg, sys_state, cache, key, gui_q, ux_q, path, table)
+                parse_object = await parse_msg(msg, sys_state, sp)
                 if isinstance(parse_object, dict):
-                    memory.put_state_to_cache(cache, key, parse_object)
+                    memory.put_state_to_cache(sp['cache'], sp['key'], parse_object)
                 elif isinstance(parse_object, asyncio.Task):
                     system_tasks.append(parse_object)
         except Exception as e:
             print(e)
 
 
-async def gui_updater(cache, key, gui_q, path:str, table:str):
+async def gui_updater(cache, key, gui_q):
     print('GUI UPDATER STARTED')
     current_time_old = datetime.now()
     while True:
@@ -158,9 +160,6 @@ async def gui_updater(cache, key, gui_q, path:str, table:str):
             memory.put_state_to_cache(cache, key, sys_state)
             gui_item = oq.create_q_item('system', 'state', sys_state)
             await oq.feed_queue(gui_q, gui_item)
-
-            # if sys_state['system']['case_number'] != 0:
-            #     dbtg.val_to_graph(path, table, 'art_ph', sys_state['system']['case_number'])
 
 
         except Exception as e:

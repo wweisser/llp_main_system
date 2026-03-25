@@ -132,14 +132,14 @@ def start_ws(app, gui_q, ux_q):
         send_task = asyncio.create_task(ws_send(websocket, gui_q))
         await asyncio.gather(recv_task, send_task)
 
-async def create_system_tasks(app, key, cache, db_path, table, gui_q, ux_q):
+async def create_system_tasks(app, sp):
     system_tasks = []
-    if app and gui_q and ux_q:
-        system_tasks.append(asyncio.create_task(su.dequeue_loop(gui_q, ux_q, cache, key, db_path, table, system_tasks)))
-        # system_tasks.append(asyncio.create_task(sc.connection_handler(ux_q)))
-        system_tasks.append(asyncio.create_task(su.gui_updater(cache, key, gui_q, db_path, table)))
+    if app:
+        system_tasks.append(asyncio.create_task(su.dequeue_loop(sp system_tasks)))
+        system_tasks.append(asyncio.create_task(sc.connection_handler(sp['ux_q'], system_tasks)))
+        system_tasks.append(asyncio.create_task(su.gui_updater(sp['cache'], sp['key'], sp['gui_q'])))
 ################TEST TEST TEST#########################################
-        system_tasks.append(asyncio.create_task(start_cdi_test_thread(ux_q)))
+        system_tasks.append(asyncio.create_task(start_cdi_test_thread(sp['ux_q'])))
 ################TEST TEST TEST#########################################
         # await asyncio.gather(*system_tasks)
         return system_tasks
@@ -148,7 +148,6 @@ async def create_system_tasks(app, key, cache, db_path, table, gui_q, ux_q):
     
 def create_sys_param(fast_api_app, gui_q, ux_q, tx_q, cache, com_port_hub, db_path, table):
     sp = {
-        "app": fast_api_app,
         "gui_q": gui_q, 
         "ux_q": ux_q,
         "tx_q": tx_q, 
@@ -178,7 +177,9 @@ async def main():
     except Exception as e:
         print("main -> server client collapsed")
         print(e)
-    system_tasks = await create_system_tasks(fast_api_app, key, cache, db_path, table, gui_q, ux_q)
+    system_tasks = await create_system_tasks(fast_api_app, sp)
+    
+    # system_tasks = await create_system_tasks(fast_api_app, key, cache, db_path, table, gui_q, ux_q)
     config = uvicorn.Config(fast_api_app, host="0.0.0.0", port=8050)
     server = uvicorn.Server(config)
     await server.serve()

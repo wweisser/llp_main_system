@@ -6,7 +6,6 @@ import ser_utils as su
 import onque as oq
 
 
-
 class serial_connection:
     def __init__(self, comport, serial_port, read_task, device):
         self.comport = comport
