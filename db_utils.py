@@ -270,10 +270,10 @@ def execute_entry(parth: str, table: str,  sys_state: dict):
 			'hb':               sys_state['hb']['val'],
 			'lactate':          sys_state['lactate']['val'],
 			'glucose':          sys_state['glucose']['val'],
-			'bilirubin':		sys_state['bilirubin']['val'],
-			'system_volume':    sys_state['system_volume'],
-			'filter_flow':      sys_state['filter_flow']['val'],
-			'substitude_flow':  sys_state['substitude_flow']['val'],
+			'bilirubin':		sys_state['lab']['bilirubin'],
+			'system_volume':    sys_state['fluid_balance']['system_volume'],
+			'filter_flow':      sys_state['fluid_balance']['filter_flow'],
+			'substitude_flow':  sys_state['fluid_balance']['substitude_flow'],
 			'biliary_flow':		0,
 			'biliary_ph':		0,
 			'biliary_hco3':		0,
@@ -306,24 +306,24 @@ if __name__ == "__main__":
 	import os
 
 	table = 'test'
-	db_parth = r'data_vault.db'
+	db_parth = r'C:\Users\whwei\OneDrive\coding\data_vault.db'
 	cache_path = r'C:\Temp\diskcache_test'
 	os.makedirs(cache_path, exist_ok=True)
 	sys_state = state.create_state(db_parth)
-	sys_state['system']['case_number'] = 1
-	# print(sys_state)
+	sys_state['system']['case_number'] = 0
+	print('system state', sys_state)
 	execute_entry(db_parth, table, sys_state)
 	# mem.create_cache(cache_path, 'key', sys_state)
 
 
 	tables = get_tables_names(db_parth)
-	print(tables)
+	print(f'get_tables_names -> {tables}')
 
 	val = get_val(db_parth, table, 'case_number', 100, 1)
-	print(val)
+	print(f'get_val -> casemucase number : {val}')
 	
 	val_II = get_val(db_parth, table, 'case_number', -1, -1)
-	print(val_II)
+	print(f'get_val -> all casenumbers : {val}')
 	# print(type(val_II[2]))
 
 	# with sqlite3.connect(db_parth) as conn:

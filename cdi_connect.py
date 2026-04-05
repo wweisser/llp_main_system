@@ -39,20 +39,22 @@ def process_input(input):
         if(input[i] != '\t' and input[i+1] == '\t' and y < numb_var):
             arr[y] = str_to_numb(x)
             arr[y] = round(arr[y], 2)
+            # print(arr[y]) 
             x = ""
             y = y + 1
     return arr
 
-def build_cdi_arr(serial_read: str):
-    cdi_data_arr = process_input(serial_read)
+def build_cdi_arr(serial_read):
+    input = serial_read.decode('utf-8')
+    cdi_data_arr = process_input(input)
     return cdi_data_arr
 
 if __name__ == '__main__':
-    test =b' 09:41:33\t7.14\t---\t---\t26.4\t--\t--\t---\t-.-\t---\t-.-\t \t7.26\t---\t---\t25.5\t---\t25%\t  test'
+    test =b' 09:41:33\t7.14\t ---\t ---\t 26.4\t --\t --\t ---\t -.-\t ---\t -.-\t    \t7.26\t ---\t ---\t25.5\t ---\t 25%\t  \r\n'
     # test = test.encode()
     if type(test) == bytes:
-        print("Byte array type")
-    test = test.decode("utf-8")
+        print(type(test))
+    # test = bytearray(test, "utf-8")
     arr = build_cdi_arr(test)
     print("CDI Arr: ", arr)
 #b' 17:48:43\t6.59\t 038\t ---\t37.5\t 04 \t -- \t ---\t -.-\t ---\t -.-\t    \t6.66\t 027\t ---\t36.9\t ---\t ---\t    \r\n'

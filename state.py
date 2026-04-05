@@ -60,7 +60,7 @@ def create_state(db_path: str):
             "set_pressure_pv": 0,
         },
         "notes": "",
-        "dialysis":{
+        "fluid_balance":{
             "set_hct": 0,
             "system_volume": 0,
             "filter_flow": 0,

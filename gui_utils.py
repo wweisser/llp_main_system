@@ -50,8 +50,7 @@ def parse_ws_msg(msg: dict):
     if isinstance(msg, dict):
         msg_data = msg['data']
         data = json.loads(msg_data)
-        print('UNPACKED DATA')
-        print(f'\n hier kommt was an {data['msg_type']}')
+        # print('UNPACKED DATA')
         return data
     else: 
         return None
@@ -83,7 +82,7 @@ def gui_ws_recv(app):
         prevent_initial_call=True
         )
     def distribute_case_msg(msg):
-        # print('\nRAW MESSAGE : ', msg)
+        # print(f'gui_ws_recv -> \nRAW MESSAGE : ', msg)
         data = parse_ws_msg(msg)
         if data and isinstance(data, dict):
             return data
@@ -122,8 +121,8 @@ def gui_ws_recv(app):
         prevent_initial_call=True
         )
     def distribute_system_msg(msg):
-        print(f'inbox content {msg['msg_type']}\n')
         if msg and msg['msg_type'] == 'case_number':
+            print(f'inbox content {msg['msg_type']}\n')
             print(f'\n CASE DATA : {msg}\n')
             case_ids = parse_case_id(msg)
             if case_ids:

@@ -67,6 +67,7 @@ def system_to_button(app, pre_text, parameter, btn):
             return f'{pre_text}'  
 
 def state_to_gui(app):
+    print(f'state_to_gui -> gui updated')
     return(html.Div([
         system_to_button(app, 'Case ID:    ', 'case_number', 'case_id'),
         system_to_button(app, 'Start: ', 'start_time', 'start_time'),

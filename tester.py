@@ -54,7 +54,6 @@ def create_test_bytearray():
                  #b' 09:41:33\t7.44\         t 042\            t 148\          t26.4\t 21 \t -1 \   t 95\          t 4.5 \       t ---\     t    \t    \t7.33\         t54  \          t 50 \          t25.5\      t 98 \        t 18 \       t 6.6\        r\n'
     test_string = f' 09:41:33\t{str(art_ph)}\t 0{str(art_CO2)}\t {str(art_O2)}\t26.4\t {str(hco3)} \t {str(base)} \t {str(cSO2)} \t {str(k)}\t ---\t    \t{str(ven_ph)}\t{str(ven_CO2)}  \t {str(ven_O2)} \t ---\t25.5\t {str(SO2)} \t {str(hct)} \t {str(hb)}\r\n'
     # cdi_string = b' 13:13:25\t6.58\t 035\t ---\t35.8\t 03 \t -- \t ---\t -.-\t ---\t -.-\t    \t6.67\t 027\t ---\t35.1\t ---\t ---\t -.-\r\n'
-
     test_bytearray = bytearray(test_string, "utf-8")
     return test_bytearray
 
@@ -64,8 +63,9 @@ async def start_cdi_test_thread(q):
         test_barr = ""
         test_barr = create_test_bytearray()
         if test_barr != "":
-            q_item = sc.input_to_q_item(test_barr)
+            q_item = oq.create_q_item('serial', 'cdi', test_barr)
         await oq.feed_queue(q, q_item)
+        # print(f'start_cdi_test_thread -> {test_barr}', flush=True)
         await asyncio.sleep(6)
 
 async def test_intput_process(gui_q, ux_q):
@@ -89,17 +89,18 @@ def build_state(cache_path: str, database_path: str, key:str):
 
 # trys to receive a mesage and puts it on an input que 
 async def ws_recv(websocket, ux_q):
+    print(f'ws_recv -> recv loop was started')
     while True:
         try:
-            print('ws_recv -> waiting for incomig message')
+            # print('ws_recv -> waiting for incomig message')
             msg_raw= await websocket.receive()
             if msg_raw and isinstance(msg_raw, dict):
                 if msg_raw['type'] == 'websocket.disconnect':
                     print('ws_recv -> websocked disconnected')
                     break    
-            print('ws_recv -> ', msg_raw, 'type : ', type(msg_raw))
+            # print('ws_recv -> ', msg_raw, 'type : ', type(msg_raw))
             msg = state.get_json(msg_raw['text'])
-            print('ws_recv -> unjsoned msg : ', msg, type(msg) )
+            # print('ws_recv -> unjsoned msg : ', msg, type(msg) )
             await ux_q.put(msg)
         except Exception as e:
             print("ws -> could not receive")
@@ -107,14 +108,15 @@ async def ws_recv(websocket, ux_q):
 
 # fetches item from gui que and trys to send via websocket
 async def ws_send(websocket, gui_q):
+    print(f'ws_send -> send loop was started')
     while True:
         try:
             msg = await gui_q.get()
             if isinstance(msg, dict):
                 msg_to_send = json.dumps(msg)
-                print('ws_send -> message to send', type(msg_to_send))
+                # print('ws_send -> message to send', type(msg_to_send))
                 await websocket.send_text(msg_to_send)
-                print('ws_send -> item was send')
+                # print('ws_send -> item was send')
             else:
                 print('ws_send -> item to send was not dict')
         except Exception as e:
@@ -135,8 +137,8 @@ def start_ws(app, gui_q, ux_q):
 async def create_system_tasks(app, sp):
     system_tasks = []
     if app:
-        system_tasks.append(asyncio.create_task(su.dequeue_loop(sp system_tasks)))
-        system_tasks.append(asyncio.create_task(sc.connection_handler(sp['ux_q'], system_tasks)))
+        system_tasks.append(asyncio.create_task(su.dequeue_loop(sp, system_tasks)))
+        # system_tasks.append(asyncio.create_task(sc.connection_handler(sp['ux_q'], sp['tx_q'])))
         system_tasks.append(asyncio.create_task(su.gui_updater(sp['cache'], sp['key'], sp['gui_q'])))
 ################TEST TEST TEST#########################################
         system_tasks.append(asyncio.create_task(start_cdi_test_thread(sp['ux_q'])))
@@ -146,12 +148,13 @@ async def create_system_tasks(app, sp):
     else:
         return None
     
-def create_sys_param(fast_api_app, gui_q, ux_q, tx_q, cache, com_port_hub, db_path, table):
+def create_sys_param(gui_q, ux_q, tx_q, cache, key, com_port_hub, db_path, table):
     sp = {
         "gui_q": gui_q, 
         "ux_q": ux_q,
         "tx_q": tx_q, 
         "cache": cache, 
+        "key": key,
         "com_port_hub": com_port_hub,
         "db_path": db_path,
         "table": table,
@@ -161,11 +164,11 @@ def create_sys_param(fast_api_app, gui_q, ux_q, tx_q, cache, com_port_hub, db_pa
 async def main():
     key = "key_name"
     table = 'test'
-    db_path = r'data_vault.db'
+    db_path = r'C:\Users\whwei\OneDrive\coding\data_vault.db'
     cache_path = r'C:\Temp\diskcache_test'
     gui_q, ux_q, tx_q, cache = build_state(cache_path, db_path, key)
     com_port_hub = None
-    sp = create_sys_param(fast_api_app, gui_q, ux_q, tx_q, cache, com_port_hub, db_path, table)
+    sp = create_sys_param(gui_q, ux_q, tx_q, cache, key, com_port_hub, db_path, table)
 
     try:
         fast_api_app = FastAPI()
@@ -180,7 +183,7 @@ async def main():
     system_tasks = await create_system_tasks(fast_api_app, sp)
     
     # system_tasks = await create_system_tasks(fast_api_app, key, cache, db_path, table, gui_q, ux_q)
-    config = uvicorn.Config(fast_api_app, host="0.0.0.0", port=8050)
+    config = uvicorn.Config(fast_api_app, host="0.0.0.0", port=8050, log_config=None)
     server = uvicorn.Server(config)
     await server.serve()
     await asyncio.gather(*system_tasks)
@@ -191,4 +194,4 @@ if __name__ == "__main__":
     asyncio.run(main())
 
 
-#URL : http://127.0.0.1:8000/dashboard1/
+#URL : http://127.0.0.1:8050/dashboard1/

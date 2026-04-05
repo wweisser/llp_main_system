@@ -62,21 +62,6 @@ def tabbar_callback(app):
         else:
             print('note mdl close')
             return True
-        
-    # @app.callback(
-    #     Output('active_mdl', 'hidden'),
-    #     Input('active_mdl_btn', 'n_clicks'),
-    #     State('active_mdl', 'hidden'),
-    #     prevent_initial_call=True
-    # )
-    # def open_note_mdl(btn, hidden):
-    #     print('hidden: ', hidden)
-    #     if hidden:
-    #         print('note mdl open')
-    #         return False
-    #     else:
-    #         print('note mdl close')
-    #         return True
     
     @app.callback(
         Output('postbox', 'data', allow_duplicate=True),
@@ -92,13 +77,13 @@ def tabbar_callback(app):
         else:
             return None, ""
 
-    @app.callback(
-        Output('note_h1', 'value', allow_duplicate=True),
-        Input('state_data_store', 'data'),
-        prevent_initial_call=True
-    )
-    def enter_note(sys_state):
-        return sys_state['data']['notes']
+    # @app.callback(
+    #     Output('note_h1', 'value', allow_duplicate=True),
+    #     Input('state_data_store', 'data'),
+    #     prevent_initial_call=True
+    # )
+    # def enter_note(sys_state):
+    #     return sys_state['notes']
 
 def bga_value_callback(app, val:str):
     @app.callback(

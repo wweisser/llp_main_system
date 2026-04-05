@@ -8,12 +8,18 @@ import db_to_graph as dbtg
 import asyncio
 from datetime import datetime
 
+async def parse_serial_input(msg: dict, sys_state: dict, cache, key):
+    if msg['id'] == 'cdi':
+        sys_state = await parse_cdi_input(msg, sys_state, cache, key)
+    return sys_state
 
 async def parse_cdi_input(msg: dict, sys_state: dict, cache, key):
     #is called form deque loop if there is a serial input. Parses the input put it to state and to gui.
-    # print('message id : ', msg['id'])
-    if msg['msg_type'] == 'cdi':
+    if msg['id'] == 'cdi':
+        # print(f'parse_cdi_input -> input : {msg['data']}')
+
         cdi_arr = cc.build_cdi_arr(msg['data'])
+        # print(f'parse_cdi_input -> cdi array : {cdi_arr}')
         sys_state = su.cdi_to_state(sys_state, cdi_arr)
         memory.put_state_to_cache(cache, key, sys_state)
         # que_item = oq.create_q_item('system', 'state', sys_state)
@@ -89,28 +95,30 @@ async def parse_hub_input(msg: dict, sys_state: dict, com_port_hub: str, tx_q):
 
 async def parse_msg(msg: dict, sys_state, sp):
     # print(f'Input parser called : {msg}')
-    if msg['msg_type'] == 'cdi':
-        print('parse_msg -> cdi input received')
-        sys_state = await parse_cdi_input(msg, sys_state, sp['cache'], sp['key'])
+    if msg['msg_type'] == 'serial':
+        # print('parse_msg -> cdi input received')
+        sys_state = await parse_serial_input(msg, sys_state, sp['cache'], sp['key'])
 
     elif msg['msg_type'] == 'hub':
-        print('parse_msg -> hub input received')
+        # print('parse_msg -> hub input received')
         sys_state = await parse_hub_input(msg, sys_state)
 
     elif msg['msg_type'] == 'case_number':
         print('parse_msg -> case number request received')
-        sys_state = await parse_case_number_request(msg, sys_state, sp['gui_q'], sp['parth'], sp['table'])
+        print('parse_msg -> arguments to parse casenumber:', sp['gui_q'], sp['db_path'], sp['table'])
+
+        sys_state = await parse_case_number_request(msg, sys_state, sp['gui_q'], sp['db_path'], sp['table'])
 
     elif msg['msg_type'] == 'archive':
-        print('parse_msg -> archive request received')
-        sys_state = await parse_archive_request(msg, sys_state, sp['ux_q'], sp['cache'], sp['key'], sp['parth'], sp['table'])
+        # print('parse_msg -> archive request received')
+        sys_state = await parse_archive_request(msg, sys_state, sp['ux_q'], sp['cache'], sp['key'], sp['db_path'], sp['table'])
     
     elif msg['msg_type'] == 'entry_request':
-        print('parse_msg -> entry request received')
+        # print('parse_msg -> entry request received')
         sys_state = await parse_note_entry_request(msg, sys_state, sp['gui_q'])
 
     elif msg['msg_type'] == 'controll':
-        print('parse_msg -> controll request received')
+        # print('parse_msg -> controll request received')
         sys_state = await parse_controll_request(msg, sys_state, sp['com_port_hub'], sp['tx_q'])
     else:
         print("parse_msg -> ux_q item is not valid")
@@ -125,7 +133,7 @@ async def dequeue_loop(sp: list, system_tasks):
     while True:
         try:
             msg = await asyncio.wait_for(sp['ux_q'].get(), timeout=1.0)
-            print('dequeue_loop -> msg: ', msg)
+            # print('dequeue_loop -> msg: ', msg)
             if msg != '400'and isinstance(msg, dict):
                 parse_object = await parse_msg(msg, sys_state, sp)
                 if isinstance(parse_object, dict):
@@ -158,6 +166,8 @@ async def gui_updater(cache, key, gui_q):
                 min, sec = divmod(remain, 60)
                 sys_state['system']['perfusion_time'] = f"{h:02}:{min:02}:{sec:02}"
             memory.put_state_to_cache(cache, key, sys_state)
+            # gui_item = oq.create_q_item('system', 'time', sys_state['system']['clock_time'])
+
             gui_item = oq.create_q_item('system', 'state', sys_state)
             await oq.feed_queue(gui_q, gui_item)
 

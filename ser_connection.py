@@ -143,7 +143,7 @@ async def read_ser(ser, ux_q):
                 print(e)
                 break
 
-async def connection_handler(ux_q):
+async def connection_handler(ux_q, tx_q):
     con_arr = create_con_arr(ux_q)
     try:
         await check_con_state(con_arr, ux_q)

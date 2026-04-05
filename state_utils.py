@@ -10,6 +10,7 @@ async def update_sys_state(cache, key: str, outer_key: str, inner_key: str, val)
     return sys_state
 
 def cdi_to_state(sys_state, cdi_arr):
+    # print(f'cdi_to_state -> {cdi_arr}')
     if len(cdi_arr) >= 18:
         sys_state['art_ph']['val'] =  cdi_arr[1]
         sys_state['art_pco2']['val'] = cdi_arr[2]
