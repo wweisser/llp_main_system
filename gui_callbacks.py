@@ -13,6 +13,7 @@ def tabbar_callback(app):
         Output('ph_panel', 'className'),
         Output('respiratory_panel', 'className'),
         Output('bga_entry_panel', 'className'),
+        Output('permanent_panel', 'className'),
 
         Output('tab1_btn', 'n_clicks'),
         Output('tab2_btn', 'n_clicks'),
@@ -33,15 +34,15 @@ def tabbar_callback(app):
         show = 'side_panel_I'  # oder 'flex', je nach Layout
 
         if btn1:
-            ret_arr = [show, hide, hide, hide, hide]
+            ret_arr = [show, hide, hide, hide, hide, hide]
         elif btn2:
-            ret_arr = [hide, show, hide, hide, hide]
+            ret_arr = [hide, show, hide, hide, hide, 'side_panel_II']
         elif btn3:
-            ret_arr = [hide, hide, show, hide, hide]
+            ret_arr = [hide, hide, show, hide, hide, 'side_panel_II']
         elif btn4:
-            ret_arr = [hide, hide, hide, show, hide]
+            ret_arr = [hide, hide, hide, show, hide, 'side_panel_II']
         elif btn5:
-            ret_arr = [hide, hide, hide, hide, 'bga_panel']
+            ret_arr = [hide, hide, hide, hide, 'bga_panel', 'side_panel_II']
         # elif btn6:
         #     ret_arr = [hide, hide, hide, hide, hide]
 

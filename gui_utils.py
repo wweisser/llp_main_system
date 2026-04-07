@@ -97,7 +97,7 @@ def gui_ws_recv(app):
         prevent_initial_call=True
         )
     def distribute_plot_msg(msg):
-        if msg and msg['msg_type'] == 'visual':
+        if msg and msg['msg_type'] == 'graph':
             # print(msg['data'])
             return msg['data']
         else:

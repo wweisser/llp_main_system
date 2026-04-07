@@ -20,38 +20,35 @@ def get_table(parth: str, table: str):
 		data_from_sql = c.fetchmany(10)
 	return data_from_sql
 
-def get_val(parth: str, table: str, val: str, range: int, case_number: int):		
+def get_val(parth: str, table: str, param: list, range: int, case_number: int):		
 	try:
 		with sqlite3.connect(parth) as conn:
 			c = conn.cursor() 
-			c.execute(f"SELECT {val} FROM {table} WHERE case_number = {case_number}")
-			if case_number < 0:
-				c.execute(f"SELECT {'case_number'} FROM {table}")
-			if range > 0:
-				values = c.fetchmany(range)
-			else:
-				values = c.fetchall()
-				print('values : ', values)
-		val_arr = []	
-		for val in values:
-			val_arr.append(val[0])
+			c.execute(f"SELECT perfusion_time, {param} FROM {table} WHERE case_number = {case_number}")
+			values = c.fetchmany(range)
+			val_arr = [list(spalte) for spalte in zip(*values)]
 		return val_arr
 	except Exception as e:
 		print('value array could not be extracted from database')
 		print(e)
 		return None
 
-def data_request():
-	pass
-
-def entry_request():
-	pass
-
-def stop_record():
-	pass
-
-def change_entry():
-	pass
+def get_all_cn(parth: str, table: str):
+	try:
+		with sqlite3.connect(parth) as conn:
+			c = conn.cursor() 
+			c.execute(f"SELECT case_number FROM {table}")
+			cn_list = c.fetchall()
+			cn_arr = []
+			for cn in cn_list:
+				if not cn[0] in cn_arr:
+					cn_arr.append(cn[0])
+			return cn_arr
+	except Exception as e:
+		print('get_all_cn -> casnumbers could not be extracted')
+		print(e)
+		return None
+	
 
 def create_table(c, conn, table_name):
     c.execute(f"""CREATE TABLE IF NOT EXISTS {table_name} (
@@ -316,14 +313,12 @@ if __name__ == "__main__":
 	# mem.create_cache(cache_path, 'key', sys_state)
 
 
-	tables = get_tables_names(db_parth)
-	print(f'get_tables_names -> {tables}')
+	cn = get_all_cn(db_parth, table)
+	print(f'case numbers -> {cn}')
 
-	val = get_val(db_parth, table, 'case_number', 100, 1)
+	val = get_val(db_parth, table, 'vo2, art_flow', 100, 1)
 	print(f'get_val -> casemucase number : {val}')
 	
-	val_II = get_val(db_parth, table, 'case_number', -1, -1)
-	print(f'get_val -> all casenumbers : {val}')
 	# print(type(val_II[2]))
 
 	# with sqlite3.connect(db_parth) as conn:

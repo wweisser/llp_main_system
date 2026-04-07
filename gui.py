@@ -8,6 +8,7 @@ import gui_active_callbacks as ga
 import gui_graphs as gg
 import gui_case_management as gcm
 import gui_parameter_callbacks as gpc
+import gui_graph_callbacks as ggc
 
 
 def create_layouts():
@@ -26,7 +27,8 @@ def create_modals():
 def create_callbacks(app):
     return(html.Div([
         gc.tabbar_callback(app),
-        gcm.case_manager_callbacks(app, 'case_manager')
+        gcm.case_manager_callbacks(app, 'case_manager'),
+        ggc.create_graph_callbacks(app, "ha_pv_flow_graph")
     ]))
 
 def create_communication(app):
@@ -57,7 +59,9 @@ def create_gui(app):
 
 def create_app():
     print("gui ausgelöst")
-    gui_app = dash.Dash(__name__, requests_pathname_prefix='/dashboard1/')
+    # gui_app = dash.Dash(__name__, requests_pathname_prefix='/d1/')
+    gui_app = dash.Dash(__name__)
+
     # gui_app = dash.Dash(__name__)
     gui_app.layout = create_gui(gui_app)
     create_com_callbacks(gui_app)

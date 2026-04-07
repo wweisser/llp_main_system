@@ -118,6 +118,7 @@ def respiratory_panel():
         ], id='respiratory_panel',className="side_panel_I", hidden=True)
     )
 
+
 def tab_bar():
     return(html.Div([
         cntrl_btn('case_manager', 'Perfusion Start: ', 'start_time', 'Clock Time:', 'clock_time', 'Case ID: ', 'case_id','ha'),
@@ -128,8 +129,8 @@ def tab_bar():
         paramtr_btn_1('tab4_btn', 'Respiration', '', '', 'tab4', 'tabbar_btn', 90),
         paramtr_btn_1('tab5_btn', 'Active', '', '', 'tab5', 'tabbar_btn', 90),
         paramtr_btn_1('tab6_btn', 'Connections', '', '', 'tab6', 'tabbar_btn', 90),
-        cntrl_btn('note_mdl_btn',  'Note', 'cntrl_cm_lower', '', '', '', 'note_lower', 'ha'),
-        cntrl_btn('alarm_btn',  'Mute Alarm', 'mute_btn', '', '', '', 'alarm_lower', 'ha'),
+        cntrl_btn('note_mdl_btn',  'Note', 'cntrl_cm_lower', '', 'tab7', '', 'note_lower', 'ha'),
+        cntrl_btn('alarm_btn',  'Mute Alarm', 'mute_btn', '', 'tab8', '', 'alarm_lower', 'ha'),
         ], id='tab_bar', className="tabbar")
     )
 
@@ -156,7 +157,6 @@ def bga_entry_panel():
 def create_pages():
     return(html.Div([
         bga_entry_panel(),
-        tab_bar(),
         respiratory_panel(),
         ph_panel(),
         perf_stat_panel(),

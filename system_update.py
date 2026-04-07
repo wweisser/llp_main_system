@@ -61,7 +61,7 @@ async def parse_case_number_request(msg: dict, sys_state: dict, gui_q, parth: st
         sys_state['system']['case_number'] = msg['data']
     elif msg['id'] == 'list_request':
         print('\nparse_case_number_request -> Case umber list request received\n')
-        val_arr = du.get_val(parth, table, 'case_number', -1, -1)
+        val_arr = du.get_all_cn(parth, table)
         if val_arr:
             que_item = oq.create_q_item('case_number', 'cn_list', val_arr)
             await oq.feed_queue(gui_q, que_item)
@@ -91,7 +91,6 @@ async def parse_hub_input(msg: dict, sys_state: dict, com_port_hub: str, tx_q):
     que_item = oq.create_q_item('hub_request', com_port_hub, msg)
     oq.feed_queue(tx_q, que_item)
     return sys_state
-
 
 async def parse_msg(msg: dict, sys_state, sp):
     # print(f'Input parser called : {msg}')
@@ -143,35 +142,39 @@ async def dequeue_loop(sp: list, system_tasks):
         except Exception as e:
             print(e)
 
+def calc_time(sys_state):
+    try:
+        current_time = datetime.now()
+        sys_state['system']['clock_time'] = current_time.strftime("%H:%M:%S")
+        st = sys_state['system']['start_time']
+        pt = sys_state['system']['perfusion_time']
+        if sys_state['system']['autosave'] and st != 0:
+            start_time_dt = datetime.strptime(st, "%d.%m.%Y %H:%M:%S")
+            if pt != 0:
+                pt_old = datetime.strptime(pt, "%H:%M:%S")
+                pt = pt_old + (current_time - current_time_old)
+            else:
+                pt = current_time - start_time_dt
+            current_time_old = current_time
+            h, remain = divmod(int(pt.total_seconds()), 3600)
+            min, sec = divmod(remain, 60)
+            sys_state['system']['perfusion_time'] = f"{h:02}:{min:02}:{sec:02}"    
+        return sys_state
+    except Exception as e:
+        print('gui_updater ->', e)
+        return None
 
 async def gui_updater(cache, key, gui_q):
     print('GUI UPDATER STARTED')
     current_time_old = datetime.now()
     while True:
-        try:
-            sys_state = memory.get_state_from_cache(cache, key)
-            current_time = datetime.now()
-            sys_state['system']['clock_time'] = current_time.strftime("%H:%M:%S")
-            st = sys_state['system']['start_time']
-            pt = sys_state['system']['perfusion_time']
-            if sys_state['system']['autosave'] and st != 0:
-                start_time_dt = datetime.strptime(st, "%d.%m.%Y %H:%M:%S")
-                if pt != 0:
-                    pt_old = datetime.strptime(pt, "%H:%M:%S")
-                    pt = pt_old + (current_time - current_time_old)
-                else:
-                    pt = current_time - start_time_dt
-                current_time_old = current_time
-                h, remain = divmod(int(pt.total_seconds()), 3600)
-                min, sec = divmod(remain, 60)
-                sys_state['system']['perfusion_time'] = f"{h:02}:{min:02}:{sec:02}"
+        sys_state = memory.get_state_from_cache(cache, key)
+        sys_state = calc_time(sys_state)
+        if sys_state:
             memory.put_state_to_cache(cache, key, sys_state)
-            # gui_item = oq.create_q_item('system', 'time', sys_state['system']['clock_time'])
+        # gui_item = oq.create_q_item('system', 'time', sys_state['system']['clock_time'])
 
-            gui_item = oq.create_q_item('system', 'state', sys_state)
-            await oq.feed_queue(gui_q, gui_item)
+        gui_item = oq.create_q_item('system', 'state', sys_state)
 
-
-        except Exception as e:
-            print('gui_updater -> ', e)
+        await oq.feed_queue(gui_q, gui_item)
         await asyncio.sleep(1.0)

@@ -37,8 +37,8 @@ def create_center_panels(class_name: str):
    return(
         html.Div([
             create_graph_panel("ha_pv_flow_graph", "ha_pv_temp_graph", "hb_hct_graph", False, 'center_graph_panel'),
-            create_graph_panel("ha_pv_ph_graph", "base_lactate_graph", "k_glucose_graph", True, 'center_graph_panel'),
-            create_graph_panel("vo2_do2_flow_graph", "art_ven_po2_graph", "art_ven_pco2_graph", True, 'center_graph_panel'),
+            # create_graph_panel("ha_pv_ph_graph", "base_lactate_graph", "k_glucose_graph", True, 'center_graph_panel'),
+            # create_graph_panel("vo2_do2_flow_graph", "art_ven_po2_graph", "art_ven_pco2_graph", True, 'center_graph_panel'),
         ]))
 
 def create_dropdown(options: dict, id: str, name: 'str'):
@@ -56,6 +56,7 @@ def create_dropdown(options: dict, id: str, name: 'str'):
 
 def create_drop_down_menu():
     return(html.Div([
+        create_graph('plot_graph', "class_name"),
         create_dropdown({'dummy': 'dummy'}, 'case_number_drop_down', 'case Number'),
         create_dropdown({'dummy': 'dummy'}, 'chart_1', 'Graph 1'),
         create_dropdown({'dummy': 'dummy'}, 'chart_2', 'Graph 2'),

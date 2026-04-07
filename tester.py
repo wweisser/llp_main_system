@@ -9,13 +9,9 @@ import gui
 import asyncio
 import json
 import uvicorn
-from fastapi import FastAPI, WebSocket
-from dash import Dash
-# from gui import app as dashboard1
-from fastapi.middleware.wsgi import WSGIMiddleware
-
-# from quart import websocket, Quart
-#from hypercorn.asyncio import serve, Config
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi.responses import RedirectResponse
+from fastapi.middleware.wsgi import WSGIMiddleware 
 
 ################TEST TEST TEST#########################################
 
@@ -65,7 +61,6 @@ async def start_cdi_test_thread(q):
         if test_barr != "":
             q_item = oq.create_q_item('serial', 'cdi', test_barr)
         await oq.feed_queue(q, q_item)
-        # print(f'start_cdi_test_thread -> {test_barr}', flush=True)
         await asyncio.sleep(6)
 
 async def test_intput_process(gui_q, ux_q):
@@ -92,18 +87,16 @@ async def ws_recv(websocket, ux_q):
     print(f'ws_recv -> recv loop was started')
     while True:
         try:
-            # print('ws_recv -> waiting for incomig message')
-            msg_raw= await websocket.receive()
-            if msg_raw and isinstance(msg_raw, dict):
-                if msg_raw['type'] == 'websocket.disconnect':
-                    print('ws_recv -> websocked disconnected')
-                    break    
-            # print('ws_recv -> ', msg_raw, 'type : ', type(msg_raw))
-            msg = state.get_json(msg_raw['text'])
-            # print('ws_recv -> unjsoned msg : ', msg, type(msg) )
-            await ux_q.put(msg)
+            msg_raw = await websocket.receive_json() 
+            # print(f'ws_recv -> msg raw {msg_raw}') 
+            # msg = state.get_json(msg_raw)
+            # print(f'ws_recv -> msg {msg}') 
+
+            await ux_q.put(msg_raw)
+        except WebSocketDisconnect as e:
+            raise 
         except Exception as e:
-            print("ws -> could not receive")
+            print("ws_recv -> could not receive")
             print(e)
 
 # fetches item from gui que and trys to send via websocket
@@ -114,38 +107,45 @@ async def ws_send(websocket, gui_q):
             msg = await gui_q.get()
             if isinstance(msg, dict):
                 msg_to_send = json.dumps(msg)
-                # print('ws_send -> message to send', type(msg_to_send))
                 await websocket.send_text(msg_to_send)
-                # print('ws_send -> item was send')
             else:
                 print('ws_send -> item to send was not dict')
+        except WebSocketDisconnect as e:
+            raise
         except Exception as e:
             print('ws_send -> could not send')
             print(e)
 
-def start_ws(app, gui_q, ux_q):
+async def start_ws(app, gui_q, ux_q):
 #starts websocket and calls in every iteration of the while loop recv and send function
     print('STARTING WEBSOCKET')
-    @app.websocket("/ws")
-    async def ws(websocket: WebSocket):
-        await websocket.accept()
-        print('\nstart_ws -> WEBSOCKET ONLINE\n')
-        recv_task = asyncio.create_task(ws_recv(websocket, ux_q))
-        send_task = asyncio.create_task(ws_send(websocket, gui_q))
-        await asyncio.gather(recv_task, send_task)
+    @app.websocket("/ws") # hier wird das websocket an die fastAPI app gebunden
+    async def endpoint(ws: WebSocket):
+        await ws.accept() # hier wird der serverhandshake durchgeführt
+        try:
+            print('\nstart_ws -> WEBSOCKET ONLINE\n')
+            async with asyncio.TaskGroup() as tg:
+                    tg.create_task(ws_recv(ws, ux_q))
+                    tg.create_task(ws_send(ws, gui_q))
+        except* WebSocketDisconnect:
+            print("Verbindung getrennt ")
+        except* Exception as e:
+            print(f"Fehler: {e}")
+
 
 async def create_system_tasks(app, sp):
     system_tasks = []
-    if app:
+    try:
+        system_tasks.append(asyncio.create_task(start_ws(app, sp['gui_q'], sp['ux_q'])))
         system_tasks.append(asyncio.create_task(su.dequeue_loop(sp, system_tasks)))
         # system_tasks.append(asyncio.create_task(sc.connection_handler(sp['ux_q'], sp['tx_q'])))
         system_tasks.append(asyncio.create_task(su.gui_updater(sp['cache'], sp['key'], sp['gui_q'])))
 ################TEST TEST TEST#########################################
         system_tasks.append(asyncio.create_task(start_cdi_test_thread(sp['ux_q'])))
 ################TEST TEST TEST#########################################
-        # await asyncio.gather(*system_tasks)
         return system_tasks
-    else:
+    except Exception as e:
+        print(f'create_system_tasks -> error on system task setup\n', e)
         return None
     
 def create_sys_param(gui_q, ux_q, tx_q, cache, key, com_port_hub, db_path, table):
@@ -158,6 +158,7 @@ def create_sys_param(gui_q, ux_q, tx_q, cache, key, com_port_hub, db_path, table
         "com_port_hub": com_port_hub,
         "db_path": db_path,
         "table": table,
+        "system_runtime": 0,
     }
     return sp
 
@@ -171,22 +172,35 @@ async def main():
     sp = create_sys_param(gui_q, ux_q, tx_q, cache, key, com_port_hub, db_path, table)
 
     try:
-        fast_api_app = FastAPI()
-        fast_api_app.mount("/dashboard1/", WSGIMiddleware(gui.app.server))
-        start_ws(fast_api_app, gui_q, ux_q)
+        fast_api_app = FastAPI() # hier wird die fastAPI app erzeugt
+        fast_api_app.mount("/d1/", WSGIMiddleware(gui.app.server)) 
+        #Hier wird ads snchron laufende dash mit dem asynchronen fastAPI via WSGI verbunden
+
+        @fast_api_app.get("/health")
+        def health():
+            return {"status": "ok"}
+
         @fast_api_app.get("/")
         def index():
-            return "Hello"
+            return RedirectResponse(url="/d1/")
+        
+        system_tasks = await create_system_tasks(fast_api_app, sp)
+        config = uvicorn.Config(fast_api_app, host="0.0.0.0", port=8050, log_config=None)
+        # hier wird die serverkonfiguration für den guvicorn server erstellt
+        server = uvicorn.Server(config)
+        # Hier wird der die app an uvicorn(name für das serverframwork) übergeben
+        await asyncio.gather(server.serve(), *system_tasks)
     except Exception as e:
-        print("main -> server client collapsed")
+        for task in system_tasks:
+            task.cancel()           # Beim App-Shutdown: Task abbrechen
+            try:
+                await task          # Warten bis der Task wirklich gestoppt ist
+            except asyncio.CancelledError:
+                print(f'main -> {task} was stoped')
+        print("main -> system was closed")
         print(e)
-    system_tasks = await create_system_tasks(fast_api_app, sp)
     
     # system_tasks = await create_system_tasks(fast_api_app, key, cache, db_path, table, gui_q, ux_q)
-    config = uvicorn.Config(fast_api_app, host="0.0.0.0", port=8050, log_config=None)
-    server = uvicorn.Server(config)
-    await server.serve()
-    await asyncio.gather(*system_tasks)
 
 
 if __name__ == "__main__":
@@ -194,4 +208,4 @@ if __name__ == "__main__":
     asyncio.run(main())
 
 
-#URL : http://127.0.0.1:8050/dashboard1/
+#URL : http://127.0.0.1:8050/d1/

@@ -64,7 +64,7 @@ def create_active_mdl():
             gp.paramtr_btn_1('set_o2_flow_btn', 'set 02 flow', '0', 'ml/min', 'set_o2_flow','ha', 70),
             dcc.Slider(id='set_air_flow_slider', min=0, max=2000, step=1, value=45, marks=marks_gas_flow, vertical=True, verticalHeight=190, dots=False),
             dcc.Slider(id='set_o2_flow_slider', min=0, max=2000, step=1, value=45, marks=marks_gas_flow, vertical=True, verticalHeight=190, dots=False),
-            ], id="ventilaton_setings", className="ventilaton_setings"),
+            ], id="gas_flow_setings", className="ventilaton_setings"),
         ], id="active_mdl", className="active_mdl", hidden=True)
     )
 
