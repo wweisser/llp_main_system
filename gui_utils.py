@@ -1,4 +1,4 @@
-from dash_extensions.enrich import Input, Output, State, no_update
+from dash_extensions.enrich import Input, Output, no_update
 from dash import html, dcc, no_update
 import json
 
@@ -82,14 +82,12 @@ def gui_ws_recv(app):
         prevent_initial_call=True
         )
     def distribute_case_msg(msg):
-        # print(f'gui_ws_recv -> \nRAW MESSAGE : ', msg)
         data = parse_ws_msg(msg)
         if data and isinstance(data, dict):
             return data
         else:
             print("inbox -> corrupt inbox file")
             return no_update
-
 
     @app.callback(
         Output("graph_data_store", "data"), 
@@ -98,7 +96,6 @@ def gui_ws_recv(app):
         )
     def distribute_plot_msg(msg):
         if msg and msg['msg_type'] == 'graph':
-            # print(msg['data'])
             return msg['data']
         else:
             return no_update
@@ -110,7 +107,6 @@ def gui_ws_recv(app):
         )
     def distribute_system_msg(msg):
         if msg and msg['msg_type'] == 'system':
-            # print(msg['data'])
             return msg
         else:
             return no_update

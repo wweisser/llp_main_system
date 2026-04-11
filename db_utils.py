@@ -20,18 +20,27 @@ def get_table(parth: str, table: str):
 		data_from_sql = c.fetchmany(10)
 	return data_from_sql
 
-def get_val(parth: str, table: str, param: list, range: int, case_number: int):		
-	try:
-		with sqlite3.connect(parth) as conn:
-			c = conn.cursor() 
-			c.execute(f"SELECT perfusion_time, {param} FROM {table} WHERE case_number = {case_number}")
-			values = c.fetchmany(range)
-			val_arr = [list(spalte) for spalte in zip(*values)]
-		return val_arr
-	except Exception as e:
-		print('value array could not be extracted from database')
-		print(e)
-		return None
+def get_val(db_path: str, table: str, param_list: list, fetch_range: int, case_number: int):
+
+	columns_str = " ,".join(param_list)
+	print(f'columns_str -> {columns_str}')
+	query = f"""
+		SELECT {columns_str}
+        FROM {table}
+		WHERE case_number = ?""" # ? ist platzhalter für case_number
+
+	with sqlite3.connect(db_path) as conn:
+		conn.row_factory = sqlite3.Row
+		c = conn.cursor()
+		c.execute(query, (str(case_number),))
+		rows = c.fetchmany(fetch_range)
+
+	result = {col: [] for col in param_list}
+	for row in rows:
+		for col in param_list:
+			result[col].append(row[col])
+
+	return result
 
 def get_all_cn(parth: str, table: str):
 	try:
@@ -303,22 +312,22 @@ if __name__ == "__main__":
 	import os
 
 	table = 'test'
-	db_parth = r'C:\Users\whwei\OneDrive\coding\data_vault.db'
+	db_path = r'C:\Users\whwei\OneDrive\coding\data_vault.db'
 	cache_path = r'C:\Temp\diskcache_test'
 	os.makedirs(cache_path, exist_ok=True)
-	sys_state = state.create_state(db_parth)
+	sys_state = state.create_state(db_path)
 	sys_state['system']['case_number'] = 0
+	graph_list = ["ph_graph", "base_lact_graph", "k_gluc_graph", "do2_vo2_graph", "po2_graph", "pco2_graph", "flow_graph", "pressure_graph", "hb_hct_graph"]
 	print('system state', sys_state)
-	execute_entry(db_parth, table, sys_state)
+	execute_entry(db_path, table, sys_state)
 	# mem.create_cache(cache_path, 'key', sys_state)
 
 
-	cn = get_all_cn(db_parth, table)
+	cn = get_all_cn(db_path, table)
 	print(f'case numbers -> {cn}')
 
-	val = get_val(db_parth, table, 'vo2, art_flow', 100, 1)
-	print(f'get_val -> casemucase number : {val}')
-	
+	graph_data = get_val(db_path, table, ['perfusion_time', 'art_ph'], 100, 2)
+	print(f'graph data : \n{graph_data}')
 	# print(type(val_II[2]))
 
 	# with sqlite3.connect(db_parth) as conn:

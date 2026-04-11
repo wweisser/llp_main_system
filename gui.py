@@ -14,6 +14,7 @@ import gui_graph_callbacks as ggc
 def create_layouts():
     return(html.Div([
         gp.create_pages(),
+        gg.create_center_panels(),
         gp.tab_bar(),
     ]))
 def create_modals():
@@ -24,11 +25,13 @@ def create_modals():
         gm.create_active_mdl()
     ]))
 
+#HIER EVTL DICT EINFÜHREN, WO ALLE STRUKTUREN VERZEICHNET SIND
+
 def create_callbacks(app):
     return(html.Div([
         gc.tabbar_callback(app),
         gcm.case_manager_callbacks(app, 'case_manager'),
-        ggc.create_graph_callbacks(app, "ha_pv_flow_graph")
+        ggc.create_graph_callback_tree(app)
     ]))
 
 def create_communication(app):
@@ -38,11 +41,12 @@ def create_communication(app):
         WebSocket(url="/ws", id="ws")
     ]))
 
-def create_com_callbacks(app):
+def create_com_callbacks(app, graph_list: list):
     return(html.Div([
         gu.gui_ws_recv(app),
         gu.gui_ws_send(app),
         ga.create_active_callbacks(app),
+        ggc.create_graph_callbacks(app, 'graph_data_store', graph_list),
         # gd.distribute_state(app),
         gpc.state_to_gui(app)
     ]))
@@ -52,19 +56,19 @@ def create_gui(app):
     return(html.Div([
         create_communication(app),
         gm.create_modals(),
-        gg.create_graphs(),
         # create_modals(),
         create_layouts(),
     ], className="background"))
 
 def create_app():
+    graph_list = ["ph_graph", "base_lact_graph", "k_gluc_graph", "do2_vo2_graph", "po2_graph", "pco2_graph", "flow_graph", "pressure_graph", "hb_hct_graph"]
     print("gui ausgelöst")
     # gui_app = dash.Dash(__name__, requests_pathname_prefix='/d1/')
     gui_app = dash.Dash(__name__)
 
     # gui_app = dash.Dash(__name__)
     gui_app.layout = create_gui(gui_app)
-    create_com_callbacks(gui_app)
+    create_com_callbacks(gui_app, graph_list)
     create_callbacks(gui_app)
 
     return gui_app
