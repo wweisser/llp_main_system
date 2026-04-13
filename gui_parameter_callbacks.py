@@ -40,15 +40,19 @@ def parameter_to_button(app, parameter, btn):
         prevent_initial_call=True,
     )
     def process(msg):
-        if isinstance(msg, dict) and msg['msg_type'] == 'system' and msg['id'] == 'state':
-            data = msg['data']
-            val = data[parameter]['val']
-            if not isinstance(val, str):
-                val = str(val)
-            return val
-        else:
+        try:
+            if isinstance(msg, dict) and msg['msg_type'] == 'system' and msg['id'] == 'state':
+                data = msg['data']
+                val = data[parameter]['val']
+                if not isinstance(val, str):
+                    val = str(val)
+                return val
+            else:
+                return ""
+        except Exception as e:
+            print(f'parameter_to_button -> {parameter} could not be linked to a button')
             return ""
-    
+        
 def system_to_button(app, pre_text, parameter, btn):
     @app.callback(
         Output(btn, 'children'),
@@ -56,15 +60,19 @@ def system_to_button(app, pre_text, parameter, btn):
         prevent_initial_call=True,
     )
     def process(msg):
-        if isinstance(msg, dict) and msg['msg_type'] == 'system' and msg['id'] == 'state':
-            data = msg['data']
-            val = data['system'][parameter]
-            if not isinstance(val, str):
-                val = str(val)
-            string = f'{pre_text} {val}'    
-            return string
-        else:
-            return f'{pre_text}'  
+        try:
+            if isinstance(msg, dict) and msg['msg_type'] == 'system' and msg['id'] == 'state':
+                data = msg['data']
+                val = data['system'][parameter]
+                if not isinstance(val, str):
+                    val = str(val)
+                string = f'{pre_text} {val}'    
+                return string
+            else:
+                return f'{pre_text}'
+        except Exception as e:
+            print(f'system_to_button -> {parameter} could not be linked to a button {val['system'][parameter]}\n')
+            return ""
 
 def state_to_gui(app):
     print(f'state_to_gui -> gui updated')

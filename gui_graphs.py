@@ -6,10 +6,24 @@ import pandas as pd
 def update_graph_layout(figure):
     figure.update_layout(
         margin=dict(l=0, r=10, t=15, b=0),
-        xaxis=dict(showgrid=False, showline=False, zeroline=False, linewidth=1, linecolor='#ccebfd'),
-        yaxis=dict(showgrid=False, showline=False, zeroline=False,  linewidth=1, linecolor='#ccebfd'),
         paper_bgcolor='#00242b',
-        plot_bgcolor='black',
+        plot_bgcolor="#071215",
+        xaxis=dict(
+            showgrid=False,
+            showline=False,
+            zeroline=False,
+            linewidth=0.1,
+            gridcolor='#005161',
+            tickvals=[0, 20, 40, 60, 80, 100]
+        ),
+        yaxis=dict(
+            showgrid=False,
+            showline=False,
+            zeroline=False,
+            linewidth=0.1,
+            gridcolor='#005161',
+            tickvals=[0, 10, 25, 50, 100]
+        ),
     )
     return figure
 
@@ -38,33 +52,9 @@ def create_center_panels():
    return(
         html.Div([
             create_graph_panel("ph_graph", "base_lact_graph", "k_gluc_graph", False, 'metabolic_graph_store'),
-            create_graph_panel("do2_vo2_graph", "po2_graph", "pco2_graph", True, 'respiratory_graph_store'),
-            create_graph_panel("flow_graph", "pressure_graph", "hb_hct_graph", True, 'perfusion_graph_store'),
+            # create_graph_panel("gas_flow_fio2_graph", "po2_graph", "pco2_graph", True, 'respiratory_graph_store'),
+            # create_graph_panel("flow_graph", "pressure_graph", "hb_hct_graph", True, 'perfusion_graph_store'),
         ]))
-
-def create_dropdown(options: dict, id: str, name: 'str'):
-    layout = html.Div([
-                html.Div(children=name),
-                dcc.Dropdown(options=options, value='Select', id=id, multi=True, closeOnSelect=False, searchable=True, className='ha'),
-            ])
-    # @callback(
-    #     Output('close-on-select-output', 'children'),
-    #     Input('close-on-select-dropdown', 'value')
-    # )
-    # def update_output(value):
-    #     return f'You have selected {value}'
-    return layout
-
-def create_drop_down_menu():
-    return(html.Div([
-        create_graph('plot_graph', "class_name"),
-        create_dropdown({'dummy': 'dummy'}, 'case_number_drop_down', 'case Number'),
-        create_dropdown({'dummy': 'dummy'}, 'chart_1', 'Graph 1'),
-        create_dropdown({'dummy': 'dummy'}, 'chart_2', 'Graph 2'),
-        create_dropdown({'dummy': 'dummy'}, 'chart_3', 'Graph 3'),
-        create_dropdown({'dummy': 'dummy'}, 'chart_4', 'Graph 5'),
-        create_dropdown({'dummy': 'dummy'}, 'data_export', 'Export to Excel'),
-    ], id='drop_down_menu', className='hide'))
 
 
 

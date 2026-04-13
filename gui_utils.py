@@ -44,13 +44,10 @@ def gui_ws_send(app):
         else:
             return no_update
 
-# reveive functions
-# parser methods
 def parse_ws_msg(msg: dict):
     if isinstance(msg, dict):
         msg_data = msg['data']
         data = json.loads(msg_data)
-        # print('UNPACKED DATA')
         return data
     else: 
         return None
@@ -95,10 +92,13 @@ def gui_ws_recv(app):
         prevent_initial_call=True
         )
     def distribute_plot_msg(msg):
-        if msg and msg['msg_type'] == 'graph':
-            return msg['data']
-        else:
-            return no_update
+        try:
+            if msg and msg['msg_type'] == 'graph':
+                return msg['data']
+            else:
+                return no_update
+        except Exception as e:
+            print(f'gui_ws_recv -> error on parsing msg : {msg} \n {e}')
 
     @app.callback(
         Output("state_data_store", "data"), 

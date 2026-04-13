@@ -10,11 +10,11 @@ def case_manager_mdl():
         dcc.Dropdown(id='cm_dropdown', options=[], clearable=True, multi=False, persistence=True, placeholder="Select Case Number", className="cm_drpdwn"),
         html.Div([
             html.Button("New Case", id="cm_new_case_button",className="case_mgr_btn"),
-            html.Button("Default", id="default_I",className="case_mgr_btn"),
+            html.Button("HOPE", id="default_I",className="case_mgr_btn"),
             html.Button("Confirm", id="cm_confirm_btn", className="case_mgr_btn"),
-            html.Button("Close", id="cm_close_btn",className="case_mgr_btn"),
+            html.Button("COR", id="cm_close_btn",className="case_mgr_btn"),
             html.Button("Start Perfusion", id="start_case_btn",className="case_mgr_btn"),
-            html.Button("Stop Perfusion", id="stop_case_btn",className="case_mgr_btn"),
+            html.Button("NMP", id="stop_case_btn",className="case_mgr_btn"),
 
             ], className="case_mgr_mdl_lower"),
         ], className="case_mgr_mdl", id="case_mgr_mdl", hidden=True))

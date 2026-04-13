@@ -31,14 +31,15 @@ def create_callbacks(app):
     return(html.Div([
         gc.tabbar_callback(app),
         gcm.case_manager_callbacks(app, 'case_manager'),
-        ggc.create_graph_callback_tree(app)
+        # ggc.create_graph_callback_tree(app)
     ]))
 
 def create_communication(app):
     print('Websocket was created')
     return(html.Div([
         gu.create_msg_distribution(),
-        WebSocket(url="/ws", id="ws")
+        # WebSocket(url="/ws", id="ws")
+        WebSocket(id="ws", url="ws://localhost:8000/ws")
     ]))
 
 def create_com_callbacks(app, graph_list: list):
@@ -46,11 +47,10 @@ def create_com_callbacks(app, graph_list: list):
         gu.gui_ws_recv(app),
         gu.gui_ws_send(app),
         ga.create_active_callbacks(app),
-        ggc.create_graph_callbacks(app, 'graph_data_store', graph_list),
-        # gd.distribute_state(app),
+        ggc.create_graph_callbacks(app),
+        # ggc.create_graph_callbacks(app, 'graph_data_store', graph_list),
         gpc.state_to_gui(app)
     ]))
-
 
 def create_gui(app):
     return(html.Div([
@@ -65,7 +65,6 @@ def create_app():
     print("gui ausgelöst")
     # gui_app = dash.Dash(__name__, requests_pathname_prefix='/d1/')
     gui_app = dash.Dash(__name__)
-
     # gui_app = dash.Dash(__name__)
     gui_app.layout = create_gui(gui_app)
     create_com_callbacks(gui_app, graph_list)

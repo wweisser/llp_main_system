@@ -32,7 +32,7 @@ def get_val(db_path: str, table: str, param_list: list, fetch_range: int, case_n
 	with sqlite3.connect(db_path) as conn:
 		conn.row_factory = sqlite3.Row
 		c = conn.cursor()
-		c.execute(query, (str(case_number),))
+		c.execute(query, (case_number,))
 		rows = c.fetchmany(fetch_range)
 
 	result = {col: [] for col in param_list}
@@ -62,9 +62,12 @@ def get_all_cn(parth: str, table: str):
 def create_table(c, conn, table_name):
     c.execute(f"""CREATE TABLE IF NOT EXISTS {table_name} (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        case_number INTEGER,
+        case_number INTEGER NOT NULL,
+		start_time TEXT,
         clock_time NUMERIC NOT NULL,
         perfusion_time NUMERIC NOT NULL,
+		gas_flow NUMERIC,
+		fio2 NUMERIC,
         notes TEXT,
         art_flow NUMERIC,
         art_pressure NUMERIC,
@@ -116,7 +119,7 @@ def create_table(c, conn, table_name):
         med12 NUMERIC,
         med13 NUMERIC,
         med14 NUMERIC,
-        med15 NUMERNIC
+        med15 NUMERIC
     )""")
     conn.commit()
     return 0
@@ -131,6 +134,7 @@ def execute_entry(parth: str, table: str,  sys_state: dict):
 		c.execute(
 			f"""INSERT INTO {table} (
 				case_number,
+				start_time,
 				clock_time,
 				perfusion_time,
 				notes,
@@ -189,6 +193,7 @@ def execute_entry(parth: str, table: str,  sys_state: dict):
 			)
 			VALUES(
 				:case_number,
+				:start_time,
 				:clock_time,
 				:perfusion_time,
 				:notes,
@@ -246,6 +251,7 @@ def execute_entry(parth: str, table: str,  sys_state: dict):
 				:med15
 			)""",
 			{'case_number':     sys_state['system']['case_number'],
+			'start_time':		sys_state['system']['start_time'],
 			'clock_time': 		sys_state['system']['clock_time'],
 			'perfusion_time':   sys_state['system']['perfusion_time'], 
 			'notes':            sys_state['notes'],
@@ -316,9 +322,9 @@ if __name__ == "__main__":
 	cache_path = r'C:\Temp\diskcache_test'
 	os.makedirs(cache_path, exist_ok=True)
 	sys_state = state.create_state(db_path)
-	sys_state['system']['case_number'] = 0
+	sys_state['system']['case_number'] = 2
+	sys_state['system']['start_time'] = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
 	graph_list = ["ph_graph", "base_lact_graph", "k_gluc_graph", "do2_vo2_graph", "po2_graph", "pco2_graph", "flow_graph", "pressure_graph", "hb_hct_graph"]
-	print('system state', sys_state)
 	execute_entry(db_path, table, sys_state)
 	# mem.create_cache(cache_path, 'key', sys_state)
 
@@ -326,17 +332,16 @@ if __name__ == "__main__":
 	cn = get_all_cn(db_path, table)
 	print(f'case numbers -> {cn}')
 
-	graph_data = get_val(db_path, table, ['perfusion_time', 'art_ph'], 100, 2)
-	print(f'graph data : \n{graph_data}')
-	# print(type(val_II[2]))
+	graph_data = get_val(db_path, table, ['start_time'], 1, 2)
+	print(f'graph data : {graph_data['start_time'][0]}, type{type(graph_data['start_time'][0])}')
 
-	# with sqlite3.connect(db_parth) as conn:
-	# 	c = conn.cursor() 
-	# 	create_table(c, conn, 'test')
-	# 	tables = get_tables_names('data_vault.db')
-	# 	print(tables)
+	with sqlite3.connect(db_path) as conn:
+		c = conn.cursor() 
+		create_table(c, conn, 'test')
+		tables = get_tables_names(db_path)
+		print(f'tables : {tables}')
 
-	# with sqlite3.connect(db_parth) as conn:
+	# with sqlite3.connect(db_path) as conn:
 	# 	c = conn.cursor() 
 	# 	delete_table(c, 'test')
 

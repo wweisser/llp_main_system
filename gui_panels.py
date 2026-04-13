@@ -154,13 +154,32 @@ def bga_entry_panel():
         value_entry_element('bile_bilirubin'),
     ], id='bga_entry_panel', className='hide', hidden=True))
 
+def drop_down_bar(options: dict, id: str, name: 'str'):
+    layout = html.Div([
+                html.Div(children=name),
+                dcc.Dropdown(options=options, value='Select', id=id, multi=True, closeOnSelect=False, searchable=True, className='ha'),
+            ])
+    return layout
+
+def drop_down_panel():
+    return(html.Div([
+        drop_down_bar({'dummy': 'dummy'}, 'case_number_drop_down', 'case Number'),
+        drop_down_bar({'dummy': 'dummy'}, 'chart_1', 'Graph 1'),
+        drop_down_bar({'dummy': 'dummy'}, 'chart_2', 'Graph 2'),
+        drop_down_bar({'dummy': 'dummy'}, 'chart_3', 'Graph 3'),
+        drop_down_bar({'dummy': 'dummy'}, 'chart_4', 'Graph 5'),
+        drop_down_bar({'dummy': 'dummy'}, 'data_export', 'Export to Excel'),
+    ], id='drop_down_menu', className='hide'))
+
+
 def create_pages():
     return(html.Div([
         bga_entry_panel(),
         respiratory_panel(),
         ph_panel(),
         perf_stat_panel(),
-        permanent_panel()
+        permanent_panel(),
+        drop_down_panel()
         # plots_page(),
         # perfusion_page(),
         # metabolics_page(),
@@ -169,45 +188,4 @@ def create_pages():
         # conn_page(),
     ], id="layouts", className="layouts_style")
     )
-
-# def plots_page():
-#     return(html.Div([
-#         permanent_panel(),
-#         module()
-#     ], className='plots_page_syle'))
-
-# def perfusion_page():
-#     return(html.Div([
-#         # permanent_panel(),
-#         perf_stat_panel(),
-#         # gg.create_graph_panel('flow_I', 'flow_II', 'flow_III')
-#     ], className='main_page_syle'))
-
-# def metabolics_page():
-#     return(html.Div([
-#         # permanent_panel(),
-#         ph_panel(),
-#         # gg.create_graph_panel('meta_I', 'meta_II', 'meta_III')
-
-#     ], className='config_page_syle', hidden=False))
-
-# def respiratory_page():
-#     return(html.Div([
-#         # permanent_panel(),
-#         respiratory_panel(),
-#         # gg.create_graph_panel('resp_I', 'resp_II', 'resp_III')
-#     ], className='cloud_page_syle', hidden=False))
-
-# def acive_page():
-#     return(html.Div([
-#         bga_entry_panel(),
-#         # permanent_panel(),
-#     ], className='config_page_syle', hidden=False))
-
-# def conn_page():
-#     return(html.Div([
-#         # permanent_panel(),
-#     ], className='config_page_syle', hidden=False))
-
-
 

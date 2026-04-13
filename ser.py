@@ -43,7 +43,7 @@ async def serial_connection(com_port, device_state, ux_q):
         msg = await read_serial(serial_port)
         device_state['last_update'][device] = datetime.now()
         if msg:
-            q_item = oq.create_q_item('ser_input', device, msg)
+            q_item = oq.create_q_item('serial_input', device, msg)
             oq.feed_queue(ux_q, q_item)
 
 async def update_device_state(device_state, ux_q):

@@ -1,13 +1,13 @@
 import memory as mem
 import state
 
-async def update_sys_state(cache, key: str, outer_key: str, inner_key: str, val):
-    sys_state = await mem.get_user_value(cache, key)
-    print('sys_state : ', sys_state)
-    sys_state = state.set_param(sys_state, outer_key, inner_key, val)
-    await mem.set_user_value(cache, key, sys_state)
-    print("updated sys_state: ", sys_state)
-    return sys_state
+# async def update_sys_state(cache, key: str, outer_key: str, inner_key: str, val):
+#     sys_state = await mem.get_user_value(cache, key)
+#     print('sys_state : ', sys_state)
+#     sys_state = state.set_param(sys_state, outer_key, inner_key, val)
+#     await mem.set_user_value(cache, key, sys_state)
+#     print("updated sys_state: ", sys_state)
+#     return sys_state
 
 def cdi_to_state(sys_state, cdi_arr):
     # print(f'cdi_to_state -> {cdi_arr}')
