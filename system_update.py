@@ -29,7 +29,7 @@ async def parse_archive_request(msg: dict, sys_state: dict, ux_q, gui_q, cache, 
     # print('message id : ', msg['id'])
     if msg['id'] == 'start_record':
         sys_state['system']['autosave'] = True
-        if sys_state['system']['start_time'] == '0':
+        if sys_state['system']['start_time'] == 0:
             sys_state['system']['start_time'] = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
         record_task = asyncio.create_task(dm.start_case_record(sys_state, ux_q, cache, key))
         if record_task:
@@ -39,7 +39,7 @@ async def parse_archive_request(msg: dict, sys_state: dict, ux_q, gui_q, cache, 
         sys_state['system']['autosave'] = False
         print('parse_archive_request -> recording has stoped')
     elif msg['id'] == 'entry':
-        await asyncio.to_thread(du.execute_entry(db_path, table, sys_state))
+        await asyncio.to_thread(du.execute_entry(db_path, table, msg['data']))
         print('parse_archive_request -> entry request was executed')
     elif msg['id'] == 'data_request':
         pass
@@ -134,7 +134,8 @@ def calc_time(sys_state, start_time):
         pt = current_time - start_time_dt
         h, remain = divmod(int(pt.total_seconds()), 3600)
         min, sec = divmod(remain, 60)
-        sys_state['system']['perfusion_time'] = f"{h:02}:{min:02}:{sec:02}"    
+        sys_state['system']['perfusion_time'] = f"{h:02}:{min:02}:{sec:02}" 
+        print(f'calc_time -> pefusion time : {sys_state['system']['perfusion_time']}')
         return sys_state
     except Exception as e:
         print('gui_updater ->', e)
@@ -154,10 +155,9 @@ async def gui_updater(cache, key, gui_q, ux_q):
             sys_state = calc_time(sys_state, sys_state['system']['start_time'])
         if sys_state:
             memory.put_state_to_cache(cache, key, sys_state)
-        # gui_item = oq.create_q_item('system', 'time', sys_state['system']['clock_time'])
         gui_item = oq.create_q_item('system', 'state', sys_state)
         await oq.feed_queue(gui_q, gui_item)
-        if counter > 30:
+        if counter > 10:
             if sys_state['system']['case_number'] != 0:
                 graph_request = oq.create_q_item('archive', 'graph_data', sys_state['system']['case_number'])
                 await oq.feed_queue(ux_q, graph_request)

@@ -129,7 +129,7 @@ def execute_entry(parth: str, table: str,  sys_state: dict):
 		conn = sqlite3.connect(parth, isolation_level='IMMEDIATE')
 		c = conn.cursor() 
 		t = datetime.now()
-		dt_str = t.strftime("%Y_%m_%d %H:%M:%S")
+		dt_str = t.strftime("%Y-%m-%d %H:%M:%S")
 		print('db entry')
 		c.execute(
 			f"""INSERT INTO {table} (
@@ -252,7 +252,7 @@ def execute_entry(parth: str, table: str,  sys_state: dict):
 			)""",
 			{'case_number':     sys_state['system']['case_number'],
 			'start_time':		sys_state['system']['start_time'],
-			'clock_time': 		sys_state['system']['clock_time'],
+			'clock_time': 		dt_str,
 			'perfusion_time':   sys_state['system']['perfusion_time'], 
 			'notes':            sys_state['notes'],
 			'art_flow':         sys_state['art_flow']['val'],
@@ -307,11 +307,11 @@ def execute_entry(parth: str, table: str,  sys_state: dict):
 			'med14':            0,
 			'med15':            0
 			})
-		print('value commited to db')
+		print(f'execute_entry -> value commited to db at {sys_state['system']['perfusion_time']}')
 		conn.commit()
 		conn.close()
 	except Exception as e:
-		print('ERROR : data entry could not be executed')
+		print('execute_entry -> ERROR : data entry could not be executed')
 		print(e)
 
 if __name__ == "__main__":

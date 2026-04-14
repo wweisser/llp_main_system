@@ -17,19 +17,19 @@ async def start_case_record(sys_state, ux_q, cache, key):
     archive_item = sys_state
     counter = 0
     if archive_item['system']['case_number'] != 0:
-        print('autosave online')
+        print(f'start_case_record -> autosave online')
         while True:
             if archive_item['system']['autosave'] and archive_item['system']['case_number'] != 0:
-                if counter > 30:
+                if counter > 10:
                     sys_state = memory.get_state_from_cache(cache, key)
                     record_item = oq.create_q_item('archive', 'entry', sys_state)
                     await oq.feed_queue(ux_q, record_item)
-                    print('entry request was send')
+                    print(f'start_case_record -> entry request was send')
                     sys_state['note'] = ''
                     memory.put_state_to_cache(cache, key, sys_state)
                     counter = 0
             else:
-                print('autosave was canceled')
+                print(f'start_case_record -> autosave was canceled')
                 break
             counter += 1
             await asyncio.sleep(1)

@@ -14,20 +14,20 @@ def data_to_figure(app, graph, left_axis, right_axis):
         figure = make_subplots(specs=[[{"secondary_y": True}]])
         # Linke Y-Achse
         figure.add_trace(
-            go.Scatter(x=data["perfusion_time"], y=data[left_axis],
+            go.Scatter(x=data["clock_time"], y=data[left_axis],
                     name="Temperatur", mode="markers+lines"),
             secondary_y=False,
         )
         # Rechte Y-Achse
         figure.add_trace(
-            go.Scatter(x=data["perfusion_time"], y=data[right_axis],
+            go.Scatter(x=data["clock_time"], y=data[right_axis],
                     name="Druck", mode="markers+lines"),
             secondary_y=True,
         )
         # Achsenbeschriftungen
         figure.update_yaxes(title_text=left_axis, secondary_y=False)
         figure.update_yaxes(title_text=right_axis, secondary_y=True)
-        figure.update_xaxes(title_text="Perfusion Time")
+        figure.update_xaxes(tickformat='%H:%M:%S')
         figure = gg.update_graph_layout(figure)
         return figure
 
