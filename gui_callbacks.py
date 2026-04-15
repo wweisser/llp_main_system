@@ -78,14 +78,6 @@ def tabbar_callback(app):
         else:
             return None, ""
 
-    # @app.callback(
-    #     Output('note_h1', 'value', allow_duplicate=True),
-    #     Input('state_data_store', 'data'),
-    #     prevent_initial_call=True
-    # )
-    # def enter_note(sys_state):
-    #     return sys_state['notes']
-
 def bga_value_callback(app, val:str):
     @app.callback(
         Output('postbox', 'data', allow_duplicate=True),

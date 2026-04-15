@@ -15,7 +15,6 @@ def case_manager_mdl():
             html.Button("COR", id="cm_close_btn",className="case_mgr_btn"),
             html.Button("Start Perfusion", id="start_case_btn",className="case_mgr_btn"),
             html.Button("NMP", id="stop_case_btn",className="case_mgr_btn"),
-
             ], className="case_mgr_mdl_lower"),
         ], className="case_mgr_mdl", id="case_mgr_mdl", hidden=True))
 
@@ -27,7 +26,7 @@ def new_case_mdl():
             html.Div([
                 html.Button("Create New Case", id="ncm_confirm_btn", className="case_mgr_btn"),
                 html.Button("Close", id="ncm_close_btn", className="case_mgr_btn"),
-            ])
+            ]),
             ], className="new_case_mdl")
         ], id="new_case_mld", hidden=True)
     )
@@ -37,6 +36,7 @@ def note_mdl():
     return(html.Div([
         dcc.Textarea(value="No Notes listed", id="note_h1", className="note_mdl_notes", readOnly=True),
         dcc.Input(id='note_input', placeholder="Note"),
+        dcc.Store(id='note_store'),
         html.Div([
             html.Button("Enter Note", id="enter_note_btn", className="case_mgr_btn"),
         ]),

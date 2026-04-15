@@ -54,8 +54,10 @@ async def parse_case_number_request(msg: dict, sys_state: dict, gui_q, db_path: 
     if msg['id'] == 'cn_asgn':
         sys_state['system']['case_number'] = msg['data']
         start_time = du.get_val(db_path, table, ['start_time'], 1, sys_state['system']['case_number'])['start_time'][0]
-        if start_time and start_time != '0':
+        if start_time and start_time != 0:
             sys_state['system']['start_time'] = start_time
+        else:
+            sys_state['system']['start_time'] = 0
     elif msg['id'] == 'list_request':
         print('\nparse_case_number_request -> Case umber list request received\n')
         val_arr = du.get_all_cn(db_path, table)
