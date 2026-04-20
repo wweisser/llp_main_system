@@ -5,7 +5,7 @@ import gui_case_management as gcm
 import gui_panels as gp
 import datetime
 
-def create_note_callback(app):
+def create_note_callbacks(app):
     @app.callback(
         Output('enter_note_btn', 'n_clicks'),
         Output('note_h1', 'value'),
@@ -22,6 +22,17 @@ def create_note_callback(app):
             return 0
 
 #send input to backend
+    @app.callback(
+        Output("postbox", "data", allow_duplicate=True),
+        Input('enter_note_btn', 'n_clicks'),
+        State('note_input', 'value'),
+        prevent_initial_call=True
+    )
+    def send_note_entry(input_btn, input_value):
+        send_item = gu.create_postbox_item('archive', 'note_entry', input_value)
+        return send_item
+
+
 
 #attach input to state
 

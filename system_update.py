@@ -15,15 +15,13 @@ async def parse_serial_input(msg: dict, sys_state: dict, cache, key):
     return sys_state
 
 async def parse_cdi_input(msg: dict, sys_state: dict, cache, key):
-    #is called form deque loop if there is a serial input. Parses the input put it to state and to gui.
-    # print(f'parse_cdi_input -> input : {msg['data']}')
+
     cdi_arr = cc.build_cdi_arr(msg['data'])
-    # print(f'parse_cdi_input -> cdi array : {cdi_arr}')
     sys_state = su.cdi_to_state(sys_state, cdi_arr)
     memory.put_state_to_cache(cache, key, sys_state)
-    # que_item = oq.create_q_item('system', 'state', sys_state)
-    # await oq.feed_queue(gui_q, que_item)
     return sys_state
+
+
 
 async def parse_archive_request(msg: dict, sys_state: dict, ux_q, gui_q, cache, key, db_path, table):
     # print('message id : ', msg['id'])
@@ -47,6 +45,10 @@ async def parse_archive_request(msg: dict, sys_state: dict, ux_q, gui_q, cache, 
         await dtg.create_center_graph_data(db_path, table, gui_q, msg['data'])
     elif msg['id'] == 'change_entry':
         pass
+    elif msg['id'] == 'note_entry':
+            note_data = du.get_val(db_path, table, ['notes',] , 800, sys_state['system']['case_number'])
+            
+            sys_state['notes'] = sys_state['notes'].append(msg['data'])
     return sys_state
 
 async def parse_case_number_request(msg: dict, sys_state: dict, gui_q, db_path: str, table: str):

@@ -46,15 +46,15 @@ def get_all_cn(parth: str, table: str):
 	try:
 		with sqlite3.connect(parth) as conn:
 			c = conn.cursor() 
-			c.execute(f"SELECT case_number FROM {table}")
+			c.execute(f"SELECT DISTINCT case_number FROM {table}")
 			cn_list = c.fetchall()
+			print('get_all_cn -> cn list : ', cn_list)
 			cn_arr = []
 			for cn in cn_list:
-				if not cn[0] in cn_arr:
-					cn_arr.append(cn[0])
+				cn_arr.append(cn[0])
 			return cn_arr
 	except Exception as e:
-		print('get_all_cn -> casnumbers could not be extracted')
+		print('get_all_cn -> case numbers could not be extracted')
 		print(e)
 		return None
 	
@@ -121,6 +121,7 @@ def create_table(c, conn, table_name):
         med14 NUMERIC,
         med15 NUMERIC
     )""")
+    c.execute(f"CREATE INDEX IF NOT EXISTS idx_case ON {table_name} (case_number)")
     conn.commit()
     return 0
 
@@ -322,8 +323,8 @@ if __name__ == "__main__":
 	cache_path = r'C:\Temp\diskcache_test'
 	os.makedirs(cache_path, exist_ok=True)
 	sys_state = state.create_state(db_path)
-	sys_state['system']['case_number'] = 2
-	sys_state['system']['start_time'] = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
+	sys_state['notes'] = "test string 4"
+	sys_state['system']['art_ph'] = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
 	graph_list = ["ph_graph", "base_lact_graph", "k_gluc_graph", "do2_vo2_graph", "po2_graph", "pco2_graph", "flow_graph", "pressure_graph", "hb_hct_graph"]
 	execute_entry(db_path, table, sys_state)
 	# mem.create_cache(cache_path, 'key', sys_state)
@@ -332,14 +333,16 @@ if __name__ == "__main__":
 	cn = get_all_cn(db_path, table)
 	print(f'case numbers -> {cn}')
 
-	graph_data = get_val(db_path, table, ['start_time'], 1, 2)
-	print(f'graph data : {graph_data['start_time'][0]}, type{type(graph_data['start_time'][0])}')
+	graph_data = get_val(db_path, table, ['notes',], 15, 0)
+	print(f'graph data : {graph_data['notes'][0]}, type{type(graph_data['notes'][0])}')
+	print(f'graph data : {graph_data}')
+	# with sqlite3.connect(db_path) as conn:
+	# 	c = conn.cursor() 
+	# 	create_table(c, conn, 'test')
+	# 	tables = get_tables_names(db_path)
+	# 	print(f'tables : {tables}')
 
-	with sqlite3.connect(db_path) as conn:
-		c = conn.cursor() 
-		create_table(c, conn, 'test')
-		tables = get_tables_names(db_path)
-		print(f'tables : {tables}')
+# c.execute("SELECT name, sql FROM sqlite_master WHERE type='index'")
 
 	# with sqlite3.connect(db_path) as conn:
 	# 	c = conn.cursor() 
