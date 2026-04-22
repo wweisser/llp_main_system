@@ -42,7 +42,7 @@ def create_state(db_path: str):
     sys_state = {
         "system":{
             "case_number": 0,
-            "autosave": None,
+            "autosave": False,
             "db_path": db_path,
             "start_time": 0,
             "start_time_hope": 0,
@@ -62,6 +62,7 @@ def create_state(db_path: str):
             "set_pressure_ha": 0,
             "set_pressure_pv": 0,
         },
+        "evnets": "",
         "notes": "",
         "fluid_balance":{
             "set_hct": 0,

@@ -14,11 +14,10 @@ def case_manager_callbacks(app, button):
         Output("postbox", "data", allow_duplicate=True),
         Output("case_mgr_mdl", "hidden", allow_duplicate=True),
         Input(button, "n_clicks"),
-        Input("cm_close_btn", "n_clicks"),
         State("case_mgr_mdl", "hidden"),
         prevent_initial_call=True,
     )
-    def csm_button(btn_click, modal_close_btn, hidden):
+    def csm_button(btn_click, hidden):
         if hidden:
             post_item = gu.create_postbox_item('case_number','list_request', '')
             print('csm_button -> casenumber list request : ', post_item)
@@ -102,26 +101,48 @@ def case_manager_callbacks(app, button):
             return no_update, 'Entry is not a digit'
 
     @app.callback(
+        Output("start_case_btn", "children"),     
+        Output("hope_btn", "disabled"),
+        Output("cor_btn", "disabled"),
+        Output("nmp_btn", "disabled"),
+        Output("start_case_btn", "disabled"),
+        Output("cm_new_case_button", "disabled"),
+        Output("cm_confirm_btn", "disabled"),  
+        Input("state_data_store", "data"),
+        prevent_initial_call=True,
+    )
+    def disable_csm(msg):
+        if msg['id'] == 'state':
+            cn = msg['data']['system']['case_number']
+            autosave = msg['data']['system']['autosave']
+            if cn == 0 and not autosave:
+                return "Start Case", True, True, True, True, False, False
+            elif cn != 0 and not autosave:
+                return "Start Case", True, True, True, False, False, False
+            elif autosave:
+                return "Stop Case", False, False, False, False, True, True
+        else: 
+            return no_update, no_update, no_update , no_update , no_update , no_update , no_update 
+
+
+    @app.callback(
         Output("postbox", "data", allow_duplicate=True),
         Input("start_case_btn", "n_clicks"),
         State("state_data_store", "data"),
         prevent_initial_call=True,
     )
-    def start_case(sc_btn, sys_state):
-        if sys_state and isinstance(sys_state, dict):
-            cn = sys_state['data']['system']['case_number']
-            if cn != 0:
+    def start_case(sc_btn, msg):
+        if msg['id'] == 'state':
+            cn = msg['data']['system']['case_number']
+            autosave = msg['data']['system']['autosave']
+            if cn != 0 and not autosave:
                 send_item = gu.create_postbox_item('archive', 'start_record', 10)
                 print(send_item)
                 return send_item
-        else: None
-
-    @app.callback(
-        Output("postbox", "data", allow_duplicate=True),
-        Input("stop_case_btn", "n_clicks"),
-        prevent_initial_call=True,
-    )
-    def stop_case(sc_btn):
-        send_item = gu.create_postbox_item('archive', 'stop_record', 10)
-        print(send_item)
-        return send_item
+            elif autosave:
+                send_item = gu.create_postbox_item('archive', 'stop_record', "")
+                return send_item 
+            else:
+                return no_update
+        else:
+            return no_update

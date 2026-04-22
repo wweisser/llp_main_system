@@ -14,10 +14,13 @@ def create_graph_figure(path: str, table: str, val: str, case_number):
 
 
 if __name__ == "__main__":
-    # table = 'test'
-    # db_path = r'data_vault.db'
-    # create_graph_figure(db_path, table, 'art_ph', 1)
-    datetime.now().strftime("%d-%m-%Y %H:%M")
+    note_data = {'notes': ['test string 1', 'test string 1', 'test string 2', 'test string 3', 'test string 4', 'test string 4']}
+    note_str = result = '\n'.join(note_data['notes'])
+    print(note_str)
+    # for note in note_data:
+    #     note_str = note_str.join(note_data[note])
+    # print(f'parse_archive_request -> note : {note_data[note]}\n')
+
 
 
 

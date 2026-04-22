@@ -62,11 +62,12 @@ def get_all_cn(parth: str, table: str):
 def create_table(c, conn, table_name):
     c.execute(f"""CREATE TABLE IF NOT EXISTS {table_name} (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
+		event_log TEXT,
         case_number INTEGER NOT NULL,
 		start_time TEXT,
-        clock_time NUMERIC NOT NULL,
-        perfusion_time NUMERIC NOT NULL,
-		gas_flow NUMERIC,
+        clock_time TEXT,
+        perfusion_time TEXT,
+		gas_flow TEXT,
 		fio2 NUMERIC,
         notes TEXT,
         art_flow NUMERIC,
@@ -323,8 +324,8 @@ if __name__ == "__main__":
 	cache_path = r'C:\Temp\diskcache_test'
 	os.makedirs(cache_path, exist_ok=True)
 	sys_state = state.create_state(db_path)
-	sys_state['notes'] = "test string 4"
-	sys_state['system']['art_ph'] = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
+	sys_state['notes'] = ""
+	sys_state['system']['case_number'] = 2
 	graph_list = ["ph_graph", "base_lact_graph", "k_gluc_graph", "do2_vo2_graph", "po2_graph", "pco2_graph", "flow_graph", "pressure_graph", "hb_hct_graph"]
 	execute_entry(db_path, table, sys_state)
 	# mem.create_cache(cache_path, 'key', sys_state)
@@ -333,8 +334,8 @@ if __name__ == "__main__":
 	cn = get_all_cn(db_path, table)
 	print(f'case numbers -> {cn}')
 
-	graph_data = get_val(db_path, table, ['notes',], 15, 0)
-	print(f'graph data : {graph_data['notes'][0]}, type{type(graph_data['notes'][0])}')
+	graph_data = get_val(db_path, table, ['notes',], 15, 2)
+	print(f'graph data : {graph_data['notes'][0]}, type{type(graph_data['notes'][1])}')
 	print(f'graph data : {graph_data}')
 	# with sqlite3.connect(db_path) as conn:
 	# 	c = conn.cursor() 

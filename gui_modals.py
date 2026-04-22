@@ -10,11 +10,11 @@ def case_manager_mdl():
         dcc.Dropdown(id='cm_dropdown', options=[], clearable=True, multi=False, persistence=True, placeholder="Select Case Number", className="cm_drpdwn"),
         html.Div([
             html.Button("New Case", id="cm_new_case_button",className="case_mgr_btn"),
-            html.Button("HOPE", id="default_I",className="case_mgr_btn"),
+            html.Button("HOPE", id="hope_btn",className="case_mgr_btn"),
             html.Button("Confirm", id="cm_confirm_btn", className="case_mgr_btn"),
-            html.Button("COR", id="cm_close_btn",className="case_mgr_btn"),
+            html.Button("COR", id="cor_btn",className="case_mgr_btn"),
             html.Button("Start Perfusion", id="start_case_btn",className="case_mgr_btn"),
-            html.Button("NMP", id="stop_case_btn",className="case_mgr_btn"),
+            html.Button("NMP", id="nmp_btn",className="case_mgr_btn"),
             ], className="case_mgr_mdl_lower"),
         ], className="case_mgr_mdl", id="case_mgr_mdl", hidden=True))
 
@@ -31,17 +31,28 @@ def new_case_mdl():
         ], id="new_case_mld", hidden=True)
     )
 
+# def note_mdl():
+#     print('\n text mdl was created \n')
+#     return(html.Div([
+#         dcc.Textarea(value="No Notes listed", id="note_h1", className="note_mdl_notes", readOnly=True),
+#         dcc.Input(id='note_input', placeholder="Note"),
+#         dcc.Store(id='note_store'),
+#         html.Div([
+#             html.Button("Enter Note", id="enter_note_btn", className="case_mgr_btn"),
+#         ]),
+#         ],  id="note_mdl", className="note_mdl", hidden=True)
+#     )
+
 def note_mdl():
-    print('\n text mdl was created \n')
-    return(html.Div([
+    return html.Div([
         dcc.Textarea(value="No Notes listed", id="note_h1", className="note_mdl_notes", readOnly=True),
         dcc.Input(id='note_input', placeholder="Note"),
         dcc.Store(id='note_store'),
         html.Div([
             html.Button("Enter Note", id="enter_note_btn", className="case_mgr_btn"),
         ]),
-        ],  id="note_mdl", className="note_mdl", hidden=True)
-    )
+        html.Div(id="_scroll_dummy", style={"display": "none"}),  # Dummy
+    ], id="note_mdl", className="note_mdl", hidden=True)
 
 def create_active_mdl():
     print('\n Active mdl was created \n')

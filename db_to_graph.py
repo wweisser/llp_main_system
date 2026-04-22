@@ -12,11 +12,12 @@ async def create_center_graph_data(db_path, table, gui_q, case_number):
     print(f'create_center_graph_data -> graph data : {graph_item}')
     await oq.feed_queue(gui_q, graph_item)
 
-async def create_note_data(db_path, table, case_number):
+async def create_note_data(db_path, table, case_number, current_str):
     note_data = du.get_val(db_path, table, ['notes',] , 1440, case_number)
     note_str = ''
     for note in note_data:
-        note_str.append(f'{note}\n')
+        note_str.append(f'{note[0]}: {note[1]}\n')
+    note_str.append(current_str)
     return
 
 # if __name__ == "__main__":

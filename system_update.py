@@ -9,26 +9,39 @@ import db_to_graph as dbtg
 import asyncio
 from datetime import datetime
 
+
+async def parse_note_input(msg: dict, gui_q, db_path, table, sys_state: dict, now: datetime):
+    print(f'parse_archive_request -> note entry received :{msg}')
+    # print(f'parse_archive_request -> {now.strftime("%H:%M:%S")}: {msg['data']}\n')
+    if msg['data'] != "":
+        sys_state['notes'] = sys_state['notes'] + f'{now.strftime("%d. %H:%M:%S")}: {msg['data']} \n'
+        if sys_state['system']['case_number'] != 0:
+            note_data = du.get_val(db_path, table, ['notes',] , 800, sys_state['system']['case_number'])
+            archive_note_str = 'n'.join(s for s in note_data['notes'] if s) + '\n'
+            note_item = oq.create_q_item('system', 'notes', archive_note_str + sys_state['notes'])
+        else:
+            note_item = oq.create_q_item('system', 'notes', sys_state['notes'])
+        await oq.feed_queue(gui_q, note_item)
+    return sys_state
+
 async def parse_serial_input(msg: dict, sys_state: dict, cache, key):
     if msg['id'] == 'cdi':
         sys_state = await parse_cdi_input(msg, sys_state, cache, key)
     return sys_state
 
 async def parse_cdi_input(msg: dict, sys_state: dict, cache, key):
-
     cdi_arr = cc.build_cdi_arr(msg['data'])
     sys_state = su.cdi_to_state(sys_state, cdi_arr)
     memory.put_state_to_cache(cache, key, sys_state)
     return sys_state
 
-
-
 async def parse_archive_request(msg: dict, sys_state: dict, ux_q, gui_q, cache, key, db_path, table):
     # print('message id : ', msg['id'])
+    now = datetime.now()
     if msg['id'] == 'start_record':
         sys_state['system']['autosave'] = True
         if sys_state['system']['start_time'] == 0:
-            sys_state['system']['start_time'] = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
+            sys_state['system']['start_time'] = now.strftime("%d.%m.%Y %H:%M:%S")
         record_task = asyncio.create_task(dm.start_case_record(sys_state, ux_q, cache, key))
         if record_task:
             print(f'\nparse_archive_request -> recording has started : {sys_state['system']['start_time']}\n')
@@ -39,16 +52,18 @@ async def parse_archive_request(msg: dict, sys_state: dict, ux_q, gui_q, cache, 
     elif msg['id'] == 'entry':
         await asyncio.to_thread(du.execute_entry(db_path, table, msg['data']))
         print('parse_archive_request -> entry request was executed')
+    elif msg['id'] == 'note_entry':
+            sys_state = await parse_note_input(msg, gui_q, db_path, table, sys_state, now)
+    elif msg['id'] == 'event_entry':
+        sys_state['events'].append(msg['data'])
+    elif msg['id'] == 'change_entry':
+        pass
     elif msg['id'] == 'data_request':
         pass
     elif msg['id'] == 'graph_data':
         await dtg.create_center_graph_data(db_path, table, gui_q, msg['data'])
-    elif msg['id'] == 'change_entry':
-        pass
-    elif msg['id'] == 'note_entry':
-            note_data = du.get_val(db_path, table, ['notes',] , 800, sys_state['system']['case_number'])
             
-            sys_state['notes'] = sys_state['notes'].append(msg['data'])
+        sys_state['notes'] = sys_state['notes'].append(msg['data'])
     return sys_state
 
 async def parse_case_number_request(msg: dict, sys_state: dict, gui_q, db_path: str, table: str):

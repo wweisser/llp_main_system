@@ -5,7 +5,6 @@ import state
 import memory
 import onque as oq
 import ser_connection as sc
-import gui
 import asyncio
 import json
 import uvicorn

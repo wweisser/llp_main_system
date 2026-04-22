@@ -9,6 +9,7 @@ import gui_graphs as gg
 import gui_case_management as gcm
 import gui_parameter_callbacks as gpc
 import gui_graph_callbacks as ggc
+import gui_note_callbacks as gnc
 
 
 def create_layouts():
@@ -48,6 +49,8 @@ def create_com_callbacks(app, graph_list: list):
         gu.gui_ws_send(app),
         ga.create_active_callbacks(app),
         ggc.create_graph_callbacks(app),
+        gnc.create_note_callbacks(app),
+
         # ggc.create_graph_callbacks(app, 'graph_data_store', graph_list),
         gpc.state_to_gui(app)
     ]))

@@ -97,6 +97,12 @@ body{
     background-color: #8e8200;
     color: white; 
 }
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background-color: #ccc;
+}
+
 .tabbar{
     top: 90%;
     left: 0%;
