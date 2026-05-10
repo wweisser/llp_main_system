@@ -11,17 +11,17 @@ from datetime import datetime
 
 
 async def parse_note_input(msg: dict, gui_q, db_path, table, sys_state: dict, now: datetime):
-    print(f'parse_archive_request -> note entry received :{msg}')
     # print(f'parse_archive_request -> {now.strftime("%H:%M:%S")}: {msg['data']}\n')
-    if msg['data'] != "":
+    if msg['data'] != "" and sys_state['system']['case_number'] != 0:
         sys_state['notes'] = sys_state['notes'] + f'{now.strftime("%d. %H:%M:%S")}: {msg['data']} \n'
-        if sys_state['system']['case_number'] != 0:
-            note_data = du.get_val(db_path, table, ['notes',] , 800, sys_state['system']['case_number'])
-            archive_note_str = 'n'.join(s for s in note_data['notes'] if s) + '\n'
-            note_item = oq.create_q_item('system', 'notes', archive_note_str + sys_state['notes'])
-        else:
-            note_item = oq.create_q_item('system', 'notes', sys_state['notes'])
-        await oq.feed_queue(gui_q, note_item)
+        note_data = du.get_val(db_path, table, ['notes',] , 800, sys_state['system']['case_number'])
+        archive_note_str = 'n'.join(s for s in note_data['notes'] if s) + '\n'
+        note_item = oq.create_q_item('notes', 'notes', archive_note_str + sys_state['notes'])
+        # print(f'parse_note_input -> note item time : {note_item['time']}')
+    else:
+        note_item = oq.create_q_item('notes', 'notes', sys_state['notes'])
+        # print(f'parse_note_input -> note_item : {note_item['time']}')
+    await oq.feed_queue(gui_q, note_item)
     return sys_state
 
 async def parse_serial_input(msg: dict, sys_state: dict, cache, key):
@@ -63,7 +63,7 @@ async def parse_archive_request(msg: dict, sys_state: dict, ux_q, gui_q, cache, 
     elif msg['id'] == 'graph_data':
         await dtg.create_center_graph_data(db_path, table, gui_q, msg['data'])
             
-        sys_state['notes'] = sys_state['notes'].append(msg['data'])
+        # sys_state['notes'] = sys_state['notes'].append(msg['data'])
     return sys_state
 
 async def parse_case_number_request(msg: dict, sys_state: dict, gui_q, db_path: str, table: str):
@@ -103,18 +103,12 @@ async def parse_hub_input(msg: dict, sys_state: dict, com_port_hub: str, tx_q):
 async def parse_msg(msg: dict, sys_state, sp):
     # print(f'Input parser called : {msg}')
     if msg['msg_type'] == 'serial_input':
-        # print('parse_msg -> cdi input received')
         sys_state = await parse_serial_input(msg, sys_state, sp['cache'], sp['key'])
     elif msg['msg_type'] == 'hub_input':
-        # print('parse_msg -> hub input received')
         sys_state = await parse_hub_input(msg, sys_state)
     elif msg['msg_type'] == 'case_number':
-        print('parse_msg -> case number request received')
-        print('parse_msg -> arguments to parse casenumber:', sp['gui_q'], sp['db_path'], sp['table'])
-
         sys_state = await parse_case_number_request(msg, sys_state, sp['gui_q'], sp['db_path'], sp['table'])
     elif msg['msg_type'] == 'archive':
-        # print('parse_msg -> archive request received')
         sys_state = await parse_archive_request(msg, sys_state, sp['ux_q'], sp['gui_q'], sp['cache'], sp['key'], sp['db_path'], sp['table'])
     elif msg['msg_type'] == 'entry_request':
         print('parse_msg -> entry request received')
@@ -122,6 +116,14 @@ async def parse_msg(msg: dict, sys_state, sp):
     elif msg['msg_type'] == 'controll':
         # print('parse_msg -> controll request received')
         sys_state = await parse_controll_request(msg, sys_state, sp['com_port_hub'], sp['tx_q'])
+    elif msg['msg_type'] == 'system' and msg['id'] == 'refresh_gui' and sys_state['system']['case_number'] != 0:
+        print('parse_msg -> refresh_gui')
+        graph_request = oq.create_q_item('archive', 'graph_data', sys_state['system']['case_number'])
+        note_item = oq.create_q_item('archive', 'note_entry', '!')
+        await asyncio.sleep(0.5)
+        await oq.feed_queue(sp['ux_q'], graph_request)
+        await asyncio.sleep(0.5)
+        await oq.feed_queue(sp['ux_q'], note_item)
     else:
         print(f"parse_msg -> ux_q item is not valid : {msg}")
         return None
@@ -159,8 +161,6 @@ def calc_time(sys_state, start_time):
     except Exception as e:
         print('gui_updater ->', e)
         return None
-    
-#calc time fixen
 
 async def gui_updater(cache, key, gui_q, ux_q):
     print('GUI UPDATER STARTED')
@@ -180,7 +180,7 @@ async def gui_updater(cache, key, gui_q, ux_q):
             if sys_state['system']['case_number'] != 0:
                 graph_request = oq.create_q_item('archive', 'graph_data', sys_state['system']['case_number'])
                 await oq.feed_queue(ux_q, graph_request)
-                print(f'gui_updater -> graph request was send')
+                # print(f'gui_updater -> graph request was send')
             counter = 0
         counter += 1
         await asyncio.sleep(1.0)

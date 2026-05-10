@@ -23,7 +23,7 @@ def get_table(parth: str, table: str):
 def get_val(db_path: str, table: str, param_list: list, fetch_range: int, case_number: int):
 
 	columns_str = " ,".join(param_list)
-	print(f'columns_str -> {columns_str}')
+	print(f'get_val -> {param_list}')
 	query = f"""
 		SELECT {columns_str}
         FROM {table}

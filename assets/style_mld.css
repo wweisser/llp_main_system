@@ -1,7 +1,7 @@
 
 .case_mgr_mdl{
-    top: 1%;
-    left: 20%;
+    top: 20%;
+    left: 40%;
     height: 300px;
     width: 32%;
     border-radius: 10px;
@@ -88,14 +88,14 @@
 }
 
 .note_mdl{
-    bottom: 11%;
-    left: 53%;
-    height: 45%;
-    width: 31.6%;
+    top: 0%;
+    left: 20.4%;
+    height: 43%;
+    width: 32%;
     border-radius: 10px;
     position: absolute;
     border-width: 1px;
-    z-index: 4000;
+    z-index: 2100;
     border-style: solid;
     border-width: 2px; /* Stärke des Rahmens */
     border-color: var(--text_color_I); /* Farbe des Rahmens */
@@ -106,7 +106,7 @@
 
 .note_mdl_notes{
     margin: 1%;
-    height: 83%;
+    height: 80%;
     width: 96%;
     background-color: var(--bg_color_II);
     color: var(--text_color_I);
@@ -120,7 +120,7 @@
     border-radius: 10px;
     position: absolute;
     border-width: 1px;
-    z-index: 4000;
+    z-index: 2000;
     border-style: solid;
     border-width: 2px;
     display: grid;
@@ -165,53 +165,4 @@
 .bga_entry_btn:active {
     background-color: var(--active_color);
     color: var(--text_color_active);
-}
-.paramtr_mdl{
-    top: 30%;
-    left: 30%;
-    height: 300px;
-    width: 300px;
-    border-radius:12px;
-    position: fixed;
-    z-index: 3000;
-    border-style: solid;
-    border-width: 2px; /* Stärke des Rahmens */
-    border-color: rgb(255, 176, 5); /* Farbe des Rahmens */
-    background-color: #130c01;
-    font-family: "Arial";
-    display: grid;
-    grid-template-rows: [first] 10% [line2] 80% [line3] 10% [end];
-}
-.Paramtr_mdl_header{
-    border-top-left-radius: 10px;
-    border-top-right-radius: 10px;
-    height: 40px;
-    margin: 0;
-    background-color:rgb(255, 176, 5);
-    color:#130c01;
-}
-.paramtr_mdl_panel{
-    height: 215px;
-    display: grid;
-    grid-template-columns: [first] 210px [line2] 90px  [end];
-}
-.paramtr_mdl_value{
-    border-bottom-left-radius: 10px;
-    background-color:#130c01;
-    color:rgb(255, 176, 5);
-    border-style: solid;
-    border-width: 1px; /* Stärke des Rahmens */
-    border-color: rgb(255, 176, 5); /* Farbe des Rahmens */
-    display: grid;
-    grid-template-rows: [first] 20% [line2] 60%  [line3] 20% [end];
-}
-.paramtr_mdl_up_down{
-    border-bottom-right-radius: 10px;
-    background-color:#130c01;
-    color:rgb(255, 176, 5);
-    border-style: solid;
-    border-width: 1px; /* Stärke des Rahmens */
-    border-color: rgb(255, 176, 5); /* Farbe des Rahmens */
-    display: grid;
-    grid-template-rows: [first] 40% [line2] 40%  [line3] 20% [end];
 }

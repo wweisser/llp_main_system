@@ -54,22 +54,18 @@ def create_state(db_path: str):
         },
         "controls": {
             "set_air_flow": 0,
-            "air_flow": 0,
             "set_oxygen_flow": 0,
-            "oxygen_flow": 0,
             "set_flow_ha": 0,
             "set_flow_pv": 0,
             "set_pressure_ha": 0,
             "set_pressure_pv": 0,
+            "set_hct": 0,
+            "set_filter_flow": 0,
+            "set_substitude_flow": 0,
         },
         "evnets": "",
         "notes": "",
-        "fluid_balance":{
-            "set_hct": 0,
-            "system_volume": 0,
-            "filter_flow": 0,
-            "substitude_flow": 0,
-        },
+        "system_volume": 0,
         "bga":{
         },
         "lab":{
@@ -83,6 +79,20 @@ def create_state(db_path: str):
             "factor_v": 0,
             "gamma": 0,
         },
+        "oxygen_flow":{
+            "active": True,
+            "unit": "[ml/min]", 
+            "val": 0, 
+            "lower_limit": 0, 
+            "upper_limit": 0,
+        }, 
+        "oxygen_flow":{
+            "active": True,
+            "unit": "[ml/min]", 
+            "val": 0, 
+            "lower_limit": 0, 
+            "upper_limit": 0,
+        }, 
         "art_flow":{
             "active": True,
             "unit": "[ml/min]", 

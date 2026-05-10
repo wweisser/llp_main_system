@@ -8,7 +8,7 @@ def create_active_callbacks(app):
             State('active_mdl', 'className'),
             prevent_initial_call=True,
         )
-    def show_gas_controller(val, className):
+    def show_gas_controller(n_clicks, className):
         if className == "active_mdl":
             return "hide"
         else:

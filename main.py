@@ -8,6 +8,7 @@ import ser_connection as sc
 import asyncio
 import json
 import uvicorn
+import sqlite3
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.responses import RedirectResponse
 # from fastapi.middleware.wsgi import WSGIMiddleware 
@@ -105,6 +106,8 @@ async def ws_send(websocket, gui_q):
         try:
             msg = await gui_q.get()
             if isinstance(msg, dict):
+                if msg['id'] == 'notes':
+                    print(f'ws_send -> notes send at {msg['time']}')
                 msg_to_send = json.dumps(msg)
                 await websocket.send_text(msg_to_send)
             else:
@@ -120,7 +123,10 @@ async def start_ws(app, gui_q, ux_q):
     print('STARTING WEBSOCKET')
     @app.websocket("/ws") # hier wird das websocket an die fastAPI app gebunden
     async def endpoint(ws: WebSocket):
-        await ws.accept() # hier wird der serverhandshake durchgeführt
+        await ws.accept()
+
+        q_item = oq.create_q_item('system', 'refresh_gui', '!')
+        await ux_q.put(q_item)
         try:
             print('\nstart_ws -> WEBSOCKET ONLINE\n')
             async with asyncio.TaskGroup() as tg:
@@ -169,6 +175,8 @@ async def main():
     gui_q, ux_q, tx_q, cache = build_state(cache_path, db_path, key)
     com_port_hub = None
     sp = create_sys_param(gui_q, ux_q, tx_q, cache, key, com_port_hub, db_path, table)
+
+    # conn = sqlite3.connect(db_path)
 
     try:
         fast_api_app = FastAPI() # hier wird die fastAPI app erzeugt

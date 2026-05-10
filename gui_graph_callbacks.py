@@ -10,35 +10,39 @@ def data_to_figure(app, graph, left_axis, lax_name, lax_color, right_axis, rax_n
         Input("graph_data_store", "data"),
         prevent_initial_call=True
     )
-    def dtf(data):
-        figure = make_subplots(specs=[[{"secondary_y": True}]])
+    def dtf(msg):
+        if msg['msg_type'] == 'graph' and msg['id'] == 'main_panel':
+            data = msg['data']
+            figure = make_subplots(specs=[[{"secondary_y": True}]])
 
-        figure.add_trace(
-            go.Scatter(
-                x=data["clock_time"],
-                y=data[left_axis],
-                name=lax_name,
-                line=dict(dash='solid', width=1, color=lax_color),
-                mode="markers+lines"
-            ),
-            secondary_y=False,
-        )
-        figure.add_trace(
-            go.Scatter(
-                x=data["clock_time"],
-                y=data[right_axis],
-                name=rax_name,
-                line=dict(dash='solid', width=1, color=rax_color),
-                mode="markers+lines"
-            ),
-            secondary_y=True,
-        )
+            figure.add_trace(
+                go.Scatter(
+                    x=data["clock_time"],
+                    y=data[left_axis],
+                    name=lax_name,
+                    line=dict(dash='solid', width=1, color=lax_color),
+                    mode="markers+lines"
+                ),
+                secondary_y=False,
+            )
+            figure.add_trace(
+                go.Scatter(
+                    x=data["clock_time"],
+                    y=data[right_axis],
+                    name=rax_name,
+                    line=dict(dash='solid', width=1, color=rax_color),
+                    mode="markers+lines"
+                ),
+                secondary_y=True,
+            )
 
-        figure.update_yaxes(title_text=lax_name, secondary_y=False)
-        figure.update_yaxes(title_text=rax_name, secondary_y=True)
+            figure.update_yaxes(title_text=lax_name, secondary_y=False)
+            figure.update_yaxes(title_text=rax_name, secondary_y=True)
 
-        figure = gg.update_graph_layout(figure)
-        return figure
+            figure = gg.update_graph_layout(figure)
+            return figure
+        else:
+            return None
 
 # DICT AUS DEM FRONTEND KOPPIEREN UND HIER MAL TESTWEISE EINBAUEN
 

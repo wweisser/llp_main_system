@@ -56,16 +56,16 @@ def note_mdl():
 
 def create_active_mdl():
     print('\n Active mdl was created \n')
-    marks_set_po2 = {80: '80', 100: '100', 120: '120', 140: '140', 160: '160', 180: '180', 200: '200'}
+    marks_set_po2 = {80: '80', 100: '100', 120: '120', 140: '140', 160: '160'}
     marks_set_pco2 = {20: '20' , 30: '30', 40: '40', 50: '50', 60: '60'}
-    marks_gas_flow = {0: '0', 400: '400', 800: '800', 800: '1200', 1200: '1400', 1600: '1600', 2000: '2000'}
+    marks_gas_flow = {0: '0', 400: '400', 800: '800', 800: '1200', 1200: '1400', 1600: '1600'}
     return(html.Div([
         html.Div([
             gp.paramtr_btn_1('output_gas_btn', 'Gas Flow', '0', 'ml/min', 'gas_flow','ha', 80),
             gp.paramtr_btn_1('fio2_btn', 'FiO2', '0', '%', 'fio2','ha', 80),
             gp.paramtr_btn_1('set_po2_btn', 'set pO2', '0', 'mmHg', 'set_po2','ha', 80),
             gp.paramtr_btn_1('set_pco2_btn', 'set pCO2', '0', 'mmHg', 'set_pco2','ha', 80),
-            dcc.Slider(id='set_po2_slider', min=80, max=200, step=1, value=100, marks=marks_set_po2, vertical=True, verticalHeight=190, dots=False),
+            dcc.Slider(id='set_po2_slider', min=80, max=160, step=1, value=100, marks=marks_set_po2, vertical=True, verticalHeight=190, dots=False),
             dcc.Slider(id='set_pco2_slider', min=20, max=60, step=1, value=45, marks=marks_set_pco2, vertical=True, verticalHeight=190, dots=False),
             ], id="ventilaton_setings", className="ventilaton_setings"),
         html.Div([
@@ -73,8 +73,8 @@ def create_active_mdl():
             gp.paramtr_btn_1('o2_flow_btn', 'O2 Flow', '0', 'ml/min', 'o2_flow','ha', 70),
             gp.paramtr_btn_1('set_air_flow_btn', 'set air flow', '0', 'ml/min', 'set_air_flow','ha', 70),
             gp.paramtr_btn_1('set_o2_flow_btn', 'set 02 flow', '0', 'ml/min', 'set_o2_flow','ha', 70),
-            dcc.Slider(id='set_air_flow_slider', min=0, max=2000, step=1, value=45, marks=marks_gas_flow, vertical=True, verticalHeight=190, dots=False),
-            dcc.Slider(id='set_o2_flow_slider', min=0, max=2000, step=1, value=45, marks=marks_gas_flow, vertical=True, verticalHeight=190, dots=False),
+            dcc.Slider(id='set_air_flow_slider', min=0, max=1600, step=1, value=45, marks=marks_gas_flow, vertical=True, verticalHeight=190, dots=False),
+            dcc.Slider(id='set_o2_flow_slider', min=0, max=1600, step=1, value=45, marks=marks_gas_flow, vertical=True, verticalHeight=190, dots=False),
             ], id="gas_flow_setings", className="ventilaton_setings"),
         ], id="active_mdl", className="active_mdl", hidden=True)
     )

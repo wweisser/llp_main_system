@@ -8,6 +8,25 @@ def check_case_number(cn_arr, numb):
                 return True
     return False
 
+def parse_case_id(msg: dict):
+    if msg['id'] == 'cn_list' and isinstance(msg['data'], list):
+        cn_list = msg['data']
+        inter_list = []
+        for id in cn_list:
+            if isinstance(id, int):
+                is_in_list = False 
+                for x in inter_list:
+                    if x == id:
+                        is_in_list = True
+                if not is_in_list:
+                    inter_list.append(id)
+        drp_dwn_list = []
+        for id in inter_list:
+            drp_dwn_list.append(str(id))
+        return drp_dwn_list
+    else: 
+        return None
+
 def case_manager_callbacks(app, button):
         
     @app.callback(
@@ -32,13 +51,15 @@ def case_manager_callbacks(app, button):
         Input("case_id_store", "data"),
         prevent_initial_call=True,
     )
-    def load_cm(case_id_list):
+    def load_cm(msg):
         #takes data from case-store, puts it to dropdown
-        print(f'\ncase_id_list : {case_id_list}\n')
-        if case_id_list and isinstance(case_id_list, list):
+        if msg and msg['msg_type'] == 'case_number':
+            case_id_list = parse_case_id(msg)
+            print(f'\ncase_id_list : {case_id_list}\n')
             return case_id_list
         else:
             print('casenumber list in case_store item was not a list')
+            print(msg)
             return []
 
 

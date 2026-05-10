@@ -1,9 +1,8 @@
 from dash import Input, Output, html, State, no_update
-from dash_extensions import EventSource
+from dash.exceptions import PreventUpdate
 import gui_utils as gu
 import gui_case_management as gcm
 import gui_panels as gp
-import datetime
 
 def create_note_callbacks(app):
 #send input to backend
@@ -49,11 +48,16 @@ def create_note_callbacks(app):
 #put note item to gui
     @app.callback(
         Output('note_h1', 'value'),
-        Input('state_data_store', 'data'),
+        Input('note_data_store', 'data'),
+        State('note_h1', 'id'),
         prevent_initial_call=True
     )
-    def send_note_entry(msg):
-        if msg['id'] == 'notes':
+    def note_to_gui(msg, note_id):
+        if note_id is None:
+            raise PreventUpdate
+        if isinstance(msg, dict) and msg['id'] == 'notes':
+            print(f'note_to_gui -> {msg['time']}')
+            # print(f'note_to_gui -> {msg['data']}')
             return msg['data']
         return no_update
 
