@@ -10,12 +10,13 @@ import gui_case_management as gcm
 import gui_parameter_callbacks as gpc
 import gui_graph_callbacks as ggc
 import gui_note_callbacks as gnc
+import gui_download_callbacks as gdc
 
 
 def create_layouts():
     return(html.Div([
         gp.create_pages(),
-        gg.create_center_panels(),
+        # gg.create_center_panels(),
         gp.tab_bar(),
     ]))
 def create_modals():
@@ -50,6 +51,7 @@ def create_com_callbacks(app, graph_list: list):
         ga.create_active_callbacks(app),
         ggc.create_graph_callbacks(app),
         gnc.create_note_callbacks(app),
+        gdc.create_active_callbacks(app),
 
         # ggc.create_graph_callbacks(app, 'graph_data_store', graph_list),
         gpc.state_to_gui(app)

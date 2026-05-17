@@ -1,6 +1,4 @@
 from dash import html, dcc
-import plotly.express as px
-import gui_modals as gm
 import gui_graphs as gg
 
 # alle controll button damit belegen
@@ -82,41 +80,88 @@ def permanent_panel():
         paramtr_btn_1('ven_pressure_btn', 'Portal Vene Pressure: ', '---', 'mmHg:', 'ven_pressure', 'ha', 90),
         paramtr_btn_1('cSO2_btn', 'Art SO2:    ', '---', '    %', 'cso2', 'ha', 90),
         paramtr_btn_1('art_pO2_btn', 'Art pO2: ', '---', ' mmHgh', 'art_po2', 'ha', 90),
-        ], id='permanent_panel',className="side_panel_II")
+        ], id='permanent_panel', className="side_panel_II", hidden=False)
     )
 
-def perf_stat_panel():
+def data_panel():
     return(html.Div([
-        paramtr_btn_1('art_vr_btn', 'Art VR:    ', '---', '    mmHg/ml/min', 'art_vr', 'ha', 100),
-        paramtr_btn_1('art_temp_btn', 'Art Tmp:    ', '---', '    °C', 'art_temp', 'ha', 100),
-        paramtr_btn_1('ven_vr_btn', 'Ven VR:    ', '---', '    mmHg/ml/min', 'ven_vr', 'ha', 100),
-        paramtr_btn_1('ven_temp_btn', 'Ven Tmp:    ', '---', '    °C', 'ven_temp', 'ha', 100),
-        paramtr_btn_1('return_temp_btn', 'Return Tmp:    ', '---', '    °C', 'return_temp', 'ha', 100),
-        paramtr_btn_1('ven_art_rel_btn', 'Flow A:V:    ', '---:---', '', 'ven_art_rel', 'ha', 100),
-        ], id='perf_stat_panel',className="side_panel_I", hidden=True)
+            html.Div([
+            paramtr_btn_1('download_mdl_btn', 'Download', '', '', '', 'ha', 90),
+            drop_down_bar({'dummy': 'dummy'}, 'case_number_drop_down', 'case Number'),
+            drop_down_bar({'dummy': 'dummy'}, 'chart_2', 'Graph 2'),
+            drop_down_bar({'dummy': 'dummy'}, 'chart_3', 'Graph 3'),
+            drop_down_bar({'dummy': 'dummy'}, 'chart_4', 'Graph 5'),
+            drop_down_bar({'dummy': 'dummy'}, 'data_export', 'Export to Excel'),
+            ], className="side_panel_I"),
+            gg.create_plot_graph()
+        ], id='data_panel', className="hide")
+    )
+
+def perfusion_panel():
+    return(html.Div([
+        html.Div([
+            paramtr_btn_1('art_vr_btn', 'Art VR:    ', '---', '    mmHg/ml/min', 'art_vr', 'ha', 100),
+            paramtr_btn_1('art_temp_btn', 'Art Tmp:    ', '---', '    °C', 'art_temp', 'ha', 100),
+            paramtr_btn_1('ven_vr_btn', 'Ven VR:    ', '---', '    mmHg/ml/min', 'ven_vr', 'ha', 100),
+            paramtr_btn_1('ven_temp_btn', 'Ven Tmp:    ', '---', '    °C', 'ven_temp', 'ha', 100),
+            paramtr_btn_1('return_temp_btn', 'Return Tmp:    ', '---', '    °C', 'return_temp', 'ha', 100),
+            paramtr_btn_1('ven_art_rel_btn', 'Flow A:V:    ', '---:---', '', 'ven_art_rel', 'ha', 100),
+        ], className="side_panel_I"),
+        gg.create_graph_panel("flow_graph", "pressure_graph", "hb_hct_graph", 'perfusion_graph_store'),
+        ], id='perfusion_panel', className="left_controlled_page")
     )
 
 def ph_panel():
     return(html.Div([
-        paramtr_btn_1('art_pH_btn', 'Art pH:   ', '---', '', 'art_ph', 'ha', 100),
-        paramtr_btn_1('ven_pH_btn', 'Ven pH:   ', '---', '', 'ven_ph', 'ha', 100),
-        paramtr_btn_1('Base_btn', 'Base:    ', '---', '', 'base', 'ha', 100),
-        paramtr_btn_1('lactate_btn', 'Lactate:    ', '---', '    mmol/L', 'lactate', 'ha', 100),
-        paramtr_btn_1('K_btn', 'Potasium:    ', '---', '    mmol/L', 'k', 'ha', 100),
-        paramtr_btn_1('glucose_btn', 'Glucose:    ', '---', '    mmol/L', 'glucose', 'ha', 100),
-        ], id='ph_panel',className="side_panel_I", hidden=True)
+        html.Div([
+            paramtr_btn_1('art_pH_btn', 'Art pH:   ', '---', '', 'art_ph', 'ha', 100),
+            paramtr_btn_1('ven_pH_btn', 'Ven pH:   ', '---', '', 'ven_ph', 'ha', 100),
+            paramtr_btn_1('Base_btn', 'Base:    ', '---', '', 'base', 'ha', 100),
+            paramtr_btn_1('lactate_btn', 'Lactate:    ', '---', '    mmol/L', 'lactate', 'ha', 100),
+            paramtr_btn_1('K_btn', 'Potasium:    ', '---', '    mmol/L', 'k', 'ha', 100),
+            paramtr_btn_1('glucose_btn', 'Glucose:    ', '---', '    mmol/L', 'glucose', 'ha', 100),
+        ], className="side_panel_I"),
+        gg.create_graph_panel("ph_graph", "k_lact_graph", "base_gluc_graph", 'metabolic_graph_store'),
+        ], id='ph_panel', className="hide")
     )
 
 def respiratory_panel():
     return(html.Div([
-        paramtr_btn_1('DO2_btn', 'DO2:    ', '---', 'ml/min', 'do2', 'ha', 100),
-        paramtr_btn_1('VO2_btn', 'VO2:    ', '---', 'ml/min', 'vo2', 'ha', 100),
-        paramtr_btn_1('HB_btn', 'HB:    ', '---', '    mg/dl', 'hb', 'ha', 100),
-        paramtr_btn_1('art_pCO2_btn', 'Art pCO2:    ', '---', ' mmHg', 'art_pco2', 'ha', 100),
-        paramtr_btn_1('ven_pO2_btn', 'Ven pO2: ', '---', 'mmHg:', 'ven_po2', 'ha', 100),
-        paramtr_btn_1('ven_pCO2_btn', 'Ven pCO2:    ', '---', 'mmHg:', 'ven_pco2', 'ha', 100),
-        ], id='respiratory_panel',className="side_panel_I", hidden=True)
+        html.Div([
+            paramtr_btn_1('DO2_btn', 'DO2:    ', '---', 'ml/min', 'do2', 'ha', 100),
+            paramtr_btn_1('VO2_btn', 'VO2:    ', '---', 'ml/min', 'vo2', 'ha', 100),
+            paramtr_btn_1('HB_btn', 'HB:    ', '---', '    mg/dl', 'hb', 'ha', 100),
+            paramtr_btn_1('art_pCO2_btn', 'Art pCO2:    ', '---', ' mmHg', 'art_pco2', 'ha', 100),
+            paramtr_btn_1('ven_pO2_btn', 'Ven pO2: ', '---', 'mmHg:', 'ven_po2', 'ha', 100),
+            paramtr_btn_1('ven_pCO2_btn', 'Ven pCO2:    ', '---', 'mmHg:', 'ven_pco2', 'ha', 100),
+        ], className="side_panel_I"),
+        gg.create_graph_panel("do2_graph", "hb_graph", "po2_graph", 'respiratory_graph_store'),
+        ], id='respiratory_panel', className="hide")
     )
+
+def bga_entry_panel():
+    return(html.Div([
+        html.Div([
+            value_entry_element('na'),
+            value_entry_element('glucose'),
+            value_entry_element('lactate'),
+            value_entry_element('ca'),
+            value_entry_element('cl'),
+            value_entry_element('hb'),
+            value_entry_element('hct'),
+            value_entry_element('met_hb'),
+            value_entry_element('fco'),
+            value_entry_element('fhhb'),
+            value_entry_element('fohb'),
+            value_entry_element('bilirubin'),
+            value_entry_element('bile_ph'),
+            value_entry_element('bile_glucose'),
+            value_entry_element('bile_hco3'),
+            value_entry_element('bile_bilirubin'),
+        ], className="side_panel_I"),
+        ], id='bga_entry_panel', className="hide", hidden=True)
+    )
+
 
 
 def tab_bar():
@@ -134,26 +179,6 @@ def tab_bar():
         ], id='tab_bar', className="tabbar")
     )
 
-def bga_entry_panel():
-    return(html.Div([
-        value_entry_element('na'),
-        value_entry_element('glucose'),
-        value_entry_element('lactate'),
-        value_entry_element('ca'),
-        value_entry_element('cl'),
-        value_entry_element('hb'),
-        value_entry_element('hct'),
-        value_entry_element('met_hb'),
-        value_entry_element('fco'),
-        value_entry_element('fhhb'),
-        value_entry_element('fohb'),
-        value_entry_element('bilirubin'),
-        value_entry_element('bile_ph'),
-        value_entry_element('bile_glucose'),
-        value_entry_element('bile_hco3'),
-        value_entry_element('bile_bilirubin'),
-    ], id='bga_entry_panel', className='hide', hidden=True))
-
 def drop_down_bar(options: dict, id: str, name: 'str'):
     layout = html.Div([
                 html.Div(children=name),
@@ -161,31 +186,16 @@ def drop_down_bar(options: dict, id: str, name: 'str'):
             ])
     return layout
 
-def drop_down_panel():
-    return(html.Div([
-        drop_down_bar({'dummy': 'dummy'}, 'case_number_drop_down', 'case Number'),
-        drop_down_bar({'dummy': 'dummy'}, 'chart_1', 'Graph 1'),
-        drop_down_bar({'dummy': 'dummy'}, 'chart_2', 'Graph 2'),
-        drop_down_bar({'dummy': 'dummy'}, 'chart_3', 'Graph 3'),
-        drop_down_bar({'dummy': 'dummy'}, 'chart_4', 'Graph 5'),
-        drop_down_bar({'dummy': 'dummy'}, 'data_export', 'Export to Excel'),
-    ], id='drop_down_menu', className='hide'))
-
 
 def create_pages():
     return(html.Div([
-        bga_entry_panel(),
-        respiratory_panel(),
+        data_panel(),
+        perfusion_panel(),
         ph_panel(),
-        perf_stat_panel(),
+        respiratory_panel(),
+        bga_entry_panel(),
         permanent_panel(),
-        drop_down_panel()
-        # plots_page(),
-        # perfusion_page(),
-        # metabolics_page(),
-        # respiratory_page(),
-        # acive_page(),
-        # conn_page(),
+ 
     ], id="layouts", className="layouts_style")
     )
 

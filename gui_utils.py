@@ -111,7 +111,6 @@ def gui_ws_recv(app):
                     elif msg_type == 'graph':
                         return no_update, no_update, data, no_update
                     elif msg_type == 'notes':
-                        print(f'distribute_msg -> notes received')
                         return no_update, no_update, no_update, data
                     else:
                         print(f"distribute_msg -> unbekannter msg_type: {msg_type}")
@@ -127,47 +126,3 @@ def gui_ws_recv(app):
             return no_update, no_update, no_update
 
 
-    # @app.callback(
-    #     Output("graph_data_store", "data"), 
-    #     Input("inbox", "data"),
-    #     prevent_initial_call=True
-    #     )
-    # def distribute_plot_msg(msg):
-    #     try:
-    #         if msg and msg['msg_type'] == 'graph':
-    #             return msg['data']
-    #         else:
-    #             return no_update
-    #     except Exception as e:
-    #         print(f'gui_ws_recv -> error on parsing msg : {msg} \n {e}')
-
-    # @app.callback(
-    #     Output("state_data_store", "data"), 
-    #     Input("inbox", "data"),
-    #     prevent_initial_call=True
-    #     )
-    # def distribute_system_msg(msg):
-    #     if msg and msg['msg_type'] == 'system':
-    #         if msg['id'] == 'notes':
-    #             print('\nnote_message\n')
-    #         return msg
-    #     else:
-    #         return no_update
-
-    # @app.callback(
-    #     Output("case_id_store", "data", allow_duplicate=True), 
-    #     Input("inbox", "data"),
-    # #     prevent_initial_call=True
-    # #     )
-    # def distribute_system_msg(msg):
-    #     if msg and msg['msg_type'] == 'case_number':
-    #         print(f'inbox content {msg['msg_type']}\n')
-    #         print(f'\n CASE DATA : {msg}\n')
-    #         case_ids = parse_case_id(msg)
-    #         if case_ids:
-    #             print(f'case id list was created and fowarted to store')
-    #             return case_ids
-    #         else:
-    #             return no_update
-    #     else:
-    #         return no_update

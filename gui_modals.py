@@ -31,18 +31,6 @@ def new_case_mdl():
         ], id="new_case_mld", hidden=True)
     )
 
-# def note_mdl():
-#     print('\n text mdl was created \n')
-#     return(html.Div([
-#         dcc.Textarea(value="No Notes listed", id="note_h1", className="note_mdl_notes", readOnly=True),
-#         dcc.Input(id='note_input', placeholder="Note"),
-#         dcc.Store(id='note_store'),
-#         html.Div([
-#             html.Button("Enter Note", id="enter_note_btn", className="case_mgr_btn"),
-#         ]),
-#         ],  id="note_mdl", className="note_mdl", hidden=True)
-#     )
-
 def note_mdl():
     return html.Div([
         dcc.Textarea(value="No Notes listed", id="note_h1", className="note_mdl_notes", readOnly=True),
@@ -76,8 +64,20 @@ def create_active_mdl():
             dcc.Slider(id='set_air_flow_slider', min=0, max=1600, step=1, value=45, marks=marks_gas_flow, vertical=True, verticalHeight=190, dots=False),
             dcc.Slider(id='set_o2_flow_slider', min=0, max=1600, step=1, value=45, marks=marks_gas_flow, vertical=True, verticalHeight=190, dots=False),
             ], id="gas_flow_setings", className="ventilaton_setings"),
-        ], id="active_mdl", className="active_mdl", hidden=True)
+        ], id="active_mdl", className="hide")
     )
+
+def create_download_mdl():
+    return(html.Div([
+        html.Div([
+            
+            ], className="download_mdl_data_type_select"),
+        # html.Div([
+        #     ], className="download_btn"),
+        html.Button("Download Data", id="download_btn",className="download_btn"),
+        ], id='download_mdl', className="hide")
+    )
+    pass
 
 def case_manager_modal():
     return(
@@ -115,7 +115,8 @@ def create_modals():
         case_manager_mdl(),
         new_case_mdl(),
         note_mdl(),
-        create_active_mdl()
+        create_active_mdl(),
+        create_download_mdl(),
     ]))
 
 mdl_app.layout = note_mdl()

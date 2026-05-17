@@ -84,19 +84,6 @@ body{
     background-color: var(--active_color);
     color: var(--text_color_active);
 }
-.bolus_button{
-    border: none;
-    background-color:#f88400;
-    color: #130c01;
-}
-.bolus_button:hover{
-    background-color:#decc01;
-    color: #130c01;
-}
-.bolus_button:active{
-    background-color: #8e8200;
-    color: white; 
-}
 button:disabled {
     opacity: 0.5;
     cursor: not-allowed;
@@ -114,90 +101,46 @@ button:disabled {
     grid-template-columns: [row1-start] 16% [line1] 10%  [line2] 8% [line3] 8% [line4] 8% [line5] 8% [line6] 8% [line7] 8% [line8] 16% [line9] 10% [line10];
     grid-template-rows: [first] 100% [end];
 }
-.top_line{
-    top: 0%;
-    left: 0%;
-    width: 100%;
-    height: 5%;
-    position: fixed;
-    display: grid;
-    grid-template-columns: [first] 40% [line2] 40%  [line3] 20% [line4] 20% [line5] 20% [end];
-    font-family: Arial;
-}
 .side_panel_II{
-    top: 1%;
+    top: 0.2%;
     right: 0%;
     width: 15%;
-    height: 92%;
+    height: 93%;
     position: fixed;
-    z-index: 2000;
+    z-index: 1000;
     display: grid;
     grid-template-rows: [first] 16% [line2] 16%  [line3] 16%  [line4] 16% [line5] 16% [line6] 16% [end];
 }
+
+.left_controlled_page{
+    top: 0.2%;
+    left: 0%;
+    width: 86.5%;
+    height: 93%;
+    position: fixed;
+    z-index: 1000;
+    display: grid;
+    grid-template-columns: [first] 24% [line2] 74% [end];
+}
+
+.full_page{
+    top: 0.5%;
+    left: 0%;
+    width: 100%;
+    height: 93%;
+    position: fixed;
+    z-index: 1000;
+    display: grid;
+    grid-template-columns: [first] 20.5% [line2] 79.5%;
+}
+
 .side_panel_I{
-    top: 1%;
-    left: 0%;
-    width: 20%;
-    height: 92%;
-    position: fixed;
+    z-index: 1000;
+    height: 100%;
     display: grid;
     grid-template-rows: [first] 16% [line2] 16%  [line3] 16%  [line4] 16% [line5] 16% [line6] 16% [end];
 }
-.second_panel{
-    top: 13%;
-    left: 0%;
-    width: 100%;
-    height: 12%;
-    position: fixed;
-    display: grid;
-    grid-template-columns: [first] 17% [line2] 17%  [line3] 16%  [line4] 17% [line5] 17% [line6] 16% [end];
-}
-.third_panel{
-    top: 26%;
-    left: 0%;
-    width: 100%;
-    height: 12%;
-    position: fixed;
-    display: grid;
-    grid-template-columns: [first] 17% [line2] 17%  [line3] 16%  [line4] 17% [line5] 17% [line6] 16% [end];
-}
-.side_panel_1{
-    background-color: var(primary_button_color);
-    top: 25%;
-    left: 60%;
-    width: 40%;
-    height: 25%;
-    position: fixed;
-    display: grid;
-    grid-template-columns: [first] 50% [line2] 50% [end];
-}
-.side_panel_2{
-    background-color: var(primary_button_color);
-    top: 50%;
-    left: 60%;
-    width: 40%;
-    height: 41%;
-    position: fixed;
-    display: grid;
-    grid-template-columns: [first] 33% [line2] 34%  [line2] 33% [end];
-    grid-template-rows: [first] 25% [line2] 25%  [line3] 25%  [line4] 25% [end];
-}
-.effector_mod{
-    background-color: #130c01;
-    color: rgb(255, 176, 5);
-    top: 25%;
-    left: 0;
-    height: 66%;
-    width: 60%;
-    position: fixed;
-}
-.progressbar{
-    background-color: #130c01;
-    color: rgb(255, 176, 5);
-    top: 30%;
-    height: 15%;
-    width: 30%;
-}
+
 
 
 

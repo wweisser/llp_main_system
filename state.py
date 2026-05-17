@@ -52,9 +52,19 @@ def create_state(db_path: str):
             "clock_time": 0,
             "perfusion_mode": "",
         },
-        "controls": {
+        "repiratory_controlls": {
+            "gas_cybernation": False,
             "set_air_flow": 0,
             "set_oxygen_flow": 0,
+            "set_gas_flow": 0,
+            "set_po2": 0,
+            "set_pco2": 0,
+            "fio2": 0,
+            "set_fio2": 0,
+            "air_flow": 0,
+            "oxygen_flow": 0
+        },
+        "controlls": {
             "set_flow_ha": 0,
             "set_flow_pv": 0,
             "set_pressure_ha": 0,

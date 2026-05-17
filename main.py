@@ -4,7 +4,7 @@ import system_update as su
 import state
 import memory
 import onque as oq
-import ser_connection as sc
+# import llp_system.system_utils as sc
 import asyncio
 import json
 import uvicorn

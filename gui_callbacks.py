@@ -7,12 +7,10 @@ import gui_utils as gu
 
 def tabbar_callback(app):
     @app.callback(
-        Output('drop_down_menu', 'className'),
-            
-        Output('perf_stat_panel', 'className'),
+        Output('data_panel', 'className'),
+        Output('perfusion_panel', 'className'),
         Output('ph_panel', 'className'),
         Output('respiratory_panel', 'className'),
-        Output('bga_entry_panel', 'className'),
         Output('permanent_panel', 'className'),
 
         Output('tab1_btn', 'n_clicks'),
@@ -20,31 +18,29 @@ def tabbar_callback(app):
         Output('tab3_btn', 'n_clicks'),
         Output('tab4_btn', 'n_clicks'),
         Output('tab5_btn', 'n_clicks'),
-        # Output('tab6_btn', 'n_clicks'),
+
         Input('tab1_btn', 'n_clicks'),
         Input('tab2_btn', 'n_clicks'),
         Input('tab3_btn', 'n_clicks'),
         Input('tab4_btn', 'n_clicks'),
         Input('tab5_btn', 'n_clicks'),
-        # Input('tab6_btn', 'n_clicks'),
         prevent_initial_call=True
     )
     def page_setter(btn1, btn2, btn3, btn4, btn5):
         hide = 'hide'
-        show = 'side_panel_I'  # oder 'flex', je nach Layout
+        show = 'left_controlled_page' 
 
         if btn1:
-            ret_arr = [show, hide, hide, hide, hide, hide]
+            ret_arr = ['full_page', hide, hide, hide, hide]
         elif btn2:
-            ret_arr = [hide, show, hide, hide, hide, 'side_panel_II']
+            ret_arr = [hide, show, hide, hide, 'side_panel_II']
         elif btn3:
-            ret_arr = [hide, hide, show, hide, hide, 'side_panel_II']
+            ret_arr = [hide, hide, show, hide, 'side_panel_II']
         elif btn4:
-            ret_arr = [hide, hide, hide, show, hide, 'side_panel_II']
+            ret_arr = [hide, hide, hide, show, 'side_panel_II']
         elif btn5:
-            ret_arr = [hide, hide, hide, hide, 'bga_panel', 'side_panel_II']
-        # elif btn6:
-        #     ret_arr = [hide, hide, hide, hide, hide]
+            ret_arr = [hide, hide, hide, hide, 'side_panel_II']
+  
 
         btn_reset = [0, 0, 0, 0, 0]
         return ret_arr + btn_reset
