@@ -8,7 +8,7 @@ import onque as oq
 import asyncio
 import json
 import uvicorn
-import sqlite3
+import ser as se
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.responses import RedirectResponse
 # from fastapi.middleware.wsgi import WSGIMiddleware 
@@ -141,12 +141,12 @@ async def start_ws(app, gui_q, ux_q):
 async def create_system_tasks(app, sp):
     system_tasks = []
     try:
+        system_tasks.append(asyncio.create_task(se.connection_handler(sp['tx_q'], sp['ux_q'])))
         system_tasks.append(asyncio.create_task(start_ws(app, sp['gui_q'], sp['ux_q'])))
         system_tasks.append(asyncio.create_task(su.dequeue_loop(sp, system_tasks)))
-        # system_tasks.append(asyncio.create_task(sc.connection_handler(sp['ux_q'], sp['tx_q'])))
         system_tasks.append(asyncio.create_task(su.gui_updater(sp['cache'], sp['key'], sp['gui_q'], sp['ux_q'])))
 ################TEST TEST TEST#########################################
-        system_tasks.append(asyncio.create_task(start_cdi_test_thread(sp['ux_q'])))
+        # system_tasks.append(asyncio.create_task(start_cdi_test_thread(sp['ux_q'])))
 ################TEST TEST TEST#########################################
         return system_tasks
     except Exception as e:
@@ -169,9 +169,9 @@ def create_sys_param(gui_q, ux_q, tx_q, cache, key, com_port_hub, db_path, table
 
 async def main():
     key = "key_name"
-    table = 'test'
-    db_path = r'C:\Users\whwei\OneDrive\coding\data_vault.db'
-    cache_path = r'C:\Temp\diskcache_test'
+    table = 'test'	
+    db_path = r'/home/whw/mp.db'
+    cache_path = r'/home/whw/diskcache_test'
     gui_q, ux_q, tx_q, cache = build_state(cache_path, db_path, key)
     com_port_hub = None
     sp = create_sys_param(gui_q, ux_q, tx_q, cache, key, com_port_hub, db_path, table)

@@ -52,11 +52,14 @@ def case_manager_callbacks(app, button):
         prevent_initial_call=True,
     )
     def load_cm(msg):
-        #takes data from case-store, puts it to dropdown
-        if msg and msg['msg_type'] == 'case_number':
+        print(f'load_cm -> {msg}')
+
+        if msg and isinstance(msg, dict) and msg['msg_type'] == 'case_number':
             case_id_list = parse_case_id(msg)
             print(f'\ncase_id_list : {case_id_list}\n')
             return case_id_list
+        elif msg and isinstance(msg, list):
+            return msg
         else:
             print('casenumber list in case_store item was not a list')
             print(msg)
@@ -106,8 +109,9 @@ def case_manager_callbacks(app, button):
         State("case_id_store", "data"),
         prevent_initial_call=True,
     )
-    def cm_new_case(ncn_confirm_btn, input_val, case_id_list):
+    def cm_new_case(ncn_confirm_btn, input_val, case_id_item):
         if input_val.isdigit():
+            case_id_list = case_id_item['data']
             cn_check = check_case_number(case_id_list, input_val)
             print(f'cn check : {cn_check}')
             if check_case_number(case_id_list, input_val):
@@ -116,7 +120,7 @@ def case_manager_callbacks(app, button):
                 return no_update, "Case number list was not updated"
             else:
                 case_id_list.append(input_val)
-                print(f'number {input_val} is valid\n')
+                print(f'cm_new_case -> number {input_val} is valid\n')
                 return case_id_list, "Number was added to ID-list. Press Close"
         else:
             return no_update, 'Entry is not a digit'

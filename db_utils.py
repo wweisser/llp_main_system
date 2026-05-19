@@ -285,9 +285,9 @@ def execute_entry(parth: str, table: str,  sys_state: dict):
 			'lactate':          sys_state['lactate']['val'],
 			'glucose':          sys_state['glucose']['val'],
 			'bilirubin':		sys_state['lab']['bilirubin'],
-			'system_volume':    sys_state['fluid_balance']['system_volume'],
-			'filter_flow':      sys_state['fluid_balance']['filter_flow'],
-			'substitude_flow':  sys_state['fluid_balance']['substitude_flow'],
+			'system_volume':    sys_state['system_volume'],
+			'filter_flow':      sys_state['controlls']['set_filter_flow'],
+			'substitude_flow':  sys_state['controlls']['set_substitude_flow'],
 			'biliary_flow':		0,
 			'biliary_ph':		0,
 			'biliary_hco3':		0,
@@ -320,28 +320,30 @@ if __name__ == "__main__":
 	import os
 
 	table = 'test'
-	db_path = r'C:\Users\whwei\OneDrive\coding\data_vault.db'
-	cache_path = r'C:\Temp\diskcache_test'
+	db_path = r'/home/whw/mp.db'
+	cache_path = r'/home/whw/diskcache_test'
 	os.makedirs(cache_path, exist_ok=True)
 	sys_state = state.create_state(db_path)
 	sys_state['notes'] = ""
-	sys_state['system']['case_number'] = 2
-	graph_list = ["ph_graph", "base_lact_graph", "k_gluc_graph", "do2_vo2_graph", "po2_graph", "pco2_graph", "flow_graph", "pressure_graph", "hb_hct_graph"]
+	sys_state['system']['case_number'] = 1
+
+	with sqlite3.connect(db_path) as conn:
+		c = conn.cursor() 
+		create_table(c, conn, 'test')
+		tables = get_tables_names(db_path)
+		print(f'tables : {tables}')
+		
+	# graph_list = ["ph_graph", "base_lact_graph", "k_gluc_graph", "do2_vo2_graph", "po2_graph", "pco2_graph", "flow_graph", "pressure_graph", "hb_hct_graph"]
 	execute_entry(db_path, table, sys_state)
-	# mem.create_cache(cache_path, 'key', sys_state)
+	mem.create_cache(cache_path, 'key', sys_state)
 
 
 	cn = get_all_cn(db_path, table)
 	print(f'case numbers -> {cn}')
 
-	graph_data = get_val(db_path, table, ['notes',], 15, 2)
-	print(f'graph data : {graph_data['notes'][0]}, type{type(graph_data['notes'][1])}')
-	print(f'graph data : {graph_data}')
-	# with sqlite3.connect(db_path) as conn:
-	# 	c = conn.cursor() 
-	# 	create_table(c, conn, 'test')
-	# 	tables = get_tables_names(db_path)
-	# 	print(f'tables : {tables}')
+	# graph_data = get_val(db_path, table, ['notes',], 15, 2)
+	# print(f'graph data : {graph_data['notes'][0]}, type{type(graph_data['notes'][1])}')
+	# print(f'graph data : {graph_data}')
 
 # c.execute("SELECT name, sql FROM sqlite_master WHERE type='index'")
 

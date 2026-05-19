@@ -92,7 +92,7 @@ def state_to_gui(app):
         parameter_to_button(app, 'art_ph', 'art_ph'),
         parameter_to_button(app, 'art_pco2', 'art_pco2'),
         parameter_to_button(app, 'art_po2', 'art_po2'),
-        # parameter_to_button(app, 'hco3', 'hco3'),
+        parameter_to_button(app, 'hco3', 'hco3'),
         parameter_to_button(app, 'base', 'base'),
         parameter_to_button(app, 'cso2', 'cso2'),
         # parameter_to_button(app, 'na', 'btn'),

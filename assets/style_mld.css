@@ -14,9 +14,9 @@
     font-family: "Arial";
 }
 .case_mgr_mdl_lower{
-    top: 40px;
-    left: 25px;
-    width: 350px;
+    top: 10%;
+    left: 5%;
+    width: 90%;
     height: 200px;
     display: grid;
     grid-template-rows: 1fr 1fr 1fr; /* Zwei gleich breite Spalten */

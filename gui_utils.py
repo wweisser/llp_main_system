@@ -9,7 +9,7 @@ def create_msg_distribution():
     return(html.Div([
         dcc.Store(id='postbox', storage_type='memory'),
         dcc.Store(id='inbox', storage_type='memory'),
-        dcc.Store(id='graph_data_store', storage_type='memory'),
+        dcc.Store(id='metabolic_graph_store', storage_type='memory'),
         dcc.Store(id='state_data_store', storage_type='memory'),
         dcc.Store(id='case_id_store', storage_type='memory'),
         dcc.Store(id='note_data_store', storage_type='memory')
@@ -93,7 +93,7 @@ def gui_ws_recv(app):
     @app.callback(
         Output("state_data_store", "data"), 
         Output("case_id_store", "data"), 
-        Output("graph_data_store", "data"), 
+        Output("metabolic_graph_store", "data"), 
         Output("note_data_store", "data"), 
         Input("ws", "message"),
         prevent_initial_call=True
@@ -108,19 +108,19 @@ def gui_ws_recv(app):
                         return data, no_update, no_update, no_update
                     elif msg_type == 'case_number':
                         return no_update, data, no_update, no_update
-                    elif msg_type == 'graph':
+                    elif msg_type == 'metabolic_graph_store':
                         return no_update, no_update, data, no_update
                     elif msg_type == 'notes':
                         return no_update, no_update, no_update, data
                     else:
                         print(f"distribute_msg -> unbekannter msg_type: {msg_type}")
-                        return no_update, no_update, no_update
+                        return no_update, no_update, no_update, no_update
                 else:
                     print("distribute_msg -> corrupt msg")
-                    return no_update, no_update, no_update
+                    return no_update, no_update, no_update, no_update
             except Exception as e:
                 print(f'distribute_msg -> error: {e} | raw: {msg}')
-                return no_update, no_update, no_update
+                return no_update, no_update, no_update, no_update
         else:
             print("distribute_msg -> corrupt msg")
             return no_update, no_update, no_update

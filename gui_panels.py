@@ -107,7 +107,7 @@ def perfusion_panel():
             paramtr_btn_1('return_temp_btn', 'Return Tmp:    ', '---', '    °C', 'return_temp', 'ha', 100),
             paramtr_btn_1('ven_art_rel_btn', 'Flow A:V:    ', '---:---', '', 'ven_art_rel', 'ha', 100),
         ], className="side_panel_I"),
-        gg.create_graph_panel("flow_graph", "pressure_graph", "hb_hct_graph", 'perfusion_graph_store'),
+        gg.create_graph_panel("flow_graph", "pressure_graph", "hb_hct_graph"),
         ], id='perfusion_panel', className="left_controlled_page")
     )
 
@@ -121,7 +121,7 @@ def ph_panel():
             paramtr_btn_1('K_btn', 'Potasium:    ', '---', '    mmol/L', 'k', 'ha', 100),
             paramtr_btn_1('glucose_btn', 'Glucose:    ', '---', '    mmol/L', 'glucose', 'ha', 100),
         ], className="side_panel_I"),
-        gg.create_graph_panel("ph_graph", "k_lact_graph", "base_gluc_graph", 'metabolic_graph_store'),
+        gg.create_graph_panel("ph_graph", "k_lact_graph", "base_gluc_graph"),
         ], id='ph_panel', className="hide")
     )
 
@@ -130,12 +130,12 @@ def respiratory_panel():
         html.Div([
             paramtr_btn_1('DO2_btn', 'DO2:    ', '---', 'ml/min', 'do2', 'ha', 100),
             paramtr_btn_1('VO2_btn', 'VO2:    ', '---', 'ml/min', 'vo2', 'ha', 100),
-            paramtr_btn_1('HB_btn', 'HB:    ', '---', '    mg/dl', 'hb', 'ha', 100),
+            paramtr_btn_1('hco3_btn', 'HCO3:    ', '---', '    mg/dl', 'hco3', 'ha', 100),
             paramtr_btn_1('art_pCO2_btn', 'Art pCO2:    ', '---', ' mmHg', 'art_pco2', 'ha', 100),
             paramtr_btn_1('ven_pO2_btn', 'Ven pO2: ', '---', 'mmHg:', 'ven_po2', 'ha', 100),
             paramtr_btn_1('ven_pCO2_btn', 'Ven pCO2:    ', '---', 'mmHg:', 'ven_pco2', 'ha', 100),
         ], className="side_panel_I"),
-        gg.create_graph_panel("do2_graph", "hb_graph", "po2_graph", 'respiratory_graph_store'),
+        gg.create_graph_panel("do2_graph", "hb_graph", "po2_graph"),
         ], id='respiratory_panel', className="hide")
     )
 

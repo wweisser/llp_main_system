@@ -5,7 +5,7 @@ import cdi_connect as cc
 import state_utils as su
 import memory 
 import onque as oq
-import db_to_graph as dbtg
+import ser as se
 import asyncio
 from datetime import datetime
 
@@ -26,11 +26,13 @@ async def parse_note_input(msg: dict, gui_q, db_path, table, sys_state: dict, no
 
 async def parse_serial_input(msg: dict, sys_state: dict, cache, key):
     if msg['id'] == 'cdi':
+        # print(f'parse_serial_input-> {msg}')
         sys_state = await parse_cdi_input(msg, sys_state, cache, key)
     return sys_state
 
 async def parse_cdi_input(msg: dict, sys_state: dict, cache, key):
     cdi_arr = cc.build_cdi_arr(msg['data'])
+    # print(f'parse_cdi_input -> {cdi_arr}')
     sys_state = su.cdi_to_state(sys_state, cdi_arr)
     memory.put_state_to_cache(cache, key, sys_state)
     return sys_state
@@ -52,6 +54,7 @@ async def parse_archive_request(msg: dict, sys_state: dict, ux_q, gui_q, cache, 
     elif msg['id'] == 'entry':
         await asyncio.to_thread(du.execute_entry(db_path, table, msg['data']))
         print('parse_archive_request -> entry request was executed')
+        sys_state['notes'] == ''
     elif msg['id'] == 'note_entry':
             sys_state = await parse_note_input(msg, gui_q, db_path, table, sys_state, now)
     elif msg['id'] == 'event_entry':
@@ -62,7 +65,6 @@ async def parse_archive_request(msg: dict, sys_state: dict, ux_q, gui_q, cache, 
         pass
     elif msg['id'] == 'graph_data':
         await dtg.create_center_graph_data(db_path, table, gui_q, msg['data'])
-            
         # sys_state['notes'] = sys_state['notes'].append(msg['data'])
     return sys_state
 
@@ -118,10 +120,10 @@ async def parse_msg(msg: dict, sys_state, sp):
         sys_state = await parse_controll_request(msg, sys_state, sp['com_port_hub'], sp['tx_q'])
     elif msg['msg_type'] == 'system' and msg['id'] == 'refresh_gui' and sys_state['system']['case_number'] != 0:
         print('parse_msg -> refresh_gui')
-        graph_request = oq.create_q_item('archive', 'graph_data', sys_state['system']['case_number'])
+        graph_item = oq.create_q_item('archive', 'graph_data', sys_state['system']['case_number'])
         note_item = oq.create_q_item('archive', 'note_entry', '!')
         await asyncio.sleep(0.5)
-        await oq.feed_queue(sp['ux_q'], graph_request)
+        await oq.feed_queue(sp['ux_q'], graph_item)
         await asyncio.sleep(0.5)
         await oq.feed_queue(sp['ux_q'], note_item)
     else:
@@ -136,7 +138,8 @@ async def dequeue_loop(sp: list, system_tasks):
     print("DEQUELOOP HAS STARTED")
     while True:
         try:
-            msg = await asyncio.wait_for(sp['ux_q'].get(), timeout=1.0)
+            # msg = await asyncio.wait_for(sp['ux_q'].get(), timeout=1.0)
+            msg = await sp['ux_q'].get()
             # print('dequeue_loop -> msg: ', msg)
             if msg != '400'and isinstance(msg, dict):
                 parse_object = await parse_msg(msg, sys_state, sp)
@@ -156,7 +159,7 @@ def calc_time(sys_state, start_time):
         h, remain = divmod(int(pt.total_seconds()), 3600)
         min, sec = divmod(remain, 60)
         sys_state['system']['perfusion_time'] = f"{h:02}:{min:02}:{sec:02}" 
-        print(f'calc_time -> pefusion time : {sys_state['system']['perfusion_time']}')
+        # print(f'calc_time -> pefusion time : {sys_state['system']['perfusion_time']}')
         return sys_state
     except Exception as e:
         print('gui_updater ->', e)
