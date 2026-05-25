@@ -1,5 +1,6 @@
 from dash import dash, html, dcc
 from dash_extensions import WebSocket
+import os
 import gui_utils as gu
 import gui_panels as gp
 import gui_modals as gm
@@ -38,10 +39,10 @@ def create_callbacks(app):
 
 def create_communication(app):
     print('Websocket was created')
+    WS_HOST = os.getenv("WS_HOST", "localhost")
     return(html.Div([
         gu.create_msg_distribution(),
-        # WebSocket(url="/ws", id="ws")
-        WebSocket(id="ws", url="ws://localhost:8000/ws")
+        WebSocket(id="ws", url=f"ws://100.94.159.38:8000/ws")
     ]))
 
 def create_com_callbacks(app, graph_list: list):
@@ -82,5 +83,7 @@ app = create_app()
 
 if __name__ == '__main__':
     app = create_app()
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=8050, debug=False, use_reloader=False)
+
+#WS_HOST=100.94.159.38 python gui.py
 
