@@ -46,26 +46,29 @@ async def serial_connection(port, device_state, ux_q):
             device_state['serial_port'][device] = None
             device_state['last_update'][device] = datetime.now()
             print(f"{datetime.now()} serial_connection -> {device} disconected, last update : {device_state['last_update'][device]}")
-            break
+            return
         msg = await read_serial(reader)
         device_state['last_update'][device] = datetime.now()
         if msg:
             q_item = oq.create_q_item('serial_input', device, msg)
-            # print(f'serial_connection ->  {q_item}')
+            print(f'serial_connection ->  {q_item}')
             await oq.feed_queue(ux_q, q_item)
+        await asyncio.sleep(1)
+        
+
             
 
 async def update_device_state(device_state, ux_q):
     print(f'{datetime.now()} update_device_state -> task was started')
     while True:
         active_port_list = create_portlist()
-        # print(f'update_device_state -> {active_port_list}')
+        print(f'update_device_state -> {active_port_list}', device_state['connecting_ports'])
         for port in active_port_list:
-            if not port in device_state['connecting_ports']:
+            if not port in list(device_state['connecting_ports']):
                 device_state['connecting_ports'].append(port)
                 asyncio.create_task(serial_connection(port, device_state, ux_q))
         for port in list(device_state['connecting_ports']): 
-            if port in device_state['comports'].values():
+            if port not in active_port_list:
                 device_state['connecting_ports'].remove(port)
         await asyncio.sleep(1)
 
@@ -135,7 +138,6 @@ async def connection_handler(tx_q, ux_q):
             'g_l': None,
             'hsi': None,
         }
-
     }
     await asyncio.gather(
         asyncio.create_task(send_serial_task(device_state, tx_q)),

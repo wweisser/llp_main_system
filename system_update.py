@@ -26,7 +26,7 @@ async def parse_note_input(msg: dict, gui_q, db_path, table, sys_state: dict, no
 
 async def parse_serial_input(msg: dict, sys_state: dict, cache, key):
     if msg['id'] == 'cdi':
-        # print(f'parse_serial_input-> {msg}')
+        print(f'parse_serial_input-> {msg}')
         sys_state = await parse_cdi_input(msg, sys_state, cache, key)
     return sys_state
 
