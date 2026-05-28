@@ -1,5 +1,5 @@
 def select_device(i):
-    if i:
+    if i and len(i) > 10:
         # print('len input :', len(input) )
         if (i[3] == 58 and i[6] == 58 and i[9] == 9):
             # print("CDI detcted")
@@ -9,6 +9,7 @@ def select_device(i):
         else:
             print(f"Unknown device detected")
             return None
+    return None
 
 def ser_send(tx_q):
 
@@ -22,4 +23,3 @@ if __name__ == '__main__':
     i = 0
     for i in range(l):
         print(f'len : {i} and {test[i]} and {chr(test[i])}')
-

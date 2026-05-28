@@ -1,6 +1,7 @@
 from dash_extensions.enrich import Input, Output, no_update
 from dash import html, dcc, no_update
 import json
+from datetime import datetime
 
 
 #creates distribution stores and postbox
@@ -102,6 +103,7 @@ def gui_ws_recv(app):
         if isinstance(msg, dict):
             data = parse_ws_msg(msg)  # data ist ab hier dein dict
             try:
+                print(f'gui_ws_recv -> item received {datetime.now()}')
                 if data and isinstance(data, dict):
                     msg_type = data.get('msg_type')
                     if msg_type == 'system':
