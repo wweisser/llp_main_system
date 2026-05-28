@@ -14,7 +14,7 @@ def create_msg_distribution():
         dcc.Store(id='state_data_store', storage_type='memory'),
         dcc.Store(id='case_id_store', storage_type='memory'),
         dcc.Store(id='note_data_store', storage_type='memory')
-
+        dcc.Store(id='system_data_store', storage_type='memory')
     ]))
 
 #send functions

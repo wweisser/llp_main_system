@@ -1,7 +1,6 @@
 from dash import dash, html, dcc, Input, Output
 from dash_extensions import WebSocket
 from flask import request
-import os
 import gui_utils as gu
 import gui_panels as gp
 import gui_modals as gm
@@ -42,9 +41,10 @@ def create_communication(app, ts_ip):
     communication = (html.Div([
         dcc.Location(id='location'),
         gu.create_msg_distribution(),
-        WebSocket(id="ws")
+        WebSocket(id="ws"),
+        gu.gui_ws_recv(app),
+        gu.gui_ws_send(app),
     ]))
-
     @app.callback(
         Output('ws', 'url'),
         Input('location', 'href')
@@ -62,10 +62,8 @@ def create_communication(app, ts_ip):
     print('Websocket was created')
     return communication
 
-def create_com_callbacks(app, graph_list: list):
+def create_comunication_callbacks(app, graph_list: list):
     return(html.Div([
-        gu.gui_ws_recv(app),
-        gu.gui_ws_send(app),
         ga.create_active_callbacks(app),
         ggc.create_graph_callbacks(app),
         gnc.create_note_callbacks(app),
@@ -86,14 +84,11 @@ def create_gui(app, ts_ip):
 def create_app(ts_ip):
     graph_list = ["ph_graph", "base_lact_graph", "k_gluc_graph", "do2_vo2_graph", "po2_graph", "pco2_graph", "flow_graph", "pressure_graph", "hb_hct_graph"]
     print("gui ausgelöst")
-    # gui_app = dash.Dash(__name__, requests_pathname_prefix='/d1/')
     gui_app = dash.Dash(__name__)
-    # gui_app = dash.Dash(__name__)
     gui_app.layout = create_gui(gui_app, ts_ip)
-    create_com_callbacks(gui_app, graph_list)
+    create_comunication_callbacks(gui_app, graph_list)
     create_callbacks(gui_app)
     # WebSocket-URL dynamisch anhand von window.location setzen
-
     return gui_app
 
 
@@ -101,7 +96,7 @@ def create_app(ts_ip):
 if __name__ == '__main__':
     tailscale_ip =  '100.94.159.38'
     app = create_app(tailscale_ip)
-    app.run(host="0.0.0.0", port=8050, debug=True, use_reloader=False, hide_all_callbacks=True)
+    app.run(host="127.0.0.1", port=8050, debug=True)
 
 #WS_HOST=100.94.159.38 python gui.py
 

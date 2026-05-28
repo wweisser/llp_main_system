@@ -147,12 +147,12 @@ async def start_ws(app, ux_q, connected_clients):
 async def create_system_tasks(app, sp, connected_clients):
     system_tasks = []
     try:
-        system_tasks.append(asyncio.create_task(se.connection_handler(sp['tx_q'], sp['ux_q'])))
+        # system_tasks.append(asyncio.create_task(se.connection_handler(sp['tx_q'], sp['ux_q'])))
         system_tasks.append(asyncio.create_task(start_ws(app, sp['ux_q'], connected_clients)))
         system_tasks.append(asyncio.create_task(su.dequeue_loop(sp, system_tasks)))
         system_tasks.append(asyncio.create_task(su.gui_updater(sp['cache'], sp['key'], sp['cc'], sp['ux_q'])))
 ################TEST TEST TEST#########################################
-        # system_tasks.append(asyncio.create_task(start_cdi_test_thread(sp['ux_q'])))
+        system_tasks.append(asyncio.create_task(start_cdi_test_thread(sp['ux_q'])))
 ################TEST TEST TEST#########################################
         return system_tasks
     except Exception as e:
