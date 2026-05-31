@@ -104,8 +104,19 @@ async def parse_hub_input(msg: dict, sys_state: dict, com_port_hub: str, tx_q):
     # que_item = oq.create_q_item('hub_request', com_port_hub, msg)
     # oq.feed_queue(tx_q, que_item)
     await oq.broadcast_item('hub_request', com_port_hub, msg, cc)
-
     return sys_state
+
+async def parse_heartbeat(msg: dict, sys_state: dict, cc):
+    print('parse_msg -> f_heartbeat')
+    if msg['startup_check']:
+        await oq.broadcast_item('state', 'refresh_gui', sys_state, cc)
+    b_heartbeat_item = {
+        'heartbeat_time': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        'status': 'backend_active',
+        'error_state': None,
+    }
+    await oq.broadcast_item('heartbeat', 'b_heartbeat', b_heartbeat_item, cc)
+
 
 async def parse_msg(msg: dict, sys_state, sp):
     # print(f'Input parser called : {msg}')
@@ -123,10 +134,13 @@ async def parse_msg(msg: dict, sys_state, sp):
     elif msg['msg_type'] == 'controll':
         # print('parse_msg -> controll request received')
         sys_state = await parse_controll_request(msg, sys_state, sp['com_port_hub'], sp['tx_q'])
-    elif msg['msg_type'] == 'system' and msg['id'] == 'refresh_gui' and sys_state['system']['case_number'] != 0:
-        print('parse_msg -> refresh_gui')
-        await oq.broadcast_item('archive', 'graph_data', sys_state['system']['case_number'], cc)
-        await oq.broadcast_item('archive', 'note_entry', '!', cc)
+    elif msg['msg_type'] == 'system':
+        if msg['id'] == 'refresh_gui' and sys_state['system']['case_number'] != 0:
+            print('parse_msg -> refresh_gui')
+            await oq.broadcast_item('archive', 'graph_data', sys_state['system']['case_number'], cc)
+            await oq.broadcast_item('archive', 'note_entry', '!', cc)
+        elif msg['id'] == 'f_heartbeat':
+            await parse_heartbeat(msg['data'])
     else:
         print(f"parse_msg -> ux_q item is not valid : {msg}")
         return None
