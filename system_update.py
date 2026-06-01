@@ -135,8 +135,18 @@ from datetime import datetime
 #     memory.put_state_to_cache(sp['cache'], sp['key'], sys_state)
 #     return sys_state
 
+def generate_one_beat(last_heartbeat: str, status: str):
+    b_heartbeat = {
+        'last_heartbeat': last_heartbeat,
+        'status': status,
+    }
+    return b_heartbeat
+
+def genertate_graph_output():
+    pass
+
 # start loop that fetches itmes from the input que
-async def dequeue_loop(sp: list, system_tasks):
+async def dequeue_loop(sp: list, system_tasks: list, cc):
     sys_state = memory.get_state_from_cache(sp['cache'], sp['key'])
     print("DEQUELOOP STARTED")
     while True:
@@ -145,7 +155,7 @@ async def dequeue_loop(sp: list, system_tasks):
             msg = await sp['ux_q'].get()
             # print('dequeue_loop -> msg: ', msg)
             if msg != '400'and isinstance(msg, dict):
-                parse_object = await system_parse.parse_msg(msg, sys_state, sp)
+                parse_object = await system_parse.parse_msg(msg, sys_state, sp, cc)
                 if isinstance(parse_object, dict):
                     memory.put_state_to_cache(sp['cache'], sp['key'], parse_object)
                 elif isinstance(parse_object, asyncio.Task):
@@ -153,7 +163,7 @@ async def dequeue_loop(sp: list, system_tasks):
         except Exception as e:
             print(e)
 
-def calc_time(sys_state, start_time):
+def calc_perfusion_time(sys_state, start_time):
     try:
         current_time = datetime.now()
         pt = sys_state['system']['perfusion_time']
@@ -168,30 +178,28 @@ def calc_time(sys_state, start_time):
         print('gui_updater ->', e)
         return None
 
-async def gui_updater(cache, key, cc, ux_q):
-    print('GUI UPDATER STARTED')
-    current_time_old = datetime.now()
+async def b_heartbeat(cc):
+    print('BACKEND HEARTBEAT STARTED')
+    while True:
+        ct = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        b_heartbeat_item = generate_one_beat(ct, "backend_active")
+        await oq.broadcast_item('system', 'state', b_heartbeat_item, cc)
+
+async def system_updater(cache, key, archive_intervall: int, update_intervall: float):
+    """System updater loop that updates the system state every second.
+    Perfusion time and clock time and archive funktion"""
     counter = 0
     while True:
-        current_time = datetime.now()
+        ct = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         sys_state = memory.get_state_from_cache(cache, key)
-        sys_state['system']['clock_time'] = current_time.strftime("%H:%M:%S")
+        if sys_state and ct:
+            sys_state['system']['clock_time'] = ct
+
         if sys_state['system']['autosave'] and sys_state['system']['start_time'] != 0:
-            sys_state = calc_time(sys_state, sys_state['system']['start_time'])
-        if sys_state:
+            sys_state = calc_perfusion_time(sys_state, sys_state['system']['start_time'])
             memory.put_state_to_cache(cache, key, sys_state)
-        # gui_item = oq.create_q_item('system', 'state', sys_state)
-        # await oq.feed_queue(cc, gui_item)
-        await oq.broadcast_item('system', 'state', sys_state, cc)
-        print(f'gui_updater -> broadcasted item {current_time}')
-        if counter > 10:
-            if sys_state['system']['case_number'] != 0:
-                # graph_request = oq.create_q_item('archive', 'graph_data', sys_state['system']['case_number'])
-                # await oq.feed_queue(ux_q, graph_request)
-                await oq.broadcast_item('archive', 'graph_data', sys_state['system']['case_number'], cc) 
-                # print(f'gui_updater -> graph request was send')
+
+        if counter > archive_intervall:
             counter = 0
         counter += 1
-        await asyncio.sleep(1.0)
-
-
+        await asyncio.sleep(update_intervall)

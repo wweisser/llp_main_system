@@ -114,6 +114,13 @@ def create_recv_callbacks(app):
                     print("distribute_msg -> corrupt msg")
             except Exception as e:
                 print(f'distribute_msg -> error: {e} | raw: {msg}')
-        return return_item
+        return (return_item['state'],
+            return_item['case_id'],
+            return_item['metabolic_graph'],
+            return_item['notes'],
+            return_item['system'],
+            return_item['gui_state'],
+            return_item['heartbeat']
+            )
 
 

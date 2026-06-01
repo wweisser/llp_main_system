@@ -107,18 +107,17 @@ async def parse_hub_input(msg: dict, sys_state: dict, com_port_hub: str, tx_q):
     return sys_state
 
 async def parse_heartbeat(msg: dict, sys_state: dict, cc):
-    print('parse_msg -> f_heartbeat')
+    print(f'parse_msg -> heartbeat from {msg['last_heartbeat']} received, startup ckeck: {msg['startup_check']}, status: {msg['status']}\n')
     if msg['startup_check']:
-        await oq.broadcast_item('state', 'refresh_gui', sys_state, cc)
-    b_heartbeat_item = {
-        'heartbeat_time': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        'status': 'backend_active',
-        'error_state': None,
-    }
-    await oq.broadcast_item('heartbeat', 'b_heartbeat', b_heartbeat_item, cc)
+        b_heartbeat_item = {
+            'heartbeat_time': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            'status': 'backend_active',
+            'error_state': None,
+        }
+        await oq.broadcast_item('heartbeat', 'b_heartbeat', b_heartbeat_item, cc)
 
 
-async def parse_msg(msg: dict, sys_state, sp):
+async def parse_msg(msg: dict, sys_state, sp, cc):
     # print(f'Input parser called : {msg}')
     if msg['msg_type'] == 'serial_input':
         sys_state = await parse_serial_input(msg, sys_state, sp['cache'], sp['key'])
@@ -140,7 +139,7 @@ async def parse_msg(msg: dict, sys_state, sp):
             await oq.broadcast_item('archive', 'graph_data', sys_state['system']['case_number'], cc)
             await oq.broadcast_item('archive', 'note_entry', '!', cc)
         elif msg['id'] == 'f_heartbeat':
-            await parse_heartbeat(msg['data'])
+            await parse_heartbeat(msg['data'], sys_state, cc)
     else:
         print(f"parse_msg -> ux_q item is not valid : {msg}")
         return None

@@ -23,7 +23,7 @@ def create_msg_distribution():
         dcc.Store(id='gui_state_store', storage_type='memory')
     ]))
 
-def create_heartbeat_intervall(app):
+def create_heartbeat_intervall():
     intervall = (html.Div([
         dcc.Interval(id='heartbeat_interval', interval=1000)
     ]))
@@ -31,20 +31,30 @@ def create_heartbeat_intervall(app):
 
 def create_f_heartbeat_callback(app):
     @app.callback(
-        Output('postbox', 'data'),
-        Output('gui_state_store', 'data'),
-        State('gui_state_store', 'data'),
+        Output('postbox', 'data', allow_duplicate=True),
+        Output('heartbeat_data_store', 'data', allow_duplicate=True),
         Input('heartbeat_interval', 'n_intervals'),
-        State('gui_state_store', 'data')
+        State('gui_state_store', 'data'),
+        prevent_initial_call=True
     )
     def f_heartbeat(n_intervals, gui_state):
         datetime = gu.get_current_time()
+        heartbeat_msg = create_gui_state(True, datetime, 'frontend_active', 'no_error')
+        item = gu.create_postbox_item('system', 'f_heartbeat', heartbeat_msg)
         if n_intervals == 0:
-            datetime = gu.get_current_time()
-            heartbeat_msg = create_gui_state(True, datetime, 'no_error')
-            item = gu.create_postbox_item('system', 'f_heartbeat', heartbeat_msg)
             return item, heartbeat_msg
         else:
-            item = gu.create_postbox_item('system', 'f_heartbeat', heartbeat_msg)
             return item, no_update
-    
+        
+def disable_heartbeat(app):
+    @app.callback(
+        Output('heartbeat_interval', 'disabled'),
+        Input('heartbeat_interval', 'n_intervals'),
+        prevent_initial_call=True
+
+    )
+    def disable_heartbeat(n_intervals):
+        if n_intervals > 0:
+                return True
+        return False
+

@@ -49,7 +49,7 @@ def state_to_button(app, parameter, btn):
             return ""
 
 def heartbeat_to_button(app, parameter, btn_I, btn_II):
-        @app.callback(
+    @app.callback(
         Output(btn_I, 'children'),
         Output(btn_II, 'children'),
         Input('heartbeat_data_store', 'data'),
@@ -97,8 +97,7 @@ def case_data_to_button(app, pre_text, parameter, btn):
 def state_to_gui(app):
     print(f'state_to_gui -> gui updated')
     return(html.Div([
-        heartbeat_to_button(app, 'Perfusion: ', 'perfusion_time', 'perfuison_time'),
-        heartbeat_to_button(app, 'Clocktime:', 'clock_time', 'clock_time'),
+        heartbeat_to_button(app, 'Clocktime:', 'clock_time', 'perfuison_time'),
 
         case_data_to_button(app, 'Case ID:    ', 'case_number', 'case_id'),
         case_data_to_button(app, 'Start: ', 'start_time', 'start_time'),

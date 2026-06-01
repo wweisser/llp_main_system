@@ -11,12 +11,14 @@ def create_startup_screen():
 
 def create_startup_callback(app):    
     @app.callback(
-        Output('loading_screen', 'style'),
-        Output('gui_state_store', 'data'),
+        Output('loading_screen', 'className'),
+        Output('heartbeat_data_store', 'data', allow_duplicate=True),
         Input('heartbeat_data_store', 'data'),
+        prevent_initial_call=True
     )
     def hide_loader(msg):
         if msg['id'] == 'b_heartbeat' and msg['data']['status'] == 'backend_active':
+            print('create_startup_callback -> Handshake accepted, hiding loader\n')
             datetime = gu.get_current_time()
             heartbeat_msg = gs.create_gui_state(False, datetime, 'handshake_accepted', 'no_error')
             return 'hide', heartbeat_msg
