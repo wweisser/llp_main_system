@@ -47,7 +47,6 @@ def create_communication(app, talescale_ip):
     communication = (html.Div([
         gu.create_send_callbacks(app),
         gu.create_recv_callbacks(app),
-        gs.disable_heartbeat(app),
     ]))
     @app.callback(
         Output('ws', 'url'),
@@ -93,9 +92,9 @@ def create_app(ts_ip):
 
 
 if __name__ == '__main__':
-    tailscale_ip =  '100.94.159.38'
+    tailscale_ip =  '100.122.66.59'
     app = create_app(tailscale_ip)
-    app.run(host="127.0.0.1", port=8050, debug=True)
+    app.run(host="0.0.0.0", port=8050, debug=True)
 
 #WS_HOST=100.94.159.38 python gui.py
 

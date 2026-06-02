@@ -1,7 +1,7 @@
 from dash import dash, html, dcc, Input, Output, State, no_update
 import gui_utils as gu
 
-def create_gui_state(startup_check, last_heartbeat, status, error_state):
+def build_heart_beat_item(startup_check, last_heartbeat, status, error_state):
     return {
         'startup_check': startup_check,
         'last_heartbeat': last_heartbeat,
@@ -39,22 +39,12 @@ def create_f_heartbeat_callback(app):
     )
     def f_heartbeat(n_intervals, gui_state):
         datetime = gu.get_current_time()
-        heartbeat_msg = create_gui_state(True, datetime, 'frontend_active', 'no_error')
+        heartbeat_msg = build_heart_beat_item(True, datetime, 'request_handshake', 'no_error')
         item = gu.create_postbox_item('system', 'f_heartbeat', heartbeat_msg)
         if n_intervals == 0:
             return item, heartbeat_msg
         else:
             return item, no_update
         
-def disable_heartbeat(app):
-    @app.callback(
-        Output('heartbeat_interval', 'disabled'),
-        Input('heartbeat_interval', 'n_intervals'),
-        prevent_initial_call=True
 
-    )
-    def disable_heartbeat(n_intervals):
-        if n_intervals > 0:
-                return True
-        return False
 

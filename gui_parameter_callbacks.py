@@ -1,5 +1,5 @@
 from dash import Input, Output, html, State
-from dash_extensions import EventSource
+from dash.exceptions import PreventUpdate
 import gui_utils as gu
 import gui_case_management as gcm
 import gui_panels as gp
@@ -28,6 +28,31 @@ def tabbar_callbacks(app):
     
     # modify cm modal
 
+def heartbeat_to_button(app, parameter, btn_I, btn_II):
+    @app.callback(
+        Output(btn_I, 'children'),
+        Output(btn_II, 'children'),
+        Input('heartbeat_data_store', 'data'),
+        State('state_data_store', 'data'),
+        prevent_initial_call=True,
+    )
+    def process(msg, state):
+        try:
+            if isinstance(msg, dict) and msg.get('msg_type') == 'heartbeat':
+                data = msg['data']
+                ct = data['last_heartbeat']
+            else:
+                ct = "---"
+            if state and isinstance(state, dict) and state['data']['system']['start_time'] != 0:
+                st = state['data']['system']['start_time']
+                pt = datetime.now() - datetime.strptime(st, "%Y.%m.%d %H:%M:%S")
+            else:
+                pt = "---"
+            return ct, pt
+        except Exception as e:
+            print(f'heartbeat_to_button -> error during heartbeat processing: {e}')
+            raise PreventUpdate
+
 def state_to_button(app, parameter, btn):
     @app.callback(
         Output(btn, 'children'),
@@ -36,6 +61,7 @@ def state_to_button(app, parameter, btn):
     )
     def process(msg):
         try:
+            print(f'state_to_button -> processing {parameter} for button {btn} with msg : {msg['msg_type'], msg['id']}\n')
             if isinstance(msg, dict) and msg['msg_type'] == 'system' and msg['id'] == 'state':
                 data = msg['data']
                 val = data[parameter]['val']
@@ -47,31 +73,6 @@ def state_to_button(app, parameter, btn):
         except Exception as e:
             print(f'parameter_to_button -> {parameter} could not be linked to a button')
             return ""
-
-def heartbeat_to_button(app, parameter, btn_I, btn_II):
-    @app.callback(
-        Output(btn_I, 'children'),
-        Output(btn_II, 'children'),
-        Input('heartbeat_data_store', 'data'),
-        State('state_data_store', 'data'),
-        prevent_initial_call=True,
-    )
-    def process(msg, state):
-        try:
-            if isinstance(msg, dict) and msg['data']['heartbeat_time']:
-                ct = msg['data']['heartbeat_time']
-            else:
-                ct = "---"
-            if state and isinstance(state, dict) and state['data']['system']['start_time'] != 0:
-                st = state['data']['system']['start_time']
-                pt = datetime.now() - datetime.strptime(st, "%Y.%m.%d %H:%M:%S")
-            else:
-                pt = "---"
-            return ct, pt
-        except Exception as e:
-            print(f'heartbeat_to_button -> error during heartbeat processing: {e}')
-            return "", ""
-
 
 def case_data_to_button(app, pre_text, parameter, btn):
     @app.callback(

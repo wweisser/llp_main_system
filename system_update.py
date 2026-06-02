@@ -178,15 +178,17 @@ def calc_perfusion_time(sys_state, start_time):
         print('gui_updater ->', e)
         return None
 
-async def b_heartbeat(cc):
+async def b_heartbeat(cc, intervall: float):
     print('BACKEND HEARTBEAT STARTED')
     while True:
         ct = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         b_heartbeat_item = generate_one_beat(ct, "backend_active")
-        await oq.broadcast_item('system', 'state', b_heartbeat_item, cc)
+        # print(f'b_heartbeat -> heartbeat from backend generated at {b_heartbeat_item['last_heartbeat']} with status {b_heartbeat_item['status']}\n')
+        await oq.broadcast_item('heartbeat', 'state', b_heartbeat_item, cc)
+        await asyncio.sleep(intervall)
 
 async def system_updater(cache, key, archive_intervall: int, update_intervall: float):
-    """System updater loop that updates the system state every second.
+    """System updater loop that updates the system state every set interval.
     Perfusion time and clock time and archive funktion"""
     counter = 0
     while True:

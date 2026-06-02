@@ -41,5 +41,6 @@ def parse_input(input):
 
 async def broadcast_item(msg_type: str, id: str, data, cc):
     item = create_q_item(msg_type, id, data)
+    # print(f'Broadcasting item -> cc : {cc} ')
     for q in cc.values():
             await q.put(item)

@@ -1,4 +1,6 @@
-from dash import dash, html, dcc, Input, Output, no_update
+from datetime import datetime
+from dash import dash, html, dcc, Input, Output, State, no_update
+from dash.exceptions import PreventUpdate
 import gui_utils as gu
 import gui_state as gs
 
@@ -12,19 +14,28 @@ def create_startup_screen():
 def create_startup_callback(app):    
     @app.callback(
         Output('loading_screen', 'className'),
-        Output('heartbeat_data_store', 'data', allow_duplicate=True),
+        Output('postbox', 'data'),
+        Output('heartbeat_interval', 'disabled'),
         Input('heartbeat_data_store', 'data'),
+        Input('heartbeat_interval', 'n_intervals'),
         prevent_initial_call=True
     )
-    def hide_loader(msg):
-        if msg['id'] == 'b_heartbeat' and msg['data']['status'] == 'backend_active':
+    def hide_loader(msg, n_intervals):
+        if not msg:
+            heartbeat_item = gs.build_heart_beat_item(True, datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'request_handshake', 'no_error')
+            item = gu.create_postbox_item('system', 'f_heartbeat', heartbeat_item)
+            print('create_startup_callback -> Sending initial heartbeat\n')
+            return 'loading_screen', item, False
+        
+        data = msg['data']
+        if msg['id'] == 'b_heartbeat' and data['status'] == 'backend_active':
+            print('create_startup_callback -> Backend active, hiding loader\n')
+            raise PreventUpdate
+        elif msg['id'] == 'b_heartbeat' and data['status'] == 'handshake_accepted':
             print('create_startup_callback -> Handshake accepted, hiding loader\n')
-            datetime = gu.get_current_time()
-            heartbeat_msg = gs.create_gui_state(False, datetime, 'handshake_accepted', 'no_error')
-            return 'hide', heartbeat_msg
+            return 'hide', no_update, True
         else:
-            heartbeat_msg = gs.create_gui_state(False, datetime, 'handshake_pending', 'no_error')
-            return 'loading_screen', heartbeat_msg
+            raise PreventUpdate
 
 
 if __name__ == '__main__':

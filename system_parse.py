@@ -26,10 +26,11 @@ async def parse_note_input(msg: dict, cc, db_path, table, sys_state: dict, now: 
     # await oq.feed_queue(cc, note_item)cscs
     return sys_state
 
-async def parse_serial_input(msg: dict, sys_state: dict, cache, key):
+async def parse_serial_input(msg: dict, sys_state: dict, cache, key, cc):
     if msg['id'] == 'cdi':
-        # print(f'parse_serial_input-> {msg}')
         sys_state = await parse_cdi_input(msg, sys_state, cache, key)
+        await oq.broadcast_item('state', 'state', sys_state, cc)
+        print(f'parse_serial_input-> cdi input received an broadcasted to gui\n')
     return sys_state
 
 async def parse_cdi_input(msg: dict, sys_state: dict, cache, key):
@@ -108,10 +109,10 @@ async def parse_hub_input(msg: dict, sys_state: dict, com_port_hub: str, tx_q):
 
 async def parse_heartbeat(msg: dict, sys_state: dict, cc):
     print(f'parse_msg -> heartbeat from {msg['last_heartbeat']} received, startup ckeck: {msg['startup_check']}, status: {msg['status']}\n')
-    if msg['startup_check']:
+    if msg['startup_check'] and msg['status'] == 'request_handshake':
         b_heartbeat_item = {
-            'heartbeat_time': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            'status': 'backend_active',
+            'last_heartbeat': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            'status': 'handshake_accepted',
             'error_state': None,
         }
         await oq.broadcast_item('heartbeat', 'b_heartbeat', b_heartbeat_item, cc)
@@ -120,7 +121,7 @@ async def parse_heartbeat(msg: dict, sys_state: dict, cc):
 async def parse_msg(msg: dict, sys_state, sp, cc):
     # print(f'Input parser called : {msg}')
     if msg['msg_type'] == 'serial_input':
-        sys_state = await parse_serial_input(msg, sys_state, sp['cache'], sp['key'])
+        sys_state = await parse_serial_input(msg, sys_state, sp['cache'], sp['key'], cc)
     elif msg['msg_type'] == 'hub_input':
         sys_state = await parse_hub_input(msg, sys_state)
     elif msg['msg_type'] == 'case_number':

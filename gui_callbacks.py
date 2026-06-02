@@ -45,21 +45,6 @@ def tabbar_callback(app):
         btn_reset = [0, 0, 0, 0, 0]
         return ret_arr + btn_reset
   
-    # @app.callback(
-    #     Output('note_mdl', 'hidden'),
-    #     Input('note_mdl_btn', 'n_clicks'),
-    #     State('note_mdl', 'hidden'),
-    #     prevent_initial_call=True
-    # )
-    # def open_note_mdl(btn, hidden):
-    #     print('hidden: ', hidden)
-    #     if hidden:
-    #         print('note mdl open')
-    #         return False
-    #     else:
-    #         print('note mdl close')
-    #         return True
-
 def bga_value_callback(app, val:str):
     @app.callback(
         Output('postbox', 'data', allow_duplicate=True),

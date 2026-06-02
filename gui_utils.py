@@ -8,7 +8,6 @@ def get_current_time():
     current_time = now.strftime("%Y-%m-%d %H:%M:%S")
     return current_time
 
-
 #send functions
 def create_postbox_item(msg_type: str, id: str, data):
     msg_item = {
@@ -91,7 +90,7 @@ def create_recv_callbacks(app):
         if isinstance(msg, dict):
             data = parse_ws_msg(msg)  # data ist ab hier dein dict
             try:
-                print(f'gui_ws_recv -> item received {datetime.now()}')
+                # print(f'distribute_msg -> item received {datetime.now()}\nMessage : {msg}\n')
                 if data and isinstance(data, dict):
                     msg_type = data.get('msg_type')
                     if msg_type == 'system':

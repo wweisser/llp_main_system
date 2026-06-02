@@ -107,8 +107,7 @@ async def ws_send(websocket, client_q):
         try:
             msg = await client_q.get()
             if isinstance(msg, dict):
-                if msg['id'] == 'notes':
-                    print(f'ws_send -> notes send at {msg['time']}')
+                # print(f'ws_send -> msg send at {msg['time']}')
                 msg_to_send = json.dumps(msg)
                 await websocket.send_text(msg_to_send)
             else:
@@ -143,15 +142,15 @@ async def start_ws(app, ux_q, connected_clients):
             print(f"start_ws -> error during setup of websocket connection to client\n {e}")
 
 
-async def create_system_tasks(sp, cc):
+async def create_system_tasks(sp, cc, heartbeat_intervall: float, archive_intervall: int = 10):
     system_tasks = []
     try:
         # system_tasks.append(asyncio.create_task(se.connection_handler(sp['tx_q'], sp['ux_q'])))
         system_tasks.append(asyncio.create_task(su.dequeue_loop(sp, system_tasks, cc)))
-        # system_tasks.append(asyncio.create_task(su.system_updater(sp['cache'], sp['key'], 10, 1.0)))
-        # system_tasks.append(asyncio.create_task(su.b_heartbeat(sp['cc'])))
+        # system_tasks.append(asyncio.create_task(su.system_updater(sp['cache'], sp['key'], archive_intervall, 1.0)))
+        system_tasks.append(asyncio.create_task(su.b_heartbeat(sp['cc'], heartbeat_intervall)))
 ################TEST TEST TEST#########################################
-        # system_tasks.append(asyncio.create_task(start_cdi_test_thread(sp['ux_q'])))
+        system_tasks.append(asyncio.create_task(start_cdi_test_thread(sp['ux_q'])))
 ################TEST TEST TEST#########################################
         return system_tasks
     except Exception as e:
@@ -203,6 +202,9 @@ async def main():
     connected_clients: dict[WebSocket, asyncio.Queue] = {}
     sp = create_sys_param(connected_clients, ux_q, tx_q, cache, key, com_port_hub, db_path, table)
 
+    heartbeat_intervall = 2.0
+    archive_intervall = 10
+
     # conn = sqlite3.connect(db_path)
 
     try:
@@ -218,19 +220,18 @@ async def main():
         def health():
             return {"status": "ok"}
         print("3 - /health endpoint defined")
-        @fast_api_app.get("/")
-        def index():
-            return RedirectResponse(url="/d1/")
-        print("4 - / endpoint defined")
 
-        system_tasks = await create_system_tasks(sp, connected_clients)
-        print("5 - system tasks were created")
+        system_tasks = await create_system_tasks(sp, connected_clients, heartbeat_intervall, archive_intervall)
+        print("4 - system tasks were created")
+
         config = uvicorn.Config(fast_api_app, host="0.0.0.0", port=8000, log_config=None)
-        print("6 - uvicorn config created")
+        print("5 - uvicorn config created")
+
         server = uvicorn.Server(config)
-        print("7 - uvicorn server created")
+        print("6 - uvicorn server created")
+
         await asyncio.gather(server.serve(), *system_tasks)
-        print("8 - uvicorn server and system tasks are running")
+
     except Exception as e:
         for task in system_tasks:
             task.cancel()           # Beim App-Shutdown: Task abbrechen
