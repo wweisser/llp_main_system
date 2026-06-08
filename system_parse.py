@@ -30,7 +30,7 @@ async def parse_serial_input(msg: dict, sys_state: dict, cache, key, cc):
     if msg['id'] == 'cdi':
         sys_state = await parse_cdi_input(msg, sys_state, cache, key)
         await oq.broadcast_item('state', 'state', sys_state, cc)
-        print(f'parse_serial_input-> cdi input received an broadcasted to gui\n')
+        # print(f'parse_serial_input-> cdi input received an broadcasted to gui\n')
     return sys_state
 
 async def parse_cdi_input(msg: dict, sys_state: dict, cache, key):
@@ -119,13 +119,13 @@ async def parse_heartbeat(msg: dict, sys_state: dict, cc):
 
 
 async def parse_msg(msg: dict, sys_state, sp, cc):
-    # print(f'Input parser called : {msg}')
+    # print(f'parse_msg -> Input parser called : {msg}')
     if msg['msg_type'] == 'serial_input':
         sys_state = await parse_serial_input(msg, sys_state, sp['cache'], sp['key'], cc)
     elif msg['msg_type'] == 'hub_input':
         sys_state = await parse_hub_input(msg, sys_state)
     elif msg['msg_type'] == 'case_number':
-        sys_state = await parse_case_number_request(msg, sys_state, sp['gui_q'], sp['db_path'], sp['table'])
+        sys_state = await parse_case_number_request(msg, sys_state, cc, sp['db_path'], sp['table'])
     elif msg['msg_type'] == 'archive':
         sys_state = await parse_archive_request(msg, sys_state, sp['ux_q'], sp['gui_q'], sp['cache'], sp['key'], sp['db_path'], sp['table'])
     elif msg['msg_type'] == 'entry_request':

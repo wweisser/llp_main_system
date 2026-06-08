@@ -4,7 +4,7 @@ import system_update as su
 import state
 import memory
 import onque as oq
-# import llp_system.system_utils as sc
+import platform
 import asyncio
 import json
 import uvicorn
@@ -195,8 +195,12 @@ def register_ws(app, ux_q, connected_clients):
 async def main():
     key = "key_name"
     table = 'test'	
-    db_path = r'/home/whw/mp.db'
-    cache_path = r'/home/whw/diskcache_test'
+    if platform.system() == 'Windows':
+        db_path = r'C:\Users\whwei\OneDrive\Coding\llp_system\data_vault.db'
+        cache_path = r'C:\Temp\diskcache_test\cache'
+    elif platform.system() == 'Linux':
+        db_path = r'/home/whw/mp.db'
+        cache_path = r'/home/whw/diskcache_test'
     gui_q, ux_q, tx_q, cache = build_state(cache_path, db_path, key)
     com_port_hub = None
     connected_clients: dict[WebSocket, asyncio.Queue] = {}

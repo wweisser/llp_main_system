@@ -53,27 +53,6 @@ def heartbeat_to_button(app, parameter, btn_I, btn_II):
             print(f'heartbeat_to_button -> error during heartbeat processing: {e}')
             raise PreventUpdate
 
-def state_to_button(app, parameter, btn):
-    @app.callback(
-        Output(btn, 'children'),
-        Input('state_data_store', 'data'),
-        prevent_initial_call=True,
-    )
-    def process(msg):
-        try:
-            print(f'state_to_button -> processing {parameter} for button {btn} with msg : {msg['msg_type'], msg['id']}\n')
-            if isinstance(msg, dict) and msg['msg_type'] == 'system' and msg['id'] == 'state':
-                data = msg['data']
-                val = data[parameter]['val']
-                if not isinstance(val, str):
-                    val = str(val)
-                return val
-            else:
-                return ""
-        except Exception as e:
-            print(f'parameter_to_button -> {parameter} could not be linked to a button')
-            return ""
-
 def case_data_to_button(app, pre_text, parameter, btn):
     @app.callback(
         Output(btn, 'children'),
@@ -93,6 +72,27 @@ def case_data_to_button(app, pre_text, parameter, btn):
                 return f'{pre_text}'
         except Exception as e:
             print(f'system_to_button -> {parameter} could not be linked to a button {val['system'][parameter]}\n')
+            return ""
+
+def state_to_button(app, parameter, btn):
+    @app.callback(
+        Output(btn, 'children'),
+        Input('state_data_store', 'data'),
+        prevent_initial_call=True,
+    )
+    def process(msg):
+        try:
+            print(f'state_to_button -> processing {parameter} for button {btn} with msg : {msg['msg_type'], msg['id']}\n')
+            if isinstance(msg, dict) and msg['msg_type'] == 'state' and msg['id'] == 'state':
+                data = msg['data']
+                val = data[parameter]['val']
+                if not isinstance(val, str):
+                    val = str(val)
+                return val
+            else:
+                return ""
+        except Exception as e:
+            print(f'parameter_to_button -> {parameter} could not be linked to a button')
             return ""
 
 def state_to_gui(app):

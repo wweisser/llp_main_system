@@ -1,5 +1,6 @@
 from dash import Input, Output, State, no_update
 import gui_utils as gu
+from datetime import datetime
 
 def check_case_number(cn_arr, numb):
     if cn_arr:
@@ -38,11 +39,11 @@ def case_manager_callbacks(app, button):
     )
     def csm_button(btn_click, hidden):
         if hidden:
-            post_item = gu.create_postbox_item('case_number','list_request', '')
+            post_item = gu.create_postbox_item('case_number','list_request', datetime.now().strftime("%Y.%m.%d %H:%M:%S"))
             print('csm_button -> casenumber list request : ', post_item)
             return post_item, False
         else:
-            print('modal is hidden again')
+            print(f'case_manager_callbacks -> modal is hidden again')
             return None, True
 
 
