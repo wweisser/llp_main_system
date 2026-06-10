@@ -195,10 +195,11 @@ def register_ws(app, ux_q, connected_clients):
 async def main():
     key = "key_name"
     table = 'test'	
-    if platform.system() == 'Windows':
+    os = platform.system()
+    if os == 'Windows':
         db_path = r'C:\Users\whwei\OneDrive\Coding\llp_system\data_vault.db'
         cache_path = r'C:\Temp\diskcache_test\cache'
-    elif platform.system() == 'Linux':
+    elif os == 'Linux':
         db_path = r'/home/whw/mp.db'
         cache_path = r'/home/whw/diskcache_test'
     gui_q, ux_q, tx_q, cache = build_state(cache_path, db_path, key)
