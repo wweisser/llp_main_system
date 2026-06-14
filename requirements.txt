@@ -1,0 +1,11 @@
+python3
+pip
+unicorn #full instalation
+fastapi
+pandas
+numpy
+dash
+dash-extensions
+pyserial
+pyserial-asyncio
+diskcache

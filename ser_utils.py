@@ -20,6 +20,7 @@ if __name__ == '__main__':
     test = b' 18:25:09\t6.54\t 040\t ---\t30.4\t 03 \t -- \t ---\t'
     print(select_device(test))
     l = len(test)
+    print(f'length: {l}')
     i = 0
     for i in range(l):
         print(f'len : {i} and {test[i]} and {chr(test[i])}')

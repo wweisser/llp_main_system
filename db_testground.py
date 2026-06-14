@@ -1,59 +1,174 @@
-from typing import List
-from typing import Optional
-from sqlalchemy import ForeignKey
-from sqlalchemy import String
-from sqlalchemy.orm import DeclarativeBase
-from sqlalchemy.orm import Mapped
-from sqlalchemy.orm import mapped_column
-from sqlalchemy.orm import relationship
+from sqlalchemy import (
+    create_engine, String, Integer, Float, ForeignKey, MetaData, Table, inspect, select
+)
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship, Session
+import time
+import random
 
 class Base(DeclarativeBase):
     pass
 
-class User(Base):
-    __tablename__ = "user_account"
-    id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str] = mapped_column(String(30))
-    fullname: Mapped[Optional[str]]
-    addresses: Mapped[List["Address"]] = relationship(
-        back_populates="user", cascade="all, delete-orphan"
-    )
-    def __repr__(self) -> str:
-        return f"User(id={self.id!r}, name={self.name!r}, fullname={self.fullname!r})"
+class Case(Base):
+    __tablename__ = "cases"
 
-class Address(Base):
-    __tablename__ = "address"
-    id: Mapped[int] = mapped_column(primary_key=True)
-    email_address: Mapped[str]
-    user_id: Mapped[int] = mapped_column(ForeignKey("user_account.id"))
-    user: Mapped["User"] = relationship(back_populates="addresses")
-    def __repr__(self) -> str:
-        return f"Address(id={self.id!r}, email_address={self.email_address!r})"
+    # id: Mapped[int]                 = mapped_column(Integer)
+    comment: Mapped[str | None]     = mapped_column(String)
+    case_id: Mapped[int]            = mapped_column(Integer, primary_key=True,  nullable=False,)
+    start_time: Mapped[int | None]  = mapped_column(Integer, default=lambda: int(time.time()))
+    
+    # Readings can be use to get all values related to a case, e.g. for plotting or exporting
+    case_to_cdi_link:   Mapped[list["CDI_Data"]] = relationship(back_populates="cdi_to_case_link")
+    case_to_note_link:  Mapped[list["Notes"]] = relationship(back_populates="note_to_case_link")
+
+    def get_table(self):
+        return {'comment': self.comment, 
+                'case_id': self.case_id, 
+                'start_time': self.start_time}
+
+
+class CDI_Data(Base):
+    __tablename__ = "cdi_table"
+
+    id:         Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    case_id:    Mapped[int] = mapped_column(ForeignKey("cases.case_id"), nullable=False)
+    ts:         Mapped[int] = mapped_column(Integer, nullable=False)   # Unix-Zeit (oder ms)
+    device_id:  Mapped[str] = mapped_column(String, nullable=False)
+
+
+    art_ph:     Mapped[float | None] = mapped_column(Float)
+    art_pco2:   Mapped[float | None] = mapped_column(Float)
+    art_po2:    Mapped[float | None] = mapped_column(Float)
+    ven_ph:     Mapped[float | None] = mapped_column(Float)
+    ven_pco2:   Mapped[float | None] = mapped_column(Float) 
+    ven_po2:    Mapped[float | None] = mapped_column(Float) 
+    cso2:       Mapped[float | None] = mapped_column(Float) 
+    so2:        Mapped[float | None] = mapped_column(Float)
+    hb:         Mapped[float | None] = mapped_column(Float)
+    hct:        Mapped[float | None] = mapped_column(Float)
+    hco3:       Mapped[float | None] = mapped_column(Float)
+    base:       Mapped[float | None] = mapped_column(Float)
+    k:          Mapped[float | None] = mapped_column(Float)
+
+    cdi_to_case_link: Mapped["Case"] = relationship(back_populates="case_to_cdi_link")
+
+    def get_table(self):
+        return {
+            'id': self.id,
+            'case_id': self.case_id,
+            'ts': self.ts,
+            'device_id': self.device_id,
+            'art_ph': self.art_ph, 
+            'art_pco2': self.art_pco2, 
+            'art_po2': self.art_po2, 
+            'ven_ph': self.ven_ph, 
+            'ven_pco2': self.ven_pco2, 
+            'ven_po2': self.ven_po2, 
+            'cso2': self.cso2, 
+            'so2': self.so2, 
+            'hb': self.hb, 
+            'hct': self.hct, 
+            'hco3': self.hco3, 
+            'base': self.base, 
+            'k': self.k
+        }
+
+class Notes(Base):
+    __tablename__ = "notes"
+    id:         Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    case_id:    Mapped[int] = mapped_column(ForeignKey("cases.case_id"), nullable=False)
+    ts:         Mapped[int] = mapped_column(Integer, nullable=False)   # Unix-Zeit (oder ms)
+
+    note:       Mapped[str] = mapped_column(String)
+
+    note_to_case_link: Mapped["Case"] = relationship(back_populates="case_to_note_link")
+    
+    def get_table(self):
+        return {
+            'id': self.id,
+            'case_id': self.case_id,
+            'ts': self.ts,
+            'Notes': self.note
+        }
+
+def create_case(engine, comment, case_id):
+    with Session(engine) as session:
+        existing = session.scalars(select(Case).where(Case.case_id == case_id)).one_or_none()
+        if not existing:
+            case = Case(
+                comment =       comment,
+                case_id =       case_id,
+                start_time =    int(time.time())
+            )
+            session.add(case)
+            session.commit()
+        else:
+            print(f'create_case -> case allready exists')
+
+def cdi_entry(engine, case_id, cdi_arr):
+    with Session(engine) as session:
+        case = session.get(Case, case_id)
+        if case:
+            cdi_data_entry_item = CDI_Data(
+                case_id =   case_id,
+                ts =        int(time.time()),
+                device_id = 'cdi',
+
+                art_ph     = cdi_arr[0],
+                art_pco2   = cdi_arr[1],
+                art_po2    = cdi_arr[2],
+                ven_ph     = cdi_arr[3],
+                ven_pco2   = cdi_arr[4], 
+                ven_po2    = cdi_arr[5], 
+                cso2       = cdi_arr[6], 
+                so2        = cdi_arr[7],
+                hb         = cdi_arr[8],
+                hct        = cdi_arr[9],
+                hco3       = cdi_arr[10],
+                base       = cdi_arr[11],
+                k          = cdi_arr[12],
+
+            )
+            case.case_to_cdi_link.append(cdi_data_entry_item)
+        session.commit()
+
+def inspect_table(engine, table: str, case_id=None):
+    with Session(engine) as session:
+        if case_id:
+            pass
+        else:
+            request = session.scalars(select(table)).all()
+            for row in request:
+                p = row.get_table()
+                print(f'inspect_table -> {p}')
+
+def inspect_engine(engine):
+    """Shows all tables in the engine"""
+    inspector = inspect(engine)
+    print(f'inspect_engine -> tables: {inspector.get_table_names()}')
+
+
+# Functionality: Base is the basic register clas 
+    
 if __name__ == "__main__":
     engine = create_engine('sqlite:///data_vault.db')
     metadata = MetaData()
-    table_name = 'test_I'
 
-    table = Table(table_name, metadata,
+    inspect_engine(engine)
+    Base.metadata.create_all(engine)
+    create_case(engine, 'test case', 1)
 
-    inspect_engine(engine, table)
-    remove_table(table, engine)
-    inspect_engine(engine, table)
+    inspect_table(engine, CDI_Data, 1)
+
+    # user_table = Table("notes", metadata, autoload_with=engine)
+    # user_table.drop(engine)
+
+    # cdi_arr = []
+    # for i in range(13):
+    #     cdi_arr.append(round(random.randint(1, 100)/random.randint(1, 100), 2))
+    # print(cdi_arr)
+
+    # cdi_entry(engine, 1, cdi_arr)
+#     inspect_engine(engine)
 
 
-    conn = engine.connect()
-    
 
-
-    llp_table = Table(table, metadata,
-        Column('id', Integer, primary_key=True),
-        Column('case_number', Integer),
-        Column('data', String),
-        Column('timestamp', String)
-    )
-
-    # metadata.create_all(engine)
-    # insert_data(engine, llp_table, 123, 'test data')
-# termianl code: PRAGMA table_info(test);
-# 
-# Invoke-SqliteQuery -DataSource $db -Query "PRAGMA table_info(test_I);"
