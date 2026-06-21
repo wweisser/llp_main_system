@@ -8,7 +8,7 @@ import random
 class Base(DeclarativeBase):
     pass
 
-class Case(Base):
+class Cases(Base):
     __tablename__ = "cases"
 
     # id: Mapped[int]                 = mapped_column(Integer)
@@ -17,8 +17,8 @@ class Case(Base):
     start_time: Mapped[int | None]  = mapped_column(Integer, default=lambda: int(time.time()))
     
     # Readings can be use to get all values related to a case, e.g. for plotting or exporting
-    case_to_cdi_link:   Mapped[list["CDI_Data"]] = relationship(back_populates="cdi_to_case_link")
-    case_to_note_link:  Mapped[list["Notes"]] = relationship(back_populates="note_to_case_link")
+    case_to_cdi_link:   Mapped[list["CDI_Data"]] = relationship(back_populates="cases")
+    case_to_note_link:  Mapped[list["Notes"]] = relationship(back_populates="cases")
 
     def get_table(self):
         return {'comment': self.comment, 
@@ -27,7 +27,7 @@ class Case(Base):
 
 
 class CDI_Data(Base):
-    __tablename__ = "cdi_table"
+    __tablename__ = "cdi_data"
 
     id:         Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     case_id:    Mapped[int] = mapped_column(ForeignKey("cases.case_id"), nullable=False)
@@ -49,7 +49,7 @@ class CDI_Data(Base):
     base:       Mapped[float | None] = mapped_column(Float)
     k:          Mapped[float | None] = mapped_column(Float)
 
-    cdi_to_case_link: Mapped["Case"] = relationship(back_populates="case_to_cdi_link")
+    cases: Mapped["Cases"] = relationship(back_populates="case_to_cdi_link")
 
     def get_table(self):
         return {
@@ -80,7 +80,7 @@ class Notes(Base):
 
     note:       Mapped[str] = mapped_column(String)
 
-    note_to_case_link: Mapped["Case"] = relationship(back_populates="case_to_note_link")
+    cases: Mapped["Cases"] = relationship(back_populates="case_to_note_link")
     
     def get_table(self):
         return {
@@ -92,9 +92,9 @@ class Notes(Base):
 
 def create_case(engine, comment, case_id):
     with Session(engine) as session:
-        existing = session.scalars(select(Case).where(Case.case_id == case_id)).one_or_none()
+        existing = session.scalars(select(Cases).where(Cases.case_id == case_id)).one_or_none()
         if not existing:
-            case = Case(
+            case = Cases(
                 comment =       comment,
                 case_id =       case_id,
                 start_time =    int(time.time())
@@ -106,7 +106,7 @@ def create_case(engine, comment, case_id):
 
 def cdi_entry(engine, case_id, cdi_arr):
     with Session(engine) as session:
-        case = session.get(Case, case_id)
+        case = session.get(Cases, case_id)
         if case:
             cdi_data_entry_item = CDI_Data(
                 case_id =   case_id,
@@ -131,21 +131,50 @@ def cdi_entry(engine, case_id, cdi_arr):
             case.case_to_cdi_link.append(cdi_data_entry_item)
         session.commit()
 
-def inspect_table(engine, table: str, case_id=None):
-    with Session(engine) as session:
-        if case_id:
-            pass
-        else:
-            request = session.scalars(select(table)).all()
-            for row in request:
-                p = row.get_table()
-                print(f'inspect_table -> {p}')
+def inspect_table(engine, table, param_list: list, case_id=None, begin=None, to=None):
+    """returns a dictionary in which each item of the param_list acts as an identifier 
+    to a list of values"""
+    if engine and table:
+        with Session(engine) as session:
+            result_dict = {}
+            for param in param_list:
+                col_adress = (getattr(table, param))
+                print(f'inspect_table -> param : {param}\n')
+                sdi = select(col_adress)
+                if case_id:
+                    sdi = sdi.where(table.case_id == case_id)
+                if begin:
+                    sdi = sdi.where(table.ts > begin)
+                if to:
+                    sdi = sdi.where(table.ts < to)
+                result = session.scalars(sdi).all()
+                result_dict[param] = result
+            print(f'inspect_table -> result dictionary {result_dict}\n')
+            return result_dict
+    else:
+        print(f'inspect_table -> engine or table do not exist\n')
+
 
 def inspect_engine(engine):
     """Shows all tables in the engine"""
     inspector = inspect(engine)
     print(f'inspect_engine -> tables: {inspector.get_table_names()}')
 
+def get_case(engine, case_id):
+    if engine and case_id:
+        with Session(engine) as session:
+            sdi = (select(Cases)
+                   .join(CDI_Data.cases)
+                   .join(Notes.cases)
+                   .where(Cases.case_id == case_id)
+                )
+            result = session.scalars(sdi).all()
+            # result = {
+            #     'cases': cases,
+            #     'cdi_data': cdi_data,
+            #     'notes': notes
+            # }
+            print(f'get_case -> {result}')
 
 # Functionality: Base is the basic register clas 
     
@@ -155,20 +184,21 @@ if __name__ == "__main__":
 
     inspect_engine(engine)
     Base.metadata.create_all(engine)
-    create_case(engine, 'test case', 1)
+    create_case(engine, 'test case', 3)
 
-    inspect_table(engine, CDI_Data, 1)
+    inspect_table(engine, Cases, ['case_id','start_time',])
 
-    # user_table = Table("notes", metadata, autoload_with=engine)
+    # user_table = Table("cases", metadata, autoload_with=engine)
     # user_table.drop(engine)
 
     # cdi_arr = []
     # for i in range(13):
     #     cdi_arr.append(round(random.randint(1, 100)/random.randint(1, 100), 2))
-    # print(cdi_arr)
+    # print(f'cdi_arr -> {cdi_arr}\n')
 
-    # cdi_entry(engine, 1, cdi_arr)
-#     inspect_engine(engine)
+    # cdi_entry(engine, 3, cdi_arr)
+    get_case(engine, 1)
+    inspect_engine(engine)
 
 
 

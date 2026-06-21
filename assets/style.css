@@ -11,6 +11,8 @@
     --hover_color:#005161;
     --active_color:#009ebd;
     --yellow_alert_color:#fff30f;
+    --ha_border_color:#530505;
+    --ven_border_color:#035b92;
 }
 
 .hide{
@@ -68,6 +70,26 @@ body{
     background-color: var(--text_color_I);
 }
 .ha{
+    background-color: var(--ha_border_color);
+    color: var(--text_color_I);
+    border: none;
+    margin: 2px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.4s ease;
+    font-family: "Arial";
+}
+.ven{
+    background-color: var(--ven_border_color);
+    color: var(--text_color_I);
+    border: none;
+    margin: 2px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.4s ease;
+    font-family: "Arial";
+}
+.meta{
     background-color: var(--bg_color_II);
     color: var(--text_color_I);
     border: none;
@@ -77,9 +99,13 @@ body{
     transition: background-color 0.4s ease;
     font-family: "Arial";
 }
+.meta:hover,
+.ven:hover,
 .ha:hover {
     background-color: var(--hover_color);
 }
+.meta:active,
+.ven:active,
 .ha:active {
     background-color: var(--active_color);
     color: var(--text_color_active);
@@ -119,7 +145,7 @@ button:disabled {
 .side_panel_II{
     top: 0.2%;
     right: 0%;
-    width: 15%;
+    width: 13%;
     height: 93%;
     position: fixed;
     z-index: 1000;
@@ -135,7 +161,7 @@ button:disabled {
     position: fixed;
     z-index: 1000;
     display: grid;
-    grid-template-columns: [first] 24% [line2] 74% [end];
+    grid-template-columns: [first] 39.3% [line2] 60.7% [end];
 }
 
 .full_page{
@@ -151,9 +177,28 @@ button:disabled {
 
 .side_panel_I{
     z-index: 1000;
-    height: 100%;
+    height: 96%;
     display: grid;
-    grid-template-rows: [first] 16% [line2] 16%  [line3] 16%  [line4] 16% [line5] 16% [line6] 16% [end];
+    grid-template-rows: [first] 30% [line2] 30% [line3] 40% [end];
+}
+
+.side_panel_I_middle,
+.side_panel_I_top{
+    display: grid;
+    grid-template-columns: [first] 33.3% [col2] 33.3% [col3] 33.3% [end];
+    grid-template-rows: [first] 55% [line2] 45%  [line3];
+    border: 3px solid var(--bg_color_mdl);
+    border-radius: 6px;
+}
+.side_panel_I_middle{
+    border: 3px solid var(--bg_color_mdl)
+}
+.side_panel_I_bottom{
+    display: grid;
+    grid-template-columns: [first] 33.3% [col2] 33.3% [col3] 33.3% [end];
+    grid-template-rows: [first] 35% [col2] 35% [col3] 30% [end];
+    border: 3px solid var(--bg_color_mdl);
+    border-radius: 6px;
 }
 
 .loader {
