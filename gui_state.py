@@ -20,7 +20,8 @@ def create_msg_distribution():
         dcc.Store(id='note_data_store', storage_type='memory'),
         dcc.Store(id='system_data_store', storage_type='memory'),
         dcc.Store(id='heartbeat_data_store', storage_type='memory'),
-        dcc.Store(id='gui_state_store', storage_type='memory')
+        dcc.Store(id='gui_state_store', storage_type='memory'),
+        dcc.Store(id='download_store', storage_type='session')
     ]))
 
 def create_heartbeat_intervall():

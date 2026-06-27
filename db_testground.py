@@ -32,8 +32,6 @@ class CDI_Data(Base):
     id:         Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     case_id:    Mapped[int] = mapped_column(ForeignKey("cases.case_id"), nullable=False)
     ts:         Mapped[int] = mapped_column(Integer, nullable=False)   # Unix-Zeit (oder ms)
-    device_id:  Mapped[str] = mapped_column(String, nullable=False)
-
 
     art_ph:     Mapped[float | None] = mapped_column(Float)
     art_pco2:   Mapped[float | None] = mapped_column(Float)
@@ -111,7 +109,6 @@ def cdi_entry(engine, case_id, cdi_arr):
             cdi_data_entry_item = CDI_Data(
                 case_id =   case_id,
                 ts =        int(time.time()),
-                device_id = 'cdi',
 
                 art_ph     = cdi_arr[0],
                 art_pco2   = cdi_arr[1],
@@ -126,9 +123,22 @@ def cdi_entry(engine, case_id, cdi_arr):
                 hco3       = cdi_arr[10],
                 base       = cdi_arr[11],
                 k          = cdi_arr[12],
-
             )
             case.case_to_cdi_link.append(cdi_data_entry_item)
+        session.commit()
+
+def note_entry(engine, case_id, new_note: str):
+    with Session(engine) as session:
+        case = session.get(Cases, case_id)
+        if case:
+            note_entry_item = Notes(
+                case_id =   case_id,
+                ts =        int(time.time()),
+
+                note = new_note,
+            )
+            print(f'note_entry -> note : {new_note}')
+        case.case_to_note_link.append(note_entry_item)
         session.commit()
 
 def inspect_table(engine, table, param_list: list, case_id=None, begin=None, to=None):
@@ -139,15 +149,16 @@ def inspect_table(engine, table, param_list: list, case_id=None, begin=None, to=
             result_dict = {}
             for param in param_list:
                 col_adress = (getattr(table, param))
-                print(f'inspect_table -> param : {param}\n')
                 sdi = select(col_adress)
                 if case_id:
                     sdi = sdi.where(table.case_id == case_id)
+                    print(f'inspect_table -> {case_id}')
                 if begin:
                     sdi = sdi.where(table.ts > begin)
                 if to:
                     sdi = sdi.where(table.ts < to)
                 result = session.scalars(sdi).all()
+                print(f'inspect_table -> {param} : {result}')
                 result_dict[param] = result
             print(f'inspect_table -> result dictionary {result_dict}\n')
             return result_dict
@@ -169,11 +180,6 @@ def get_case(engine, case_id):
                    .where(Cases.case_id == case_id)
                 )
             result = session.scalars(sdi).all()
-            # result = {
-            #     'cases': cases,
-            #     'cdi_data': cdi_data,
-            #     'notes': notes
-            # }
             print(f'get_case -> {result}')
 
 # Functionality: Base is the basic register clas 
@@ -184,21 +190,24 @@ if __name__ == "__main__":
 
     inspect_engine(engine)
     Base.metadata.create_all(engine)
-    create_case(engine, 'test case', 3)
 
-    inspect_table(engine, Cases, ['case_id','start_time',])
+    create_case(engine, 'test case', 1)
+
+    inspect_table(engine, CDI_Data, ['ts','art_ph', 'ven_ph'], 1)
+    inspect_table(engine, Notes, ['ts', 'note'], 1)
 
     # user_table = Table("cases", metadata, autoload_with=engine)
-    # user_table.drop(engine)
+    # CDI_Data.__table__.drop(engine)
+    # Base.metadata.drop_all(engine)
 
     # cdi_arr = []
     # for i in range(13):
     #     cdi_arr.append(round(random.randint(1, 100)/random.randint(1, 100), 2))
     # print(f'cdi_arr -> {cdi_arr}\n')
-
-    # cdi_entry(engine, 3, cdi_arr)
-    get_case(engine, 1)
-    inspect_engine(engine)
+    # cdi_entry(engine, 1, cdi_arr)
+    # note_entry(engine, 1, 'liver weight 2088g')
+    # get_case(engine, 1)
+    # inspect_engine(engine)
 
 
 

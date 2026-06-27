@@ -74,6 +74,7 @@ def create_recv_callbacks(app):
         Output("system_data_store", "data"),
         Output("gui_state_store", "data"),
         Output("heartbeat_data_store", "data"),
+        Output("download_store", "data")
         Input("ws", "message"),
         prevent_initial_call=True
     )
@@ -85,7 +86,8 @@ def create_recv_callbacks(app):
             'notes': no_update,
             'system': no_update,
             'gui_state': no_update,
-            'heartbeat': no_update
+            'heartbeat': no_update,
+            'download': no_update
         }
         if isinstance(msg, dict):
             data = parse_ws_msg(msg)  # data ist ab hier dein dict
@@ -107,6 +109,8 @@ def create_recv_callbacks(app):
                         return_item['gui_state'] = data
                     elif msg_type == 'heartbeat':
                         return_item['heartbeat'] = data
+                    elif msg_type == 'download':
+                        return_item['download'] = data
                     else:
                         print(f"distribute_msg -> unbekannter msg_type: {msg_type}")
                 else:
