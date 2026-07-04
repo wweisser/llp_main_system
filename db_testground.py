@@ -134,7 +134,6 @@ def note_entry(engine, case_id, new_note: str):
             note_entry_item = Notes(
                 case_id =   case_id,
                 ts =        int(time.time()),
-
                 note = new_note,
             )
             print(f'note_entry -> note : {new_note}')
@@ -144,19 +143,19 @@ def note_entry(engine, case_id, new_note: str):
 def inspect_table(engine, table, param_list: list, case_id=None, begin=None, to=None):
     """returns a dictionary in which each item of the param_list acts as an identifier 
     to a list of values"""
-    if engine and table:
+    if table is not None:
         with Session(engine) as session:
             result_dict = {}
             for param in param_list:
-                col_adress = (getattr(table, param))
+                col_adress = (getattr(table.c, param)) #.c steht hier immer für columns und ist eine convention bei metadata
                 sdi = select(col_adress)
                 if case_id:
-                    sdi = sdi.where(table.case_id == case_id)
+                    sdi = sdi.where(table.c.case_id == case_id)
                     print(f'inspect_table -> {case_id}')
                 if begin:
-                    sdi = sdi.where(table.ts > begin)
+                    sdi = sdi.where(table.c.ts > begin)
                 if to:
-                    sdi = sdi.where(table.ts < to)
+                    sdi = sdi.where(table.c.ts < to)
                 result = session.scalars(sdi).all()
                 print(f'inspect_table -> {param} : {result}')
                 result_dict[param] = result
@@ -165,11 +164,16 @@ def inspect_table(engine, table, param_list: list, case_id=None, begin=None, to=
     else:
         print(f'inspect_table -> engine or table do not exist\n')
 
-
-def inspect_engine(engine):
+def inspect_engine(metadata):
     """Shows all tables in the engine"""
-    inspector = inspect(engine)
-    print(f'inspect_engine -> tables: {inspector.get_table_names()}')
+    # print(f'inspect_engine -> tables: {metadata.tables}')
+    return metadata.tables.values()
+
+def get_cols(table):
+    column_names = list(table.columns.keys())
+    return column_names
+
+            
 
 def get_case(engine, case_id):
     if engine and case_id:
@@ -183,18 +187,33 @@ def get_case(engine, case_id):
             print(f'get_case -> {result}')
 
 # Functionality: Base is the basic register clas 
-    
+def case_loader(engine, metadata, case_id: int):
+    tables = inspect_engine(metadata)
+    print(f'case_loader -> tables : {tables}\n')
+    case_data = []
+    for table in tables:
+        print(f'case_loader -> table : {table}\n')
+        params = get_cols(table)
+        print(f'case_loader -> params : {params}\n')
+        table_data = inspect_table(engine, table, params, case_id)
+        print(f'case_loader -> table_data : {table_data}\n')
+        case_data.append(table_data)
+    return case_data
+
 if __name__ == "__main__":
     engine = create_engine('sqlite:///data_vault.db')
     metadata = MetaData()
-
-    inspect_engine(engine)
+    metadata.reflect(bind=engine)
     Base.metadata.create_all(engine)
 
     create_case(engine, 'test case', 1)
+    inspect_engine(metadata)
 
-    inspect_table(engine, CDI_Data, ['ts','art_ph', 'ven_ph'], 1)
-    inspect_table(engine, Notes, ['ts', 'note'], 1)
+    # inspect_table(engine, CDI_Data, ['ts','art_ph', 'ven_ph'], 1)
+    # inspect_table(engine, Notes, ['ts', 'note'], 1)
+    # print(f'get_cols -> result : {get_cols(engine, metadata, CDI_Data)}')
+    print(f'case_loader -> result : {case_loader(engine, metadata, 1)}')
+
 
     # user_table = Table("cases", metadata, autoload_with=engine)
     # CDI_Data.__table__.drop(engine)
