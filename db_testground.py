@@ -140,6 +140,18 @@ def note_entry(engine, case_id, new_note: str):
         case.case_to_note_link.append(note_entry_item)
         session.commit()
 
+def transpone(table_dict:dict):
+    table_tranposed = []
+    length = len(table_dict['case_id'])
+    print(f'transpone -> length: {length}')
+    for i in range(length):
+        row = []
+        for param in table_dict:
+            print(f'transpone -> param: {param}')
+            row.append(table_dict[param][i])
+        table_tranposed.append(row)
+    return table_tranposed
+
 def inspect_table(engine, table, param_list: list, case_id=None, begin=None, to=None):
     """returns a dictionary in which each item of the param_list acts as an identifier 
     to a list of values"""
@@ -157,9 +169,7 @@ def inspect_table(engine, table, param_list: list, case_id=None, begin=None, to=
                 if to:
                     sdi = sdi.where(table.c.ts < to)
                 result = session.scalars(sdi).all()
-                print(f'inspect_table -> {param} : {result}')
                 result_dict[param] = result
-            print(f'inspect_table -> result dictionary {result_dict}\n')
             return result_dict
     else:
         print(f'inspect_table -> engine or table do not exist\n')
@@ -172,8 +182,6 @@ def inspect_engine(metadata):
 def get_cols(table):
     column_names = list(table.columns.keys())
     return column_names
-
-            
 
 def get_case(engine, case_id):
     if engine and case_id:
@@ -188,17 +196,26 @@ def get_case(engine, case_id):
 
 # Functionality: Base is the basic register clas 
 def case_loader(engine, metadata, case_id: int):
+    """Gets all tables. Then each table the is inspected, with the target case_id.
+    creates a dict for the result of each table and adds the dict to a list."""
     tables = inspect_engine(metadata)
     print(f'case_loader -> tables : {tables}\n')
     case_data = []
     for table in tables:
         print(f'case_loader -> table : {table}\n')
         params = get_cols(table)
-        print(f'case_loader -> params : {params}\n')
         table_data = inspect_table(engine, table, params, case_id)
-        print(f'case_loader -> table_data : {table_data}\n')
-        case_data.append(table_data)
-    return case_data
+        case_data.append({'table_name': table.name, 'table_data': transpone(table_data)})
+        print(f'case_loader -> case_data : {case_data}\n')
+        trnsp_tbl = transpone(table_data)
+    return trnsp_tbl
+
+def sort_case_data(case_data: list):
+    for table in case_data:
+        if table['table_name'] == 'cdi_data':
+            table 
+        
+    return
 
 if __name__ == "__main__":
     engine = create_engine('sqlite:///data_vault.db')
@@ -212,7 +229,10 @@ if __name__ == "__main__":
     # inspect_table(engine, CDI_Data, ['ts','art_ph', 'ven_ph'], 1)
     # inspect_table(engine, Notes, ['ts', 'note'], 1)
     # print(f'get_cols -> result : {get_cols(engine, metadata, CDI_Data)}')
-    print(f'case_loader -> result : {case_loader(engine, metadata, 1)}')
+
+    trnsp_tbl = case_loader(engine, metadata, 1)
+    print(f'main ->  result of case_loader : {trnsp_tbl}')
+
 
 
     # user_table = Table("cases", metadata, autoload_with=engine)
