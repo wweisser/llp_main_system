@@ -74,7 +74,7 @@ def create_recv_callbacks(app):
         Output("system_data_store", "data"),
         Output("gui_state_store", "data"),
         Output("heartbeat_data_store", "data"),
-        Output("download_store", "data")
+        Output("download_store", "data"),
         Input("ws", "message"),
         prevent_initial_call=True
     )
@@ -123,7 +123,8 @@ def create_recv_callbacks(app):
             return_item['notes'],
             return_item['system'],
             return_item['gui_state'],
-            return_item['heartbeat']
+            return_item['heartbeat'],
+            return_item['download']
             )
 
 

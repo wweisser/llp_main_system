@@ -3,6 +3,8 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship, Session
 import time
+import pandas as pd
+
 import random
 
 class Base(DeclarativeBase):
@@ -141,14 +143,17 @@ def note_entry(engine, case_id, new_note: str):
         session.commit()
 
 def transpone(table_dict:dict):
+    """Takes the dict with a list of values for each parameter.
+    Returns da list of dicts. One dict for every row with parameter as identifier
+    and the adjacend value."""
     table_tranposed = []
     length = len(table_dict['case_id'])
     print(f'transpone -> length: {length}')
     for i in range(length):
-        row = []
+        row = {}
         for param in table_dict:
             print(f'transpone -> param: {param}')
-            row.append(table_dict[param][i])
+            row[param] = table_dict[param][i]
         table_tranposed.append(row)
     return table_tranposed
 
@@ -156,6 +161,7 @@ def inspect_table(engine, table, param_list: list, case_id=None, begin=None, to=
     """returns a dictionary in which each item of the param_list acts as an identifier 
     to a list of values"""
     if table is not None:
+        print(f'inspect_table -> type: {type(table)}')
         with Session(engine) as session:
             result_dict = {}
             for param in param_list:
@@ -163,13 +169,15 @@ def inspect_table(engine, table, param_list: list, case_id=None, begin=None, to=
                 sdi = select(col_adress)
                 if case_id:
                     sdi = sdi.where(table.c.case_id == case_id)
-                    print(f'inspect_table -> {case_id}')
                 if begin:
                     sdi = sdi.where(table.c.ts > begin)
                 if to:
                     sdi = sdi.where(table.c.ts < to)
                 result = session.scalars(sdi).all()
+
                 result_dict[param] = result
+            print(f'inspect_table -> result dict{result_dict}\n')
+            
             return result_dict
     else:
         print(f'inspect_table -> engine or table do not exist\n')
@@ -196,32 +204,60 @@ def get_case(engine, case_id):
 
 # Functionality: Base is the basic register clas 
 def case_loader(engine, metadata, case_id: int):
-    """Gets all tables. Then each table the is inspected, with the target case_id.
-    creates a dict for the result of each table and adds the dict to a list."""
+    """Gets db and case_id. Then calls inspect_table for each table in the engine.
+    Then calls transpone for every result. Creates the a dict of dicts
+    with table_name as identifier and the transponed table data as value."""
     tables = inspect_engine(metadata)
     print(f'case_loader -> tables : {tables}\n')
-    case_data = []
+    case_data = {}
     for table in tables:
-        print(f'case_loader -> table : {table}\n')
+        print(f'case_loader -> table : {table} type : {type(table)}\n')
         params = get_cols(table)
         table_data = inspect_table(engine, table, params, case_id)
-        case_data.append({'table_name': table.name, 'table_data': transpone(table_data)})
+        case_data[table.name] = transpone(table_data)
         print(f'case_loader -> case_data : {case_data}\n')
-        trnsp_tbl = transpone(table_data)
-    return trnsp_tbl
+        # trnsp_tbl = transpone(table_data)
+    return case_data
 
-def sort_case_data(case_data: list):
-    for table in case_data:
-        if table['table_name'] == 'cdi_data':
-            table 
-        
-    return
+def get_case_data(engine, metadata, case_id: int):
+    """gets case_data form case_loader. Takes the cdi_data table as template_table.
+    Then for each row in template table, every row in all other tables is searched for 
+    a row with a ts val < the one in the template_table. The found row is then added to 
+    Main table row and poped from the old table. The completed template_table is the returned"""
+    case_data = case_loader(engine, metadata, case_id)
+    if 'cdi_data' in case_data:
+        template_table = case_data['cdi_data']
+        case_data.pop('cdi_data', None)
+        case_data.pop('cases', None)
+        main_table = []
+
+
+        for row in template_table:
+            row_mt = row
+            for id in case_data:
+                table = case_data[id]
+                len_table = len(table)-1
+                print(f'sort_case_data -> len_table: {len_table}')
+                for i in range(len_table):
+                    if table[i]['ts'] <= row['ts']:
+                        table[i].pop('id', None)
+                        table[i].pop('case_id', None)
+                        table[i].pop('ts', None)
+                        
+                        row_mt = row | table[i]
+                        table.pop(i)
+            main_table.append(row_mt)
+        print(f'sort_case_data -> main_table: {main_table}')
+        return main_table
+    else:
+        return None
 
 if __name__ == "__main__":
     engine = create_engine('sqlite:///data_vault.db')
     metadata = MetaData()
     metadata.reflect(bind=engine)
     Base.metadata.create_all(engine)
+    tables = inspect_engine(metadata)
 
     create_case(engine, 'test case', 1)
     inspect_engine(metadata)
@@ -229,11 +265,14 @@ if __name__ == "__main__":
     # inspect_table(engine, CDI_Data, ['ts','art_ph', 'ven_ph'], 1)
     # inspect_table(engine, Notes, ['ts', 'note'], 1)
     # print(f'get_cols -> result : {get_cols(engine, metadata, CDI_Data)}')
+    # table = Table("notes", metadata, autoload_with=engine)
+    # case_data = case_loader(engine, metadata, 1)
+    # case_data = inspect_table(engine, metadata.tables["notes"], ['ts', 'note'], 1)
+    result = get_case_data(engine, metadata, 1)
+    print(f'main -> notes tables: {result}')
 
-    trnsp_tbl = case_loader(engine, metadata, 1)
-    print(f'main ->  result of case_loader : {trnsp_tbl}')
-
-
+    df = pd.DataFrame(result)
+    df.to_excel("output.xlsx", sheet_name="Daten", index=False)
 
     # user_table = Table("cases", metadata, autoload_with=engine)
     # CDI_Data.__table__.drop(engine)
@@ -244,7 +283,7 @@ if __name__ == "__main__":
     #     cdi_arr.append(round(random.randint(1, 100)/random.randint(1, 100), 2))
     # print(f'cdi_arr -> {cdi_arr}\n')
     # cdi_entry(engine, 1, cdi_arr)
-    # note_entry(engine, 1, 'liver weight 2088g')
+    # note_entry(engine, 1, 'liver weight 2054')
     # get_case(engine, 1)
     # inspect_engine(engine)
 
