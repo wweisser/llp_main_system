@@ -77,10 +77,9 @@ async def test_intput_process(gui_q, ux_q):
 def build_state(cache_path: str, database_path: str, key:str):
     ux_q = asyncio.Queue()
     tx_q = asyncio.Queue()
-    gui_q = asyncio.Queue()
     sys_state = state.create_state(database_path)
     cache = memory.create_cache(cache_path, key, sys_state)
-    return gui_q, ux_q, tx_q, cache
+    return ux_q, tx_q, cache
 
 # trys to receive a mesage and puts it on an input que 
 async def ws_recv(websocket, ux_q):
@@ -102,6 +101,7 @@ async def ws_recv(websocket, ux_q):
 
 # fetches item from gui que and trys to send via websocket
 async def ws_send(websocket, client_q):
+    """looks through all msg in the client_q and sends them via ws"""
     print(f'ws_send -> send loop was started')
     while True:
         try:
@@ -120,7 +120,8 @@ async def ws_send(websocket, client_q):
             print(e)
 
 async def start_ws(app, ux_q, connected_clients):
-#starts websocket and calls in every iteration of the while loop recv and send function
+    """starts websocket listener. For each connection a ques is created and added to connected_clients.
+    ws_send is then called as a task and added to a taskgroup. """
     print('STARTING WEBSOCKET')
     @app.websocket("/ws") # hier wird das websocket an die fastAPI app gebunden
     async def endpoint(ws: WebSocket):
@@ -128,18 +129,18 @@ async def start_ws(app, ux_q, connected_clients):
         client_q = asyncio.Queue()
         connected_clients[ws] = client_q
         print(f'start_ws -> connected clients : {connected_clients}')
-        q_item = oq.create_q_item('system', 'refresh_gui', '!')
-        await ux_q.put(q_item)
+        # q_item = oq.create_q_item('system', 'refresh_gui', '!')
+        # await ux_q.put(q_item)
         try:
-            print('\nstart_ws -> WEBSOCKET ONLINE\n')
+            print('\nstart_ws -> ws-client connected\n')
             async with asyncio.TaskGroup() as tg:
                     tg.create_task(ws_recv(ws, ux_q))
                     tg.create_task(ws_send(ws, client_q))
         except* WebSocketDisconnect:
-            print("start_ws -> websocket disconneceted")
+            print("start_ws -> ws-client disconneceted")
             del connected_clients[ws]
         except* Exception as e:
-            print(f"start_ws -> error during setup of websocket connection to client\n {e}")
+            print(f"start_ws -> error during websocket connection to client\n {e}")
 
 
 async def create_system_tasks(sp, cc, heartbeat_intervall: float, archive_intervall: int = 10):
@@ -176,6 +177,7 @@ def create_sys_param(connected_clients, ux_q, tx_q, cache, key, com_port_hub, db
         "system_runtime": 0,
     }
     return sp
+
 def register_ws(app, ux_q, connected_clients):
     @app.websocket("/ws")
     async def endpoint(ws: WebSocket):
@@ -202,12 +204,12 @@ async def main():
     elif os == 'Linux':
         db_path = r'/home/whw/mp.db'
         cache_path = r'/home/whw/diskcache_test'
-    gui_q, ux_q, tx_q, cache = build_state(cache_path, db_path, key)
+    ux_q, tx_q, cache = build_state(cache_path, db_path, key)
     com_port_hub = None
     connected_clients: dict[WebSocket, asyncio.Queue] = {}
     sp = create_sys_param(connected_clients, ux_q, tx_q, cache, key, com_port_hub, db_path, table)
 
-    heartbeat_intervall = 2.0
+    heartbeat_intervall = 1.0
     archive_intervall = 10
 
     # conn = sqlite3.connect(db_path)
@@ -221,19 +223,19 @@ async def main():
         await start_ws(fast_api_app, sp['ux_q'], connected_clients)
         print("2 - start_ws was called")
 
-        @fast_api_app.get("/health")
-        def health():
-            return {"status": "ok"}
-        print("3 - /health endpoint defined")
+        # @fast_api_app.get("/health")
+        # def health():
+        #     return {"status": "ok"}
+        # print("3 - /health endpoint defined")
 
         system_tasks = await create_system_tasks(sp, connected_clients, heartbeat_intervall, archive_intervall)
-        print("4 - system tasks were created")
+        print("3 - system tasks were created")
 
         config = uvicorn.Config(fast_api_app, host="0.0.0.0", port=8000, log_config=None)
-        print("5 - uvicorn config created")
+        print("4 - uvicorn config created")
 
         server = uvicorn.Server(config)
-        print("6 - uvicorn server created")
+        print("5 - uvicorn server created")
 
         await asyncio.gather(server.serve(), *system_tasks)
 

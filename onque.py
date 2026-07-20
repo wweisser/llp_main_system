@@ -40,6 +40,7 @@ def parse_input(input):
         return('cdi')
 
 async def broadcast_item(msg_type: str, id: str, data, cc):
+    """Adds a que item with msg_type, id and the data to every que in the client collective"""
     item = create_q_item(msg_type, id, data)
     # print(f'Broadcasting item -> cc : {cc} ')
     for q in cc.values():

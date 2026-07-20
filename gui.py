@@ -14,8 +14,6 @@ import gui_graph_callbacks as ggc
 import gui_note_callbacks as gnc
 import gui_download_callbacks as gdc
 
-
-
 def create_layouts():
     return(html.Div([
         gs_startup.create_startup_screen(),
