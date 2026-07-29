@@ -1,5 +1,6 @@
-from dash import dash, html, dcc, Input, Output, State, no_update
+from dash import html, dcc, Input, Output, State, no_update
 import gui_utils as gu
+from datetime import datetime
 
 def build_heart_beat_item(startup_check, last_heartbeat, status, error_state):
     return {
@@ -31,6 +32,7 @@ def create_heartbeat_intervall():
     return intervall
 
 def create_f_heartbeat_callback(app):
+    """creates funktion, that sends heartbeatitem to the postbox in set heartbeat_interval"""
     @app.callback(
         Output('postbox', 'data', allow_duplicate=True),
         Output('heartbeat_data_store', 'data', allow_duplicate=True),
@@ -46,6 +48,20 @@ def create_f_heartbeat_callback(app):
             return item, heartbeat_msg
         else:
             return item, no_update
-        
+
+    @app.callback(
+        Output('clock_time', 'children'),
+        Input('heartbeat_data_store', 'data'),
+        prevent_initial_call=True
+    )
+    def up(data):
+        print(f'create_f_heartbeat_callback -> {data}')
+        hb = data.get('data')
+        if hb:
+            dt_objekt = datetime.fromtimestamp(hb['last_heartbeat'])
+            datum_string = dt_objekt.strftime("%H:%M:%S")
+            return f'Heartbeat: {datum_string}'
+        else:
+            return f'Heartbeat ERROR'
 
 

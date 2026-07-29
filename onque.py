@@ -22,7 +22,7 @@ async def feed_qui_queue(q, input: dict):
 def create_q_item(msg_type: str, id: str, data):
     q_item = {
         'msg_type': '',
-        'time': datetime.now().strftime("%H:%M:%S"),
+        'time': int(datetime.now().timestamp()),
         'id': '',
         'data': ''
     }

@@ -107,7 +107,7 @@ async def ws_send(websocket, client_q):
         try:
             msg = await client_q.get()
             if isinstance(msg, dict):
-                # print(f'ws_send -> msg send at {msg['time']}')
+                # print(f'ws_send -> msg send at {msg}')
                 msg_to_send = json.dumps(msg)
                 await websocket.send_text(msg_to_send)
             else:

@@ -26,16 +26,16 @@ def create_startup_callback(app):
             item = gu.create_postbox_item('system', 'f_heartbeat', heartbeat_item)
             print('create_startup_callback -> Sending initial heartbeat\n')
             return 'loading_screen', item, False
-        
-        data = msg['data']
-        if msg['id'] == 'b_heartbeat' and data['status'] == 'backend_active':
-            print('create_startup_callback -> Backend active, hiding loader\n')
-            raise PreventUpdate
-        elif msg['id'] == 'b_heartbeat' and data['status'] == 'handshake_accepted':
-            print('create_startup_callback -> Handshake accepted, hiding loader\n')
-            return 'hide', no_update, True
         else:
-            raise PreventUpdate
+            data = msg['data']
+            if msg['id'] == 'b_heartbeat' and data['status'] == 'backend_active':
+                print('create_startup_callback -> Backend active, hiding loader\n')
+                raise PreventUpdate
+            elif msg['id'] == 'b_heartbeat' and data['status'] == 'handshake_accepted':
+                print('create_startup_callback -> Handshake accepted, hiding loader\n')
+                return 'hide', no_update, True
+            else:
+                raise PreventUpdate
 
 
 if __name__ == '__main__':

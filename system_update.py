@@ -4,10 +4,11 @@ import system_parse
 import asyncio
 from datetime import datetime
 
-def generate_one_beat(last_heartbeat: str, status: str):
+def generate_one_beat(status: str):
     b_heartbeat = {
-        'last_heartbeat': last_heartbeat,
+        'last_heartbeat': int(datetime.now().timestamp()),
         'status': status,
+        'error_state': None,
     }
     return b_heartbeat
 
@@ -41,9 +42,8 @@ def calc_perfusion_time(start_time):
 async def b_heartbeat(cc, intervall: float):
     print('BACKEND HEARTBEAT STARTED')
     while True:
-        ct = datetime.now()
-        b_heartbeat_item = generate_one_beat(ct, "backend_active")
-        await oq.broadcast_item('heartbeat', 'state', b_heartbeat_item, cc)
+        b_heartbeat_item = generate_one_beat("backend_active")
+        await oq.broadcast_item('heartbeat', 'status', b_heartbeat_item, cc)
         await asyncio.sleep(intervall)
 
 # async def system_updater(cache, key, archive_intervall: int, update_intervall: float):

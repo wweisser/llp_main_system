@@ -53,26 +53,39 @@ def heartbeat_to_button(app, parameter, btn_I, btn_II):
             print(f'heartbeat_to_button -> error during heartbeat processing: {e}')
             raise PreventUpdate
 
-def case_data_to_button(app, pre_text, parameter, btn):
+def update_clocktime(app, clocktime_id):
     @app.callback(
-        Output(btn, 'children'),
-        Input('state_data_store', 'data'),
-        prevent_initial_call=True,
+        Output(clocktime_id, 'children'),
+        Input('heartbeat_data_store', 'data')
     )
-    def process(msg):
-        try:
-            if isinstance(msg, dict) and msg['msg_type'] == 'state':
-                data = msg['data']
-                val = data['system'][parameter]
-                if not isinstance(val, str):
-                    val = str(val)
-                string = f'{pre_text} {val}'    
-                return string
-            else:
-                return f'{pre_text}'
-        except Exception as e:
-            print(f'system_to_button -> {parameter} could not be linked to a button {val['system'][parameter]}\n')
-            return ""
+    def up(data):
+        time = data.get('last_heartbeat')
+        if time:
+            dt_objekt = datetime.fromtimestamp(time)
+            datum_string = dt_objekt.strftime("%Y-%m-%d %H:%M:%S")
+            return datum_string
+        else: 
+            return None
+# def case_data_to_button(app, pre_text, parameter, btn):
+#     @app.callback(
+#         Output(btn, 'children'),
+#         Input('state_data_store', 'data'),
+#         prevent_initial_call=True,
+#     )
+#     def process(msg):
+#         try:
+#             if msg['msg_type'] == 'state' and msg['id'] == 'state':
+#                 data = msg['data']
+#                 val = data['system'][parameter]
+#                 if not isinstance(val, str):
+#                     val = str(val)
+#                 string = f'{pre_text} {val}'    
+#                 return string
+#             else:
+#                 return f'{pre_text}'
+#         except Exception as e:
+#             print(f'system_to_button -> {parameter} could not be linked to a button {val['system'][parameter]}\n')
+#             return ""
 
 def state_to_button(app, parameter, btn):
     @app.callback(
@@ -98,11 +111,11 @@ def state_to_button(app, parameter, btn):
 def state_to_gui(app):
     print(f'state_to_gui -> gui updated')
     return(html.Div([
-        heartbeat_to_button(app, 'Clocktime:', 'clock_time', 'perfuison_time'),
+        # heartbeat_to_button(app, 'Clocktime:', 'clock_time', 'perfuison_time'),
 
-        case_data_to_button(app, 'Case ID:    ', 'case_number', 'case_id'),
-        case_data_to_button(app, 'Start: ', 'start_time', 'start_time'),
-        case_data_to_button(app, 'Mode: ', 'perfusion_mode', 'perfusion_mode'),
+        # case_data_to_button(app, 'Case ID:    ', 'case_number', 'case_id'),
+        # case_data_to_button(app, 'Start: ', 'start_time', 'start_time'),
+        # case_data_to_button(app, 'Mode: ', 'perfusion_mode', 'perfusion_mode'),
 
         state_to_button(app, 'art_flow', 'art_flow'),
         state_to_button(app, 'art_pressure', 'art_pressure'),

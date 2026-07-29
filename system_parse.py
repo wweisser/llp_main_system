@@ -5,7 +5,7 @@ import cdi_connect as cc
 import state_utils as su
 import memory 
 import onque as oq
-import ser as se
+import db
 import asyncio
 from datetime import datetime
 
@@ -48,7 +48,7 @@ async def parse_serial_input(msg: dict, sys_state: dict, cache, key, cc):
 
 async def parse_archive_request(msg: dict, sys_state: dict, ux_q, cc, cache, key, db_path, table):
     # print('message id : ', msg['id'])
-    now = datetime.now()
+    now = int(datetime.now().timestamp()),
     if msg['id'] == 'start_record':
         # call dbt-create_case 
         sys_state['system']['autosave'] = True
@@ -107,7 +107,7 @@ async def parse_heartbeat(msg: dict, cc):
     print(f'parse_msg -> heartbeat from {msg['last_heartbeat']} received, startup ckeck: {msg['startup_check']}, status: {msg['status']}\n')
     if msg['startup_check'] and msg['status'] == 'request_handshake':
         b_heartbeat_item = {
-            'last_heartbeat': datetime.now(),
+            'last_heartbeat': int(datetime.now().timestamp()),
             'status': 'handshake_accepted',
             'error_state': None,
         }
@@ -129,7 +129,7 @@ async def parse_msg(msg: dict, sys_state, sp, cc):
         if msg['id'] == 'refresh_gui' and sys_state['system']['case_number'] != 0:
             print('parse_msg -> refresh_gui')
         elif msg['id'] == 'f_heartbeat':
-            await parse_heartbeat(msg['data'], sys_state, cc)
+            await parse_heartbeat(msg['data'], cc)
     else:
         print(f"parse_msg -> ux_q item is not valid : {msg}")
         return None

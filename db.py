@@ -1,11 +1,9 @@
 from sqlalchemy import (
-    create_engine, String, Integer, Float, ForeignKey, MetaData, Table, inspect, select
+    create_engine, String, Integer, Float, ForeignKey, MetaData, inspect, select
 )
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship, Session
 import time
 import pandas as pd
-
-import random
 
 class Base(DeclarativeBase):
     pass
