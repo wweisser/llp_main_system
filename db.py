@@ -16,7 +16,6 @@ class Db_Obj:
         # Fills all the information ablout table and db structure in the metadata object
         self.metadata.reflect(bind=self.engine)
  
-
 class Cases(Base):
     __tablename__ = "cases"
 
@@ -166,17 +165,20 @@ def transpone(table_dict:dict):
 def inspect_metadata(metadata, table=None):
     """Shows all tables in the engine. If a certain table is given, it returns the table instance"""
     if table:
+        print(f'inspect_metadata -> {table}\n')
         table = metadata.tables[table]
         return table
-    # print(f'inspect_metadata -> tables: {metadata.tables}')
+    print(f'inspect_metadata -> tables: {metadata.tables}\n')
     return metadata.tables.values()
  
-def inspect_table(engine, table, param_list: list, case_id=None, begin=None, to=None):
+def inspect_table(engine, table, case_id=None, param_list=None, begin=None, to=None):
     """returns a dictionary in which each item of the param_list acts as an identifier 
-    to a list of values"""
+    to a list of values. param_list is not given, all parameters of the table are added to the return dict"""
     if table is not None:
         with Session(engine) as session:
             result_dict = {}
+            if not param_list:
+                param_list = get_cols(table)
             for param in param_list:
                 print(f'inspect_table -> type of table {type(table)}\n')
                 col_adress = (getattr(table.c, param)) #.c steht hier immer für columns und ist eine convention bei metadata
@@ -218,7 +220,6 @@ def get_case(engine, case_id):
             result = session.scalars(sdi).all()
             print(f'get_case -> {result}')
 
-# Functionality: Base is the basic register clas 
 def case_loader(engine, metadata, case_id: int):
     """Gets db and case_id. Then calls inspect_table for each table in the engine.
     Then calls transpone for every result. Creates the a dict of dicts
@@ -228,7 +229,7 @@ def case_loader(engine, metadata, case_id: int):
     case_data = {}
     for table in tables:
         params = get_cols(table)
-        table_data = inspect_table(engine, table, params, case_id)
+        table_data = inspect_table(engine, table, case_id, params)
         case_data[table.name] = transpone(table_data)
         print(f'case_loader -> case_data : {case_data}\n')
         # trnsp_tbl = transpone(table_data)
@@ -304,9 +305,8 @@ if __name__ == "__main__":
     print(f'\ncn_list -> ispect engine {cases_table}')
     param_list = get_all_param(db.engine, db.metadata)
 
-    
-
-    print(f'\nparam_list -> {param_list}\n')
+    inspected_table = inspect_table(db.engine, db.metadata.tables['notes'], 1)
+    print(f'\inspected_table -> {inspected_table}\n')
 
     # user_table = Table("cases", metadata, autoload_with=engine)
     # CDI_Data.__table__.drop(engine)
