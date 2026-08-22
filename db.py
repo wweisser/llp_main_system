@@ -109,7 +109,7 @@ def create_case(engine, comment, case_id):
         else:
             print(f'create_case -> case allready exists')
 
-def cdi_entry(engine, case_id, cdi_arr):
+def cdi_entry(engine, case_id: int, cdi_arr: list):
     with Session(engine) as session:
         case = session.get(Cases, case_id)
         if case:
@@ -134,7 +134,7 @@ def cdi_entry(engine, case_id, cdi_arr):
             case.case_to_cdi_link.append(cdi_data_entry_item)
         session.commit()
 
-def note_entry(engine, case_id, new_note: str):
+def note_entry(engine, case_id: int, new_note: str):
     with Session(engine) as session:
         case = session.get(Cases, case_id)
         if case:
@@ -162,7 +162,26 @@ def transpone(table_dict:dict):
         table_tranposed.append(row)
     return table_tranposed
 
-def inspect_metadata(metadata, table=None):
+def build_result_dict(table, rows: list, param_list=None):
+    result_dict = {}
+    if param_list == None:
+        param_list = table.columns.keys()
+        print(f'build_result_dict -> param_list: {param_list}\n')
+    print(f'build_result_dict -> cols: {param_list}\n')
+    for param in param_list:
+        result_dict[param] = []
+    print(f'build_result_dict -> result_dict: {result_dict}\n')
+    
+    for row in rows:
+        i = 0;
+        for list in result_dict:
+            print(f'build_result_dict -> param: {result_dict[list]}\n')
+
+            result_dict[list].append(row[i])
+            i += 1
+    print(f'build_result_dict -> result_dict: {result_dict}\n')
+    return result_dict
+def get_tables(metadata, table=None):
     """Shows all tables in the engine. If a certain table is given, it returns the table instance"""
     if table:
         print(f'inspect_metadata -> {table}\n')
@@ -171,32 +190,38 @@ def inspect_metadata(metadata, table=None):
     print(f'inspect_metadata -> tables: {metadata.tables}\n')
     return metadata.tables.values()
  
-def inspect_table(engine, table, case_id=None, param_list=None, begin=None, to=None):
+def inspect_table(engine, table, case_id=None, param_list=None, begin=None, to=None, n=None):
     """returns a dictionary in which each item of the param_list acts as an identifier 
     to a list of values. param_list is not given, all parameters of the table are added to the return dict"""
-    if table is not None:
-        with Session(engine) as session:
-            result_dict = {}
-            if not param_list:
-                param_list = get_cols(table)
-            for param in param_list:
-                print(f'inspect_table -> type of table {type(table)}\n')
-                col_adress = (getattr(table.c, param)) #.c steht hier immer für columns und ist eine convention bei metadata
-                sdi = select(col_adress)
-                if case_id:
-                    sdi = sdi.where(table.c.case_id == case_id)
-                if begin:
-                    sdi = sdi.where(table.c.ts > begin)
-                if to:
-                    sdi = sdi.where(table.c.ts < to)
-                result = session.scalars(sdi).all()
-
-                result_dict[param] = result
-            print(f'inspect_table -> result dict{result_dict}\n')
-            
-            return result_dict
+    if engine == None or table == None:
+        print(f'inspect_table -> table does not exist')
+        return None
+    table_params = list(table.columns.keys())
+    sdi = []
+    if not param_list:
+        param_list = table_params
+    for p in param_list:
+        if p in table_params:
+            sdi.append(getattr(table.c, p))
+    sdi = select(*(sdi))
+    if case_id != None:
+        sdi = sdi.where(table.c.case_id == case_id)
+    if begin:
+        sdi = sdi.where(table.c.ts > begin)
+    if to:
+        sdi = sdi.where(table.c.ts < to)
+    if n:
+        sdi = sdi.order_by(table.c.ts.desc()).limit(n)
+    if table.name == 'cases':
+        sdi.order_by(table.c.case_id)
     else:
-        print(f'inspect_table -> engine or table do not exist\n')
+        sdi = sdi.order_by(table.c.ts)
+
+
+    with Session(engine) as session:
+        rows = session.execute(sdi).all()
+    # print(f'inspect_table -> rows: {rows}')
+    return rows
 
 def get_cols(table):
     column_names = list(table.columns.keys())
@@ -224,7 +249,7 @@ def case_loader(engine, metadata, case_id: int):
     """Gets db and case_id. Then calls inspect_table for each table in the engine.
     Then calls transpone for every result. Creates the a dict of dicts
     with table_name as identifier and the transponed table data as value."""
-    tables = inspect_metadata(metadata)
+    tables = get_tables(metadata)
     print(f'case_loader -> tables : {tables}\n')
     case_data = {}
     for table in tables:
@@ -268,13 +293,16 @@ def get_case_data(engine, metadata, case_id: int):
     else:
         return None
 
-def build_xlsx_file(data: dict):
-    try:
-        df = pd.DataFrame(data)
-        df.to_excel("output.xlsx", sheet_name="Daten", index=False)
-        print(f'build_xlsx_file -> xlsx file was created')
-    except:
-        print(f'build_xlsx_file -> could not build xlsx file')
+def build_xlsx_file(file_name: str, sheet_name: str, data: dict):
+    # try:
+    file_name = file_name + '.xlsx'
+    df = pd.DataFrame(data)
+    df.to_excel(file_name, sheet_name=sheet_name, index=False)
+    print(f'build_xlsx_file -> xlsx file was created')
+    return True
+    # except Exception as e:
+        # print(f'build_xlsx_file -> could not build xlsx file \n {e}')
+        # return False
 
 if __name__ == "__main__":
     db_parth = 'sqlite:///data_vault.db'
@@ -284,10 +312,9 @@ if __name__ == "__main__":
     # Base.metadata.create_all(engine)
     db = Db_Obj(db_parth)
 
-    tables = inspect_metadata(db.metadata)
+    tables = get_tables(db.metadata)
 
     create_case(db.engine, 'test case', 2)
-    inspect_metadata(db.metadata)
 
     # inspect_table(engine, CDI_Data, ['ts','art_ph', 'ven_ph'], 1)
     # inspect_table(engine, Notes, ['ts', 'note'], 1)
@@ -295,18 +322,22 @@ if __name__ == "__main__":
     # table = Table("notes", metadata, autoload_with=engine)
     # case_data = case_loader(engine, metadata, 1)
     # case_data = inspect_table(engine, metadata.tables["notes"], ['ts', 'note'], 1)
-    result = get_case_data(db.engine, db.metadata, 1)
-    print(f'main -> notes tables: {result}')
+    # result = get_case_data(db.engine, db.metadata, 1)
+    # print(f'main -> notes tables: {result}')
 
-    df = pd.DataFrame(result)
-    df.to_excel("output.xlsx", sheet_name="Daten", index=False)
+    # df = pd.DataFrame(result)
+    # df.to_excel("output.xlsx", sheet_name="Daten", index=False)
 
-    cases_table = inspect_metadata(db.metadata)
-    print(f'\ncn_list -> ispect engine {cases_table}')
-    param_list = get_all_param(db.engine, db.metadata)
+    # cases_table = inspect_metadata(db.metadata)
+    # print(f'\ncn_list -> ispect engine {cases_table}')
+    # param_list = get_all_param(db.engine, db.metadata)
 
-    inspected_table = inspect_table(db.engine, db.metadata.tables['notes'], 1)
-    print(f'\inspected_table -> {inspected_table}\n')
+    table_data = inspect_table(db.engine, db.metadata.tables['cdi_data'])
+    # inspected_table = transpone(inspected_table)
+    print(f'\inspected_table -> {table_data}\n')
+    rd = build_result_dict(db.metadata.tables['cdi_data'], table_data)
+    print(f'\ rd {rd}\n')
+    build_xlsx_file('test_file', 'sheet1', rd)
 
     # user_table = Table("cases", metadata, autoload_with=engine)
     # CDI_Data.__table__.drop(engine)

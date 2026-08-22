@@ -9,8 +9,10 @@ import asyncio
 import json
 import uvicorn
 import ser as se
+import threading
+import ttkbootstrap as ttk
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
-from fastapi.responses import RedirectResponse
+
 # from fastapi.middleware.wsgi import WSGIMiddleware 
 
 ################TEST TEST TEST#########################################
@@ -163,7 +165,8 @@ async def create_system_tasks(sp, cc, heartbeat_intervall: float, archive_interv
                 print(f'create_system_tasks -> {task} was stoped')
         print(f'create_system_tasks -> error on system task setup\n', e)
         return None
-    
+
+# dass hier zu einer klasse umbauen!!!!!! 
 def create_sys_param(connected_clients, ux_q, tx_q, cache, key, com_port_hub, db_path, table):
     sp = {
         "cc": connected_clients, 
@@ -223,10 +226,6 @@ async def main():
         await start_ws(fast_api_app, sp['ux_q'], connected_clients)
         print("2 - start_ws was called")
 
-        # @fast_api_app.get("/health")
-        # def health():
-        #     return {"status": "ok"}
-        # print("3 - /health endpoint defined")
 
         system_tasks = await create_system_tasks(sp, connected_clients, heartbeat_intervall, archive_intervall)
         print("3 - system tasks were created")
@@ -248,13 +247,17 @@ async def main():
                 print(f'main -> {task} was stoped')
         print("main -> system was closed")
         print(e)
-    
-    # system_tasks = await create_system_tasks(fast_api_app, key, cache, db_path, table, gui_q, ux_q)
 
+def run_async_world():
+    asyncio.run(main())
 
 if __name__ == "__main__":
-    # main()
-    asyncio.run(main())
+    threading.Thread(target=run_async_world, daemon=True).start()
+
+    app = ttk.Window(themename="darkly")
+
+    # app.after(...) Polling für ux_q -> GUI, wie vorher besprochen
+    app.mainloop()   # läuft im Hauptthread, blockiert dort — das ist ok
 
 
 #URL : http://127.0.0.1:8050/d1/

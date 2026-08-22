@@ -55,7 +55,7 @@ def case_manager_callbacks(app, button):
     def load_cm(msg):
         print(f'load_cm -> {msg}')
 
-        if msg and isinstance(msg, dict) and msg['msg_type'] == 'case_number':
+        if msg and isinstance(msg, dict) and msg['msg_type'] == 'cn':
             case_id_list = parse_case_id(msg)
             print(f'\ncase_id_list : {case_id_list}\n')
             return case_id_list
@@ -126,18 +126,18 @@ def case_manager_callbacks(app, button):
         else:
             return no_update, 'Entry is not a digit'
 
-    @app.callback(
-        Output("start_case_btn", "children"),     
-        Output("hope_btn", "disabled"),
-        Output("cor_btn", "disabled"),
-        Output("nmp_btn", "disabled"),
-        Output("start_case_btn", "disabled"),
-        Output("cm_new_case_button", "disabled"),
-        Output("cm_confirm_btn", "disabled"),  
-        Input("state_data_store", "data"),
-        prevent_initial_call=True,
-    )
-    def disable_csm(msg):
+    # @app.callback(
+    #     Output("start_case_btn", "children"),     
+    #     Output("hope_btn", "disabled"),
+    #     Output("cor_btn", "disabled"),
+    #     Output("nmp_btn", "disabled"),
+    #     Output("start_case_btn", "disabled"),
+    #     Output("cm_new_case_button", "disabled"),
+    #     Output("cm_confirm_btn", "disabled"),  
+    #     Input("state_data_store", "data"),
+    #     prevent_initial_call=True,
+    # )
+    # def disable_csm(msg):
         # if msg['id'] == 'state':
         #     print(f'disable_csm -> {msg}')
         #     cn = msg['data']['system']['case_number']
@@ -149,7 +149,7 @@ def case_manager_callbacks(app, button):
         #     elif autosave:
         #         return "Stop Case", False, False, False, False, True, True
         # else: 
-        return no_update, no_update, no_update , no_update , no_update , no_update , no_update 
+    #     return no_update, no_update, no_update , no_update , no_update , no_update , no_update 
 
 
     @app.callback(
