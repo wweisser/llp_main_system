@@ -1,5 +1,5 @@
 from sqlalchemy import (
-    create_engine, String, Integer, Float, ForeignKey, MetaData, inspect, select
+    create_engine, String, Integer, Float, ForeignKey, MetaData, update, select
 )
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship, Session
 import time
@@ -97,9 +97,20 @@ def create_case(engine, comment, case_id):
             )
             session.add(case)
             session.commit()
-            print(f'create_case -> case {case_id} created')
+            print(f'create_case -> New case with case_id {case_id} was created')
         else:
             print(f'create_case -> case allready exists')
+
+def update_start_time(db: Db_Obj, case_id: int, new_start_time: int):
+    tabelle = db.metadata.tables['cases']
+    stmt = (
+        update(tabelle)
+        .where(tabelle.c.case_id == case_id)               # .c steht für die Spalten (Columns)
+        .values(start_time=new_start_time)
+    )
+    with Session(engine) as session:
+        session.execute(stmt)
+        session.commit()
 
 def cdi_entry(engine, case_id: int, cdi_arr: list):
     with Session(engine) as session:
@@ -134,6 +145,7 @@ def cdi_entry(engine, case_id: int, cdi_arr: list):
             print(f'cdi_entry -> item : {cdi_data_entry_item}')
 
 
+
 def note_entry(db, case_id: int, new_note: str):
     with Session(db.engine) as session:
         case = session.get(Cases, case_id)
@@ -150,6 +162,8 @@ def note_entry(db, case_id: int, new_note: str):
             case.case_to_note_link.append(note_entry_item)
             print(f'note_entry -> item : {note_entry_item}')
         session.commit()
+        return True
+    return False
 
 def transpone(table_dict:dict):
     """Takes the dict with a list of values for each parameter.
@@ -228,10 +242,9 @@ def inspect_table(engine, table, case_id=None, param_list=None, begin=None, to=N
             # print(f'inspect_table -> p: {p} \n')
             data[p].append(row[i])
             i += 1
-    print(f'inspect_table -> data: {data} \n')
-    
-    print(f'inspect_table -> rows: {rows}')
+
     return data
+
 
 # def case_loader(engine, metadata, case_id: int):
 #     """Gets db and case_id. Then calls inspect_table for each table in the engine.
@@ -282,14 +295,17 @@ def inspect_table(engine, table, case_id=None, param_list=None, begin=None, to=N
         return None
 
 def build_xlsx_file(file_name: str, sheet_name: str, data: dict):
-    # try:
-    file_name = file_name + '.xlsx'
-    df = pd.DataFrame(data)
-    df.to_excel(file_name, sheet_name=sheet_name, index=False)
-    print(f'build_xlsx_file -> xlsx file was created')
-    return True
+    try:
+        file_name = file_name + '.xlsx'
+        df = pd.DataFrame(data)
+        df.to_excel(file_name, sheet_name=sheet_name, index=False)
+        print(f'build_xlsx_file -> xlsx file was created')
+        return True
+    except:
+        print(f'build_xlsx_file -> error case file was not created')
+        return False
 
-def build_download_file(case_id: int):
+def build_download_file(db: Db_Obj, case_id: int):
     rd = inspect_table(db.engine, db.metadata.tables['cdi_data'], case_id)
     cdi_list = transpone(rd)
     rd = inspect_table(db.engine, db.metadata.tables['notes'], case_id)
@@ -311,7 +327,7 @@ def build_download_file(case_id: int):
         rl.append(note)
     print(f'rd_t_II: {rl}')
 
-    build_xlsx_file('test_file', 'sheet1', rl)
+    return build_xlsx_file('test_file', 'sheet1', rl)
 
 
 
@@ -324,7 +340,10 @@ if __name__ == "__main__":
     db = Db_Obj(db_parth)
 
     create_case(db.engine, 'test case II', 2)
-    print(inspect_table(engine, metadata.tables['cases'], param_list=['case_id']))
+    print(inspect_table(engine, metadata.tables['cases'], param_list=['case_id', 'start_time']))
+    update_start_time(db, 1, int(time.time()))
+
+    print(inspect_table(engine, metadata.tables['cases'], param_list=['case_id', 'start_time']))
     # build_download_file(1)
 
     # note_entry(db, 1,  f'test_note {random.randint(1, 100)}')

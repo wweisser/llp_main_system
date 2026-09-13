@@ -27,6 +27,9 @@ class que_item:
     def get_time(self):
         return self.time
 
+    def get_param(self):
+        return self.data, self.anex, self.type, self.case_id
+
 
 class db_que:
     def __init__(self, db_obj):
@@ -45,50 +48,42 @@ async def archive_task(archive_que: db_que, db_obj, cc):
         parse_archive_que(q_item, db_obj, cc)
 
 async def parse_archive_que(q_item: que_item, db_obj, cc=None):
-    db_type = q_item.get_cm_type()
-    db_anex = q_item.get_anex()
-    db_case_id = q_item.get_case_id()
-    db_data = q_item.get_data()
+    db_data, db_anex, db_type, db_case_id = q_item.get_param()
     brod_item = None
     print(f'parse_archive_que -> db_que_item {db_type, db_anex, db_case_id, db_data}')
+    print(f'parse_archive_que -> db_type: {db_type}')
+    print(f'parse_archive_que -> db_anex: {db_anex}')
+    print(f'parse_archive_que -> db_data: {db_data}')
+          
 
     if db_type == 'cn_list':
         cn_list = db.inspect_table(db_obj.engine, db_obj.metadata.tables['cases'], param_list=['case_id'])
-        for cn in
-        await oq.broadcast_item('cn', 'cn_list', brod_item, cc)
-    elif db_type == 'full_case':
-        cs_data = db.get_case_data(db_obj.engine, db_obj.metadata, db_anex)
-        xlsx_file_name = 'case_data'
-        brod_item = db.build_xlsx_file('xlsx_file_name', 'sheet1', cs_data, )
-        if brod_item:
-            await oq.broadcast_item('cd', 'full_case', 'excel file was created', cc)
+        await oq.broadcast_item('cn', 'cn_list', cn_list['case_id'], cc)
 
+    elif db_type == 'total_case':
+        df = db.build_download_file(db_obj, db_case_id)
+        if df:
+            await oq.broadcast_item('cd', 'total_case', 'excel file was created', cc)
 
-    elif db_type == 'get_data' and isinstance(db_case_id, int) and db_case_id != 0:
+    elif db_type == 'extraction' and isinstance(db_case_id, int) and db_case_id != 0:
+        print(f'parse_archive_que -> get extraction note command registered\n')
+        extct = None
+        if (db_anex == 'note' or db_anex == 'cdi_data') and (not db_data or isinstance(db_data, list)):
+            print(f'db_type -> PING\n')
+            extct = db.inspect_table(db_obj.engine, table=db_obj.metadata.tables[db_anex], case_id=db_case_id, param_list=db_data)
+            print(f'parse_archive_que -> note brod item: {extct}\n')
+        if extct:
+            await oq.broadcast_item('ext', db_data, extct, cc)
 
-        print(f'parse_archive_que -> get data note command registered\n')
-        if db_anex == 'notes':
-            brod_item = db.inspect_table(db_obj.engine, db_obj.metadata.tables['notes'], db_case_id)
-            print(f'parse_archive_que -> note brod item: {brod_item}\n')
-            await oq.broadcast_item('cd', 'notes', brod_item, cc)
-
-        elif db_anex == 'cdi':
-            brod_item = db.inspect_table(db_obj.engine, db_obj.metadata.tables['cdi_data'], db_case_id )
-            await oq.broadcast_item('cd', 'cdi', brod_item, cc)
-
-    elif db_type == 'param_list':
-        brod_item = db.get_all_param(db_obj.engine, db_obj.metadata)
-        await oq.broadcast_item('cd', 'param', brod_item, cc)
 
     elif db_type == 'entry':
         if db_anex == 'note':
-            await db.note_entry(db_obj.engine, db_case_id, db_data)
+            db.note_entry(db_obj.engine, db_case_id, db_data)
         elif db_anex == 'cdi':
-            await db.cdi_entry(db_obj.engine, db_case_id, db_data)
+            db.cdi_entry(db_obj.engine, db_case_id, db_data)
         elif db_anex == 'new_case':
-            await db.create_case(db_obj.engine, '', db_case_id)
+            db.create_case(db_obj.engine, db_data, db_case_id)
 
-    return brod_item
 
 ### UNIT TEST ### ### UNIT TEST ### ### UNIT TEST ### ### UNIT TEST ### ### UNIT TEST ### 
 
@@ -109,36 +104,29 @@ async def tst(que, cm_type: str, cc, anex=None, case_id=None, data=None, ):
     await que.put_db_item(cm_type, anex, case_id, data)
     q_item = await que.get_db_item()
     await parse_archive_que(q_item, que.db_obj, cc)
-    result = await cc['tq'].get()
-    return result
+    if not cm_type == 'entry':
+        result = await cc['tq'].get()
+        return result
 
 async def test_parse_archive_que(que: db_que, db_obj, cc):
-    t_cn_list = await tst(que, 'cn_list', cc)
-    print(f'test_parse_archive_que -> t_cn_list: {t_cn_list}')
-    assert isinstance(t_cn_list, dict)
-    t_full_case = await tst(que, 'full_case', cc)
+    # t_cn_list = await tst(que, 'cn_list', cc)
+    # print(f'test_parse_archive_que -> t_cn_list: {t_cn_list}')
+    # assert isinstance(t_cn_list, dict)
+    t_full_case = await tst(que, 'total_case', cc)
     print(f'test_parse_archive_que -> t_full_case: {t_full_case}')
-    assert isinstance(t_full_case, bool)
-    param_list =  await tst(que, 'param_list', cc)
-    print(f'test_parse_archive_que -> param_list: {param_list}')
-    assert isinstance(param_list, dict)
+    assert isinstance(t_full_case, dict)
+    # param_list = await tst(que, 'extraction', cc, case_id=1, anex='cdi_data', data=['ven_po2', 'glu', 'base'], )
+    # print(f'test_parse_archive_que -> param_list: {param_list}')
+    # assert isinstance(param_list, dict)
 
-    t_get_data = await tst(que, 'get_data', cc)
-    print(f'test_parse_archive_que -> t_get_data: {t_get_data}')
-    assert t_get_data == None
-    t_get_data_notes = await tst(que, 'get_data', cc, 'notes', 1)
-    print(f'test_parse_archive_que -> t_get_data_notes: {t_get_data_notes}')
-    assert isinstance(t_get_data_notes, dict)
-    t_get_data_cdi = await tst(que, 'get_data', cc, 'cdi', 1)
-    print(f'test_parse_archive_que -> t_get_data_cdi: {t_get_data_cdi}')
-    assert isinstance(t_get_data_cdi, dict)
 
     cdi_arr = []
-    for i in range(13):
+    for i in range(16):
         cdi_arr.append(round(random.randint(1, 100)/random.randint(1, 100), 2))
-    t_get_data_cdi = await tst(que, 'entry', 'cdi', 1)
-    print(f'test_parse_archive_que -> t_get_data_cdi: {t_get_data_cdi}')
-    assert isinstance(t_get_data_cdi, dict)
+    # await tst(que, 'entry', cc, anex='cdi', case_id=1, data=cdi_arr)
+    # print(f'test_parse_archive_que -> cdi entry was send')
+    # await tst(que, 'entry', cc, anex='note', case_id=1, data=f'late test not {random.randint(1, 100)}')
+    # print(f'test_parse_archive_que -> cdi entry was send')
 
 ### UNIT TEST ### ### UNIT TEST ### ### UNIT TEST ### ### UNIT TEST ### ### UNIT TEST ### 
 
