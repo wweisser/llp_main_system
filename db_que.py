@@ -53,7 +53,8 @@ async def parse_archive_que(q_item: que_item, db_obj, cc=None):
     print(f'parse_archive_que -> db_que_item {db_type, db_anex, db_case_id, db_data}')
 
     if db_type == 'cn_list':
-        brod_item = db.inspect_table(db_obj.engine, db_obj.metadata.tables['cases'], param_list=['case_id'])
+        cn_list = db.inspect_table(db_obj.engine, db_obj.metadata.tables['cases'], param_list=['case_id'])
+        for cn in
         await oq.broadcast_item('cn', 'cn_list', brod_item, cc)
     elif db_type == 'full_case':
         cs_data = db.get_case_data(db_obj.engine, db_obj.metadata, db_anex)
@@ -108,7 +109,7 @@ async def tst(que, cm_type: str, cc, anex=None, case_id=None, data=None, ):
     await que.put_db_item(cm_type, anex, case_id, data)
     q_item = await que.get_db_item()
     await parse_archive_que(q_item, que.db_obj, cc)
-    result = await cc['test_que'].get()
+    result = await cc['tq'].get()
     return result
 
 async def test_parse_archive_que(que: db_que, db_obj, cc):
@@ -145,8 +146,9 @@ async def main():
     db_parth = 'sqlite:///data_vault.db'
     db_obj = db.Db_Obj(db_parth)
     test_que = db_que(db_obj)
-    test_ux_que = asyncio.Queue()
-    test_cc ={'test_que': test_ux_que}
+    tq = asyncio.Queue()
+    test_cc: dict[asyncio.Queue] = {}
+    test_cc['tq'] = tq
 
     test_que_item_response()
     await test_parse_archive_que(test_que, db_obj, test_cc)
