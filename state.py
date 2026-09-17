@@ -40,19 +40,17 @@ def pack_json(file: dict):
 
 def create_state(db_path: str):
     sys_state = {
-        "system":{
-            "case_number": 0,
-            "autosave": False,
-            "db_path": db_path,
-            "start_time": 0,
-            "start_time_hope": 0,
-            "start_time_cor": 0,
-            "start_time_nmp": 0,
-            "perfusion_time": 0,
-            "clock_time": 0,
-            "perfusion_mode": "",
-        },
-        "repiratory_controlls": {
+        "case_id": 0,
+        "autosave": False,
+        "db_path": db_path,
+        "start_time": 0,
+        "start_time_hope": 0,
+        "start_time_cor": 0,
+        "start_time_nmp": 0,
+        "perfusion_time": 0,
+        "clock_time": 0,
+        "perfusion_mode": "",
+        "respiratory_controlls": {
             "gas_cybernation": False,
             "set_air_flow": 0,
             "set_oxygen_flow": 0,
@@ -64,7 +62,7 @@ def create_state(db_path: str):
             "air_flow": 0,
             "oxygen_flow": 0
         },
-        "controlls": {
+        "gbm": {
             "set_flow_ha": 0,
             "set_flow_pv": 0,
             "set_pressure_ha": 0,
