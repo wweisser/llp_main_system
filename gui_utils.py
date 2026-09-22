@@ -9,7 +9,7 @@ def get_current_time():
     return current_time
 
 #send functions
-def create_postbox_item(msg_type: str, id: str, data):
+def dispach(msg_type: str, id: str, data):
     msg_item = {
         'msg_type': 'ux',
         'id': '',
@@ -69,11 +69,11 @@ def create_recv_callbacks(app):
     @app.callback(
         Output("state_data_store", "data"), 
         Output("case_id_store", "data"), 
-        Output("metabolic_graph_store", "data"), 
         Output("note_data_store", "data"), 
+        Output("metabolic_graph_store", "data"), 
         Output("system_data_store", "data"),
-        Output("gui_state_store", "data"),
-        Output("heartbeat_data_store", "data"),
+        Output("state_ds", "data"),
+        Output("heatbeat_ds", "data"),
         Output("download_store", "data"),
         Input("ws", "message"),
         prevent_initial_call=True

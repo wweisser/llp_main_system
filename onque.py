@@ -39,9 +39,8 @@ def parse_input(input):
     if (res[0] == 32 and res[3] == 58 and res[6] == 58):
         return('cdi')
 
-async def broadcast_item(msg_type: str, id: str, data, cc):
+async def broadcast_item(msg_type: str, id: str, data, cc:list):
     """Adds a que item with msg_type, id and the data to every que in the client collective"""
     item = create_q_item(msg_type, id, data)
-    # print(f'Broadcasting item -> cc : {cc} ')
     for q in cc.values():
-            await q.put(item)
+        await q.put(item)

@@ -14,30 +14,28 @@ import gui_graph_callbacks as ggc
 import gui_note_callbacks as gnc
 import gui_download_callbacks as gdc
 
-def create_layouts():
-    return(html.Div([
-        gs_startup.create_startup_screen(),
-        gp.create_pages(),
-        gp.tab_bar(),
-    ]))
-
-def create_modals():
-    return(html.Div([
-        gm.case_manager_mdl(),
-        gm.new_case_mdl(),
-        gm.note_mdl(),
-        gm.create_active_mdl()
-    ]))
 
 #HIER EVTL DICT EINFÜHREN, WO ALLE STRUKTUREN VERZEICHNET SIND
 
 def build_gui_layout(ts_ip):
     return(html.Div([
-        gm.create_modals(),
-        create_layouts(),
+        # create_layouts(),
         gs.create_msg_distribution(),
+        gs_startup.create_startup_screen(),
+        gp.create_pages(),
+        gp.tab_bar(),
+
+        # create modals
+        gm.case_manager_mdl(),
+        gm.new_case_mdl(),
+        gm.note_mdl(),
+        gm.create_active_mdl(),
+
+        #create intervals
         gs.create_heartbeat_intervall(),
-        dcc.Location(id='location'),
+
+        # create page template and websocket communication
+        dcc.Location(id='location', href='http://localhost:8050/'),
         WebSocket(id="ws"),
     ], className="background"))
 
@@ -65,15 +63,18 @@ def create_communication(app, talescale_ip):
 
 def create_functional_callbacks(app, graph_list: list):
     return(html.Div([
+        # create communication with back end
         gs_startup.create_startup_callback(app),
         gs.create_f_heartbeat_callback(app),
+        gpc.state_to_gui(app),
+
+        # create page functioality
         gc.tabbar_callback(app),
         gcm.case_manager_callbacks(app, 'case_manager'),
         ga.create_active_callbacks(app),
         ggc.create_graph_callbacks(app),
         gnc.create_note_callbacks(app),
         gdc.create_active_callbacks(app),
-        gpc.state_to_gui(app)
     ]))
 
 def create_app(ts_ip):
@@ -82,7 +83,7 @@ def create_app(ts_ip):
     gui_app = dash.Dash(__name__)
     gui_app.layout = build_gui_layout(ts_ip)
     create_communication(gui_app, ts_ip),
-    create_functional_callbacks(gui_app, graph_list)
+    # create_functional_callbacks(gui_app, graph_list)
     # create_callbacks(gui_app)
     # WebSocket-URL dynamisch anhand von window.location setzen
     return gui_app
@@ -96,3 +97,17 @@ if __name__ == '__main__':
 
 #WS_HOST=100.94.159.38 python gui.py
 
+# def create_layouts():
+#     return(html.Div([
+#         gs_startup.create_startup_screen(),
+#         gp.create_pages(),
+#         gp.tab_bar(),
+#     ]))
+
+# def create_modals():
+#     return(html.Div([
+#         gm.case_manager_mdl(),
+#         gm.new_case_mdl(),
+#         gm.note_mdl(),
+#         gm.create_active_mdl()
+#     ]))

@@ -196,8 +196,17 @@ def drop_down_bar(options: dict, id: str, name: 'str'):
     return layout
 
 
+def create_startup_screen():
+    ret = (html.Div([
+            html.Span('System starting ...'),
+            html.Span(id='loader', className='loader')
+        ], id='loading_screen', className='loading_screen'))
+    return ret
+
+
 def create_pages():
     return(html.Div([
+        create_startup_screen(),
         data_panel(),
         perfusion_panel(),
         ph_panel(),

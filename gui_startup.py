@@ -15,9 +15,9 @@ def create_startup_callback(app):
     @app.callback(
         Output('loading_screen', 'className'),
         Output('postbox', 'data'),
-        Output('heartbeat_interval', 'disabled'),
-        Input('heartbeat_data_store', 'data'),
-        Input('heartbeat_interval', 'n_intervals'),
+        Output('heartbeat_rythm', 'disabled'),
+        Input('state_ds', 'data'),
+        Input('heartbeat_rythm', 'n_intervals'),
         prevent_initial_call=True
     )
     def hide_loader(msg, n_intervals):
