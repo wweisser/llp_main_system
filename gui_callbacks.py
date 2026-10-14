@@ -3,14 +3,12 @@ from dash.exceptions import PreventUpdate
 import gui_panels as gp
 import gui_utils as gu
 
-
-
 def tabbar_callback(app):
     @app.callback(
-        Output('data_panel', 'className'),
+        Output('plot_panel', 'className'),
         Output('perfusion_panel', 'className'),
-        Output('ph_panel', 'className'),
-        Output('respiratory_panel', 'className'),
+        Output('protocol_panel', 'className'),
+        Output('data_panel', 'className'),
         Output('permanent_panel', 'className'),
 
         Output('tab1_btn', 'n_clicks'),
@@ -28,16 +26,15 @@ def tabbar_callback(app):
     )
     def page_setter(btn1, btn2, btn3, btn4, btn5):
         hide = 'hide'
-        show = 'left_controlled_page' 
 
         if btn1:
-            ret_arr = ['full_page', hide, hide, hide, hide]
+            ret_arr = ['plot_panel', hide, hide, hide, hide]
         elif btn2:
-            ret_arr = [hide, show, hide, hide, 'side_panel_II']
+            ret_arr = [hide, 'left_controlled_page', hide, hide, 'side_panel_II']
         elif btn3:
-            ret_arr = [hide, hide, show, hide, 'side_panel_II']
+            ret_arr = [hide, hide, hide, 'protocol_panel', 'side_panel_II']
         elif btn4:
-            ret_arr = [hide, hide, hide, show, 'side_panel_II']
+            ret_arr = [hide, hide, 'protocol_panel', hide, 'side_panel_II']
         elif btn5:
             ret_arr = [hide, hide, hide, hide, 'side_panel_II']
   
@@ -45,15 +42,14 @@ def tabbar_callback(app):
         btn_reset = [0, 0, 0, 0, 0]
         return ret_arr + btn_reset
   
-def bga_value_callback(app, val:str):
     @app.callback(
-        Output('postbox', 'data', allow_duplicate=True),
-        Input('store_btn', 'n_clicks'),
-        Input(f'{val}_entry_field', 'value'),
+        Output('com_panel', 'className'),
+        Input('vent_mdl_btn', 'n_clicks'),
+        State('com_panel', 'className'),
         prevent_initial_call=True
     )
-    def ship_bga_value(btn, val):
-        if val and val.isdigit():
-            return val
+    def opne_gbm_panel(n_clicks, open_state):
+        if open_state == 'hide':
+            return 'com_panel'
         else:
-            raise PreventUpdate
+            return 'hide'

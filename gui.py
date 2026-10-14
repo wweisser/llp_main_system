@@ -28,7 +28,6 @@ def build_gui_layout(ts_ip):
         # create modals
         gm.case_manager_mdl(),
         gm.new_case_mdl(),
-        gm.note_mdl(),
         gm.create_active_mdl(),
 
         #create intervals
@@ -61,29 +60,29 @@ def create_communication(app, talescale_ip):
     print('Websocket was created')
     return communication
 
-def create_functional_callbacks(app, graph_list: list):
+def create_functional_callbacks(app, graph_list: list, test_env: bool):
     return(html.Div([
+        gs_startup.create_startup_callback(app, test_env),
         # create communication with back end
-        gs_startup.create_startup_callback(app),
-        gs.create_f_heartbeat_callback(app),
-        gpc.state_to_gui(app),
+        # gs.create_f_heartbeat_callback(app),
+        # gpc.state_to_gui(app),
 
         # create page functioality
         gc.tabbar_callback(app),
-        gcm.case_manager_callbacks(app, 'case_manager'),
-        ga.create_active_callbacks(app),
-        ggc.create_graph_callbacks(app),
-        gnc.create_note_callbacks(app),
-        gdc.create_active_callbacks(app),
+        # gcm.case_manager_callbacks(app, 'case_manager'),
+        # ga.create_active_callbacks(app),
+        # ggc.create_graph_callbacks(app),
+        # gnc.create_note_callbacks(app),
+        # gdc.create_active_callbacks(app),
     ]))
 
-def create_app(ts_ip):
+def create_app(ts_ip, test_env: bool):
     graph_list = ["ph_graph", "base_lact_graph", "k_gluc_graph", "do2_vo2_graph", "po2_graph", "pco2_graph", "flow_graph", "pressure_graph", "hb_hct_graph"]
     print("gui ausgelöst")
     gui_app = dash.Dash(__name__)
     gui_app.layout = build_gui_layout(ts_ip)
     create_communication(gui_app, ts_ip),
-    # create_functional_callbacks(gui_app, graph_list)
+    create_functional_callbacks(gui_app, graph_list, test_env)
     # create_callbacks(gui_app)
     # WebSocket-URL dynamisch anhand von window.location setzen
     return gui_app
@@ -92,7 +91,7 @@ def create_app(ts_ip):
 
 if __name__ == '__main__':
     tailscale_ip =  '100.122.66.59'
-    app = create_app(tailscale_ip)
+    app = create_app(tailscale_ip, test_env=True)
     app.run(host="0.0.0.0", port=8050, debug=True)
 
 #WS_HOST=100.94.159.38 python gui.py
@@ -104,10 +103,10 @@ if __name__ == '__main__':
 #         gp.tab_bar(),
 #     ]))
 
-# def create_modals():
-#     return(html.Div([
-#         gm.case_manager_mdl(),
-#         gm.new_case_mdl(),
-#         gm.note_mdl(),
-#         gm.create_active_mdl()
-#     ]))
+def create_modals():
+    return(html.Div([
+        gm.case_manager_mdl(),
+        gm.new_case_mdl(),
+        gm.note_mdl(),
+        gm.create_active_mdl()
+    ]))

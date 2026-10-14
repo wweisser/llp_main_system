@@ -5,7 +5,6 @@ import gui_case_management as gcm
 import gui_panels as gp
 
 def create_note_callbacks(app):
-#send input to backend
     @app.callback(
         Output('note_mdl', 'hidden'),
         Input('note_mdl_btn', 'n_clicks'),

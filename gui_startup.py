@@ -6,36 +6,33 @@ import gui_state as gs
 
 def create_startup_screen():
     ret = (html.Div([
-            html.Span('System starting ...'),
+            html.Span('waitng for frontend response ...'),
             html.Span(id='loader', className='loader')
         ], id='loading_screen', className='loading_screen'))
     return ret
 
-def create_startup_callback(app):    
+def create_startup_callback(app, test_mode: bool):
+    """listens to the heartbeat_rhythm and sends a beat to postbox for each intervall, if a frontend response
+    arrives in the loading screen is hidden""" 
     @app.callback(
         Output('loading_screen', 'className'),
         Output('postbox', 'data'),
-        Output('heartbeat_rythm', 'disabled'),
-        Input('state_ds', 'data'),
-        Input('heartbeat_rythm', 'n_intervals'),
+        # Output('heartbeat_rythm', 'disabled'),
+        State('state_ds', 'data'),
+        Input('heartbeat_rhythm', 'n_intervals'),
         prevent_initial_call=True
     )
     def hide_loader(msg, n_intervals):
-        if not msg:
-            heartbeat_item = gs.build_heart_beat_item(True, datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'request_handshake', 'no_error')
-            item = gu.create_postbox_item('system', 'f_heartbeat', heartbeat_item)
-            print('create_startup_callback -> Sending initial heartbeat\n')
-            return 'loading_screen', item, False
-        else:
+        if test_mode:
+            return 'hide', no_update
+        heartbeat_dispach = gs.beat(True, int(datetime.now().timestamp()), 'request_handshake')
+        if msg:
             data = msg['data']
-            if msg['id'] == 'b_heartbeat' and data['status'] == 'backend_active':
+            if msg['id'] == 'b_heartbeat' and not data['status'] == 'error':
                 print('create_startup_callback -> Backend active, hiding loader\n')
-                raise PreventUpdate
-            elif msg['id'] == 'b_heartbeat' and data['status'] == 'handshake_accepted':
-                print('create_startup_callback -> Handshake accepted, hiding loader\n')
-                return 'hide', no_update, True
-            else:
-                raise PreventUpdate
+                return 'hide', heartbeat_dispach
+        else:
+            return 'loading_screen', heartbeat_dispach
 
 
 if __name__ == '__main__':

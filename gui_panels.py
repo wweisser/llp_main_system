@@ -1,5 +1,7 @@
 from dash import html, dcc
 import gui_graphs as gg
+import plotly.graph_objects as go
+import pandas as pd
 
 # alle controll button damit belegen
 def cntrl_btn(button_id, upper_text, upper_text_id, middle_text, middle_text_id, lower_text, lower_text_id, class_name):
@@ -67,10 +69,48 @@ def value_entry_element(val: str):
         html.Button(id=f'{val}_entry_btn', children='Store', className='bga_entry_btn'),
     ], className='bga_entry_element'))
 
-def effector_module():
-    return(html.Div([
-        ], className="effector_module")
+def timeline():
+    timeline_data = {
+    "2026-01-15": "Projekt-Kickoff und Team-Vorstellung",
+    "2026-03-20": "Meilenstein 1: Erster Prototyp fertiggestellt",
+    "2026-06-10": "Benutzertests und Feedback-Runde",
+    "2026-09-05": "Meilenstein 2: Beta-Version online",
+    "2026-12-01": "Geplanter offizieller Launch der Website"
+}
+
+# Daten für Plotly vorbereiten
+    df = pd.DataFrame([
+        {"Datum": pd.to_datetime(datum), "Event": text, "Y": 0}  # Alle Punkte auf Y=0 für einen Zeitstrahl
+        for datum, text in timeline_data.items()
+    ])
+    fig = go.Figure()
+
+    fig.add_trace(go.Scatter(
+        mode="markers+lines",  # Linie verbindet die Punkte auf dem Zeitstrahl
+        line=dict(color="#d3d3d3", width=3),  # Dezente graue Zeitachse
+        text=df["Event"],  # Der Text aus dem Dictionary
+        hoverinfo="text",  # Sorgt dafür, dass NUR der Text beim Hovern angezeigt wird
+        hovertemplate="<b>%{text}</b><br><extra></extra>"  # Schickes sauberes Hover-Layout
+    ))
+
+    # Layout anpassen, um es wie eine Zeitachse aussehen zu lassen
+    fig.update_layout(
+        title=dict(font=dict(size=18)),
+        xaxis=dict(
+            type="date",
+            showgrid=True,
+            title="Datum"
+        ),
+        yaxis=dict(
+            showgrid=False,
+            zeroline=False,
+            showticklabels=False,  # Y-Achsen-Beschriftung ausblenden
+            range=[-0.5, 0.5]      # Vertikalen Raum begrenzen
+        ),
+        height=300,
+        margin=dict(l=40, r=40, t=60, b=40)
     )
+    return(dcc.Graph(id="note_timeline", figure=fig, config={'staticPlot': True}))
 
 def permanent_panel():
     return(html.Div([
@@ -83,8 +123,12 @@ def permanent_panel():
         ], id='permanent_panel', className="side_panel_II", hidden=False)
     )
 
-def data_panel():
+def plot_panel():
     return(html.Div([
+            html.Div([
+                gg.create_plot_graph(),
+                timeline()
+            ], className="data_panel"),
             html.Div([
             paramtr_btn_1('download_mdl_btn', 'Download', '', '', '', 'ha', 90),
             drop_down_bar({'dummy': 'dummy'}, 'case_number_drop_down', 'case Number'),
@@ -92,9 +136,8 @@ def data_panel():
             drop_down_bar({'dummy': 'dummy'}, 'chart_3', 'Graph 3'),
             drop_down_bar({'dummy': 'dummy'}, 'chart_4', 'Graph 5'),
             drop_down_bar({'dummy': 'dummy'}, 'data_export', 'Export to Excel'),
-            ], className="side_panel_I"),
-            gg.create_plot_graph()
-        ], id='data_panel', className="hide")
+            ], className="side_panel_II"),
+        ], id='plot_panel', className="hide")
     )
 
 def perfusion_panel():
@@ -128,24 +171,25 @@ def perfusion_panel():
                 paramtr_btn_1('glucose_btn', 'Glucose:    ', '---', '    mmol/L', 'glucose', 'meta', 100),
             ], className="side_panel_I_bottom"),
         ], className="side_panel_I"),
-        gg.create_graph_panel("flow_graph", "pressure_graph", "hb_hct_graph"),
+        # gg.create_graph_panel("flow_graph", "pressure_graph", "hb_hct_graph"),
         ], id='perfusion_panel', className="left_controlled_page")
     )
 
-def ph_panel():
+def protocol_page():
     return(html.Div([
-        html.Div([
-        ], className="side_panel_I"),
-        gg.create_graph_panel("ph_graph", "k_lact_graph", "base_gluc_graph"),
-        ], id='ph_panel', className="hide")
+            dcc.Textarea(value="protocol_area", id="note_h1", className='text_window', readOnly=True),
+            html.Div([
+                dcc.Textarea(value='note_area', id='note_area', className='text_window', readOnly=False),
+                dcc.Input(placeholder='enter note', id='note_input', )
+            ], className='note_area')
+        ], id='protocol_panel', className='hide')
     )
 
-def respiratory_panel():
+def data_panel():
     return(html.Div([
-        html.Div([
-        ], className="side_panel_I"),
-        gg.create_graph_panel("do2_graph", "hb_graph", "po2_graph"),
-        ], id='respiratory_panel', className="hide")
+            gg.create_graph_panel("upper_plot_I", "upper_plot_II", "upper_plot_III"),
+            gg.create_graph_panel("lower_plot_I", "lower_plot_II", "lower_plot_III"),
+        ], id='data_panel', className="hide")
     )
 
 def bga_entry_panel():
@@ -171,19 +215,17 @@ def bga_entry_panel():
         ], id='bga_entry_panel', className="hide", hidden=True)
     )
 
-
-
 def tab_bar():
     return(html.Div([
         cntrl_btn('case_manager', 'Perfusion Start: ', 'start_time', 'Clock Time:', 'clock_time', 'Case ID: ', 'case_id','meta'),
         cntrl_btn('active_mdl_btn', '---', 'perfusion_mode', '---', 'perfuison_time', '', '','meta'),
         paramtr_btn_1('tab1_btn', 'Plots', '', '','tab1', 'tabbar_btn', 90),
         paramtr_btn_1('tab2_btn', 'Perfusion', '', '','tab2', 'tabbar_btn', 90),
-        paramtr_btn_1('tab3_btn', 'Metabolics', '', '', 'tab3', 'tabbar_btn', 90),
-        paramtr_btn_1('tab4_btn', 'Respiration', '', '', 'tab4', 'tabbar_btn', 90),
+        paramtr_btn_1('tab3_btn', 'Protocol', '', '', 'tab3', 'tabbar_btn', 90),
+        paramtr_btn_1('tab4_btn', 'Components', '', '', 'tab4', 'tabbar_btn', 90),
         paramtr_btn_1('tab5_btn', 'Active', '', '', 'tab5', 'tabbar_btn', 90),
         paramtr_btn_1('tab6_btn', 'Connections', '', '', 'tab6', 'tabbar_btn', 90),
-        cntrl_btn('note_mdl_btn',  'Note', 'cntrl_cm_lower', '', 'tab7', '', 'note_lower', 'meta'),
+        cntrl_btn('vent_mdl_btn',  'Vent', 'cntrl_cm_lower', '', 'tab7', '', 'note_lower', 'meta'),
         cntrl_btn('alarm_btn',  'Mute Alarm', 'mute_btn', '', 'tab8', '', 'alarm_lower', 'meta'),
         ], id='tab_bar', className="tabbar")
     )
@@ -195,22 +237,12 @@ def drop_down_bar(options: dict, id: str, name: 'str'):
             ])
     return layout
 
-
-def create_startup_screen():
-    ret = (html.Div([
-            html.Span('System starting ...'),
-            html.Span(id='loader', className='loader')
-        ], id='loading_screen', className='loading_screen'))
-    return ret
-
-
 def create_pages():
     return(html.Div([
-        create_startup_screen(),
-        data_panel(),
+        plot_panel(),
         perfusion_panel(),
-        ph_panel(),
-        respiratory_panel(),
+        protocol_page(),
+        data_panel(),
         bga_entry_panel(),
         permanent_panel(),
  

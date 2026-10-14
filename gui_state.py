@@ -25,6 +25,7 @@ def create_msg_distribution():
     ]))
 
 def beat(handshake:bool, last_heartbeat:int, status:str = None, error_state:str = None):
+    """returns a sendable dispach item, containing a beat with information about the frontend state"""
     beat_msg = {
         'handshake': handshake,
         'last_heartbeat': last_heartbeat,
@@ -32,13 +33,13 @@ def beat(handshake:bool, last_heartbeat:int, status:str = None, error_state:str 
         'status': status,
         'error_state': error_state,
     }
-    return gu.create_postbox_item('system', 'f_heartbeat', beat_msg)
+    return gu.dispach('system', 'f_heartbeat', beat_msg)
 
 def create_heartbeat_intervall(hb_rythm:int = None):
     if not hb_rythm:
         hb_rythm = 1000
     intervall = (html.Div([
-        dcc.Interval(id='heartbeat_rythm', interval=hb_rythm)
+        dcc.Interval(id='heartbeat_rhythm', interval=hb_rythm)
     ]))
     return intervall
 
