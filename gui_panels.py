@@ -69,15 +69,6 @@ def value_entry_element(val: str):
         html.Button(id=f'{val}_entry_btn', children='Store', className='bga_entry_btn'),
     ], className='bga_entry_element'))
 
-def timeline():
-    timeline_data = {
-    "2026-01-15": "Projekt-Kickoff und Team-Vorstellung",
-    "2026-03-20": "Meilenstein 1: Erster Prototyp fertiggestellt",
-    "2026-06-10": "Benutzertests und Feedback-Runde",
-    "2026-09-05": "Meilenstein 2: Beta-Version online",
-    "2026-12-01": "Geplanter offizieller Launch der Website"
-}
-
 # Daten für Plotly vorbereiten
     df = pd.DataFrame([
         {"Datum": pd.to_datetime(datum), "Event": text, "Y": 0}  # Alle Punkte auf Y=0 für einen Zeitstrahl
@@ -126,9 +117,9 @@ def permanent_panel():
 def plot_panel():
     return(html.Div([
             html.Div([
-                gg.create_plot_graph(),
-                timeline()
-            ], className="data_panel"),
+                gg.create_graph('p_g', 'plot_graph')
+                # timeline()
+            ]),
             html.Div([
             paramtr_btn_1('download_mdl_btn', 'Download', '', '', '', 'ha', 90),
             drop_down_bar({'dummy': 'dummy'}, 'case_number_drop_down', 'case Number'),

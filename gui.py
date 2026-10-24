@@ -5,7 +5,7 @@ import gui_utils as gu
 import gui_panels as gp
 import gui_modals as gm
 import gui_callbacks as gc
-import gui_active_callbacks as ga
+import gui_gbm_callbacks as ga
 import gui_state as gs
 import gui_startup as gs_startup
 import gui_case_management as gcm
@@ -15,13 +15,14 @@ import gui_note_callbacks as gnc
 import gui_download_callbacks as gdc
 
 
+
 #HIER EVTL DICT EINFÜHREN, WO ALLE STRUKTUREN VERZEICHNET SIND
 
-def build_gui_layout(ts_ip):
+def build_gui_layout(test_env: bool):
     return(html.Div([
         # create_layouts(),
         gs.create_msg_distribution(),
-        gs_startup.create_startup_screen(),
+        gs.create_startup_screen(test_env),
         gp.create_pages(),
         gp.tab_bar(),
 
@@ -62,9 +63,8 @@ def create_communication(app, talescale_ip):
 
 def create_functional_callbacks(app, graph_list: list, test_env: bool):
     return(html.Div([
-        gs_startup.create_startup_callback(app, test_env),
+        gs.gui_state_parser(app, test_env),
         # create communication with back end
-        # gs.create_f_heartbeat_callback(app),
         # gpc.state_to_gui(app),
 
         # create page functioality
@@ -80,7 +80,7 @@ def create_app(ts_ip, test_env: bool):
     graph_list = ["ph_graph", "base_lact_graph", "k_gluc_graph", "do2_vo2_graph", "po2_graph", "pco2_graph", "flow_graph", "pressure_graph", "hb_hct_graph"]
     print("gui ausgelöst")
     gui_app = dash.Dash(__name__)
-    gui_app.layout = build_gui_layout(ts_ip)
+    gui_app.layout = build_gui_layout(test_env)
     create_communication(gui_app, ts_ip),
     create_functional_callbacks(gui_app, graph_list, test_env)
     # create_callbacks(gui_app)
@@ -91,7 +91,7 @@ def create_app(ts_ip, test_env: bool):
 
 if __name__ == '__main__':
     tailscale_ip =  '100.122.66.59'
-    app = create_app(tailscale_ip, test_env=True)
+    app = create_app(tailscale_ip, test_env=False)
     app.run(host="0.0.0.0", port=8050, debug=True)
 
 #WS_HOST=100.94.159.38 python gui.py

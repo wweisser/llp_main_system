@@ -4,16 +4,18 @@ from sqlalchemy import (
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship, Session, sessionmaker
 import time
 import pandas as pd
-import sqlite3
-import random
+from diskcache import Cache
 
 class Base(DeclarativeBase):
     pass
 
 class Db_Obj:
 
-    def __init__(self, db_parth):
+    def __init__(self, db_parth, key: str, cache_parth=None):
         self.engine = create_engine(db_parth)
+        self.cache_parth = cache_parth
+        self.key = key
+        self.cache = Cache(directory=cache_parth)
         self.metadata = MetaData()
         # Fills all the information ablout table and db structure in the metadata object
         self.metadata.reflect(bind=self.engine)
@@ -342,7 +344,7 @@ if __name__ == "__main__":
     metadata = MetaData()
     metadata.reflect(bind=engine)
     Base.metadata.create_all(engine)
-    db = Db_Obj(db_parth)
+    db = Db_Obj(db_parth, 'key')
 
     create_case(db, 'test case II', 4)
     print(inspect_table(db, 'cases', param_list=['case_id', 'start_time']))

@@ -126,32 +126,6 @@ def case_manager_callbacks(app, button):
         else:
             return no_update, 'Entry is not a digit'
 
-    # @app.callback(
-    #     Output("start_case_btn", "children"),     
-    #     Output("hope_btn", "disabled"),
-    #     Output("cor_btn", "disabled"),
-    #     Output("nmp_btn", "disabled"),
-    #     Output("start_case_btn", "disabled"),
-    #     Output("cm_new_case_button", "disabled"),
-    #     Output("cm_confirm_btn", "disabled"),  
-    #     Input("state_data_store", "data"),
-    #     prevent_initial_call=True,
-    # )
-    # def disable_csm(msg):
-        # if msg['id'] == 'state':
-        #     print(f'disable_csm -> {msg}')
-        #     cn = msg['data']['system']['case_number']
-        #     autosave = msg['data']['system']['autosave']
-        #     if cn == 0 and not autosave:
-        #         return "Start Case", True, True, True, True, False, False
-        #     elif cn != 0 and not autosave:
-        #         return "Start Case", True, True, True, False, False, False
-        #     elif autosave:
-        #         return "Stop Case", False, False, False, False, True, True
-        # else: 
-    #     return no_update, no_update, no_update , no_update , no_update , no_update , no_update 
-
-
     @app.callback(
         Output("postbox", "data", allow_duplicate=True),
         Input("start_case_btn", "n_clicks"),

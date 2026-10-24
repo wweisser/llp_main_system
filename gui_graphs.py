@@ -34,7 +34,7 @@ def create_graph(id, class_name):
             dcc.Graph(figure=fig,
             className=class_name,
             id=id)
-        ], className= class_name)
+        ], className=class_name)
     )
 
 def create_graph_panel(upper_graph: str, middle_graph: str, lower_graph: str):
@@ -44,11 +44,4 @@ def create_graph_panel(upper_graph: str, middle_graph: str, lower_graph: str):
             create_graph(middle_graph, 'center_graph'),
             create_graph(lower_graph, 'center_graph'),
         ], className='center_graph_panel')
-    )
-
-def create_plot_graph():
-    return(
-        html.Div([
-            create_graph('plot_gaph', 'plot_graph'),
-        ])
     )

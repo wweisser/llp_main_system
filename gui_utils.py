@@ -9,7 +9,7 @@ def get_current_time():
     return current_time
 
 #send functions
-def dispach(msg_type: str, id: str, data):
+def dispatch(msg_type: str, id: str, data):
     msg_item = {
         'msg_type': 'ux',
         'id': '',
@@ -51,7 +51,7 @@ def create_send_callbacks(app):
     )
     def send(send_val):
         if isinstance(send_val, str):
-            print('gui_ws_send -> sended value : ', send_val)
+            # print('gui_ws_send -> sended value : ', send_val)
             return send_val
         else:
             return no_update
@@ -79,7 +79,7 @@ def create_recv_callbacks(app):
         prevent_initial_call=True
     )
     def distribute_msg(msg):
-        return_item = {
+        rl = {
             'state': no_update,
             'case_id': no_update,
             'metabolic_graph': no_update,
@@ -96,35 +96,28 @@ def create_recv_callbacks(app):
                 if data and isinstance(data, dict):
                     msg_type = data.get('msg_type')
                     if msg_type == 'system':
-                        return_item['system'] = data
+                        rl['system'] = data
                     elif msg_type == 'case_id':
-                        return_item['case_id'] = data
+                        rl['case_id'] = data
                     elif msg_type == 'metabolic_graph':
-                        return_item['metabolic_graph'] = data
+                        rl['metabolic_graph'] = data
                     elif msg_type == 'notes':
-                        return_item['notes'] = data
+                        rl['notes'] = data
                     elif msg_type == 'state':
-                        return_item['state'] = data
+                        rl['state'] = data
                     elif msg_type == 'gui_state':
-                        return_item['gui_state'] = data
+                        rl['gui_state'] = data
                     elif msg_type == 'heartbeat':
-                        return_item['heartbeat'] = data
+                        rl['heartbeat'] = data
                     elif msg_type == 'download':
-                        return_item['download'] = data
+                        rl['download'] = data
                     else:
                         print(f"distribute_msg -> unbekannter msg_type: {msg_type}")
+                    # print(f'create_heartbeat_callback -> {rl['heartbeat']}')
                 else:
                     print("distribute_msg -> corrupt msg")
             except Exception as e:
                 print(f'distribute_msg -> error: {e} | raw: {msg}')
-        return (return_item['state'],
-            return_item['case_id'],
-            return_item['metabolic_graph'],
-            return_item['notes'],
-            return_item['system'],
-            return_item['gui_state'],
-            return_item['heartbeat'],
-            return_item['download']
-            )
+            return rl['state'], rl['case_id'], rl['metabolic_graph'], rl['notes'], rl['system'], rl['gui_state'], rl['heartbeat'], rl['download']
 
 

@@ -2,6 +2,7 @@ import memory
 import onque as oq
 import system_parse
 import asyncio
+import db_que as dbq
 from datetime import datetime
 
 def generate_one_beat(status: str):
@@ -16,20 +17,20 @@ def genertate_graph_output():
     pass
 
 # start loop that fetches itmes from the input que
-async def dequeue_loop(sp: list, system_tasks: list, cc):
+async def dequeue_loop(db_que: dbq.Db_Que, ux_q, system_tasks: list, cc: dict):
     """Starts the main loop that listens to the ux_q. If the dequed object is a dict, parse_msg is called.
     If the return of parsed_msg is an asyncio.Task, that task is added to the system_tasks"""
-    sys_state = memory.get_state_from_cache(sp['cache'], sp['key'])
     print("DEQUELOOP STARTED")
     while True:
-        try:
-            msg = await sp['ux_q'].get()
+        # try:
+            msg = await ux_q.get()
+            # print(f'dequeue_loop -> msg: {msg}')
+            sys_state = memory.get_state_from_cache(db_que.db_obj.cache, db_que.db_obj.key)
             if isinstance(msg, dict):
-                parse_object = await system_parse.parse_msg(msg, sys_state, sp, cc)
-            if isinstance(parse_object, asyncio.Task):
-                system_tasks.append(parse_object)
-        except Exception as e:
-            print(e)
+                sys_state = await system_parse.parse_msg(db_que, msg, sys_state=sys_state, cc=cc)
+                memory.put_state_to_cache(db_que.db_obj.cache, db_que.db_obj.key, sys_state)
+        # except Exception as e:
+        #     print('error during deque loop\n', e)
 
 def calc_perfusion_time(start_time):
     if start_time:

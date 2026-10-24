@@ -9,7 +9,8 @@ import asyncio
 import json
 import uvicorn
 import ser as se
-import threading
+import db
+import db_que as dbq
 import ttkbootstrap as ttk
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 
@@ -76,13 +77,6 @@ async def test_intput_process(gui_q, ux_q):
 
 ################TEST TEST TEST#########################################
 
-def build_state(cache_path: str, database_path: str, key:str):
-    ux_q = asyncio.Queue()
-    tx_q = asyncio.Queue()
-    sys_state = state.create_state(database_path)
-    cache = memory.create_cache(cache_path, key, sys_state)
-    return ux_q, tx_q, cache
-
 # trys to receive a mesage and puts it on an input que 
 async def ws_recv(websocket, ux_q):
     print(f'ws_recv -> recv loop was started')
@@ -144,43 +138,6 @@ async def start_ws(app, ux_q, connected_clients):
         except* Exception as e:
             print(f"start_ws -> error during websocket connection to client\n {e}")
 
-
-async def create_system_tasks(sp, cc, heartbeat_intervall: float, archive_intervall: int = 10):
-    system_tasks = []
-    try:
-        # system_tasks.append(asyncio.create_task(se.connection_handler(sp['tx_q'], sp['ux_q'])))
-        system_tasks.append(asyncio.create_task(su.dequeue_loop(sp, system_tasks, cc)))
-        # system_tasks.append(asyncio.create_task(su.system_updater(sp['cache'], sp['key'], archive_intervall, 1.0)))
-        system_tasks.append(asyncio.create_task(su.b_heartbeat(sp['cc'], heartbeat_intervall)))
-################TEST TEST TEST#########################################
-        system_tasks.append(asyncio.create_task(start_cdi_test_thread(sp['ux_q'])))
-################TEST TEST TEST#########################################
-        return system_tasks
-    except Exception as e:
-        for task in system_tasks:
-            task.cancel()           # Beim App-Shutdown: Task abbrechen
-            try:
-                await task          # Warten bis der Task wirklich gestoppt ist
-            except asyncio.CancelledError:
-                print(f'create_system_tasks -> {task} was stoped')
-        print(f'create_system_tasks -> error on system task setup\n', e)
-        return None
-
-# dass hier zu einer klasse umbauen!!!!!! 
-def create_sys_param(connected_clients, ux_q, tx_q, cache, key, com_port_hub, db_path, table):
-    sp = {
-        "cc": connected_clients, 
-        "ux_q": ux_q,
-        "tx_q": tx_q, 
-        "cache": cache, 
-        "key": key,
-        "com_port_hub": com_port_hub,
-        "db_path": db_path,
-        "table": table,
-        "system_runtime": 0,
-    }
-    return sp
-
 def register_ws(app, ux_q, connected_clients):
     @app.websocket("/ws")
     async def endpoint(ws: WebSocket):
@@ -197,37 +154,49 @@ def register_ws(app, ux_q, connected_clients):
         except* WebSocketDisconnect:
             del connected_clients[ws]
 
+async def create_system_tasks(db_que: dbq.Db_Que, ux_q, tx_q, cc: dict):
+    system_tasks = []
+    try:
+        # system_tasks.append(asyncio.create_task(se.connection_handler(tx_q, ux_q)))
+        system_tasks.append(asyncio.create_task(su.dequeue_loop(db_que, ux_q, system_tasks, cc)))
+        # system_tasks.append(asyncio.create_task(su.system_updater(cache, key, archive_intervall, 1.0)))
+##############################TEST TEST TEST#########################################
+        # system_tasks.append(asyncio.create_task(start_cdi_test_thread(ux_q)))
+##############################TEST TEST TEST#########################################
+        return system_tasks
+    except Exception as e:
+        for task in system_tasks:
+            task.cancel()           # Beim App-Shutdown: Task abbrechen
+            try:
+                await task          # Warten bis der Task wirklich gestoppt ist
+            except asyncio.CancelledError:
+                print(f'create_system_tasks -> {task} was stoped')
+        print(f'create_system_tasks -> error on system task setup\n', e)
+        return None
+
 async def main():
-    key = "key_name"
-    table = 'test'	
     os = platform.system()
     if os == 'Windows':
-        db_path = r'C:\Users\whwei\OneDrive\Coding\llp_system\data_vault.db'
-        cache_path = r'C:\Temp\diskcache_test\cache'
+        db_path = 'sqlite:///data_vault.db'
     elif os == 'Linux':
-        db_path = r'/home/whw/mp.db'
-        cache_path = r'/home/whw/diskcache_test'
-    ux_q, tx_q, cache = build_state(cache_path, db_path, key)
+        db_path = '/home/whw/mp.db'
+    db_obj = db.Db_Obj(db_parth=db_path, key='key')
+    db_que = dbq.Db_Que(db_obj=db_obj)
+    ux_q = asyncio.Queue()
+    tx_q = asyncio.Queue()
+
     com_port_hub = None
-    connected_clients: dict[WebSocket, asyncio.Queue] = {}
-    sp = create_sys_param(connected_clients, ux_q, tx_q, cache, key, com_port_hub, db_path, table)
+    cc: dict[WebSocket, asyncio.Queue] = {}
 
-    heartbeat_intervall = 1.0
-    archive_intervall = 10
-
-    # conn = sqlite3.connect(db_path)
 
     try:
         fast_api_app = FastAPI() # hier wird die fastAPI app erzeugt
-        # fast_api_app.mount("/d1/", WSGIMiddleware(gui.app.server)) 
-        #Hier wird ads snchron laufende dash mit dem asynchronen fastAPI via WSGI verbunden
         print("1 - FastAPI created")
 
-        await start_ws(fast_api_app, sp['ux_q'], connected_clients)
+        await start_ws(fast_api_app, ux_q, cc)
         print("2 - start_ws was called")
 
-
-        system_tasks = await create_system_tasks(sp, connected_clients, heartbeat_intervall, archive_intervall)
+        system_tasks = await create_system_tasks(db_que ,ux_q, tx_q, cc)
         print("3 - system tasks were created")
 
         config = uvicorn.Config(fast_api_app, host="0.0.0.0", port=8000, log_config=None)
@@ -252,12 +221,17 @@ def run_async_world():
     asyncio.run(main())
 
 if __name__ == "__main__":
-    threading.Thread(target=run_async_world, daemon=True).start()
+    try:
+        asyncio.run(main())
+    except:
+        print('canceled by keyboard interrupt') 
+  
+    # threading.Thread(target=run_async_world, daemon=True).start()
 
-    app = ttk.Window(themename="darkly")
+    # app = ttk.Window(themename="darkly")
 
     # app.after(...) Polling für ux_q -> GUI, wie vorher besprochen
-    app.mainloop()   # läuft im Hauptthread, blockiert dort — das ist ok
+    # app.mainloop()   # läuft im Hauptthread, blockiert dort — das ist ok
 
 
 #URL : http://127.0.0.1:8050/d1/

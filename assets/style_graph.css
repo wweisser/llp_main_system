@@ -18,11 +18,8 @@
 }
 
 .plot_graph{
+    height: 98%;
     border-radius: 6px;
-    left: 20%;
-    width: 99%;
-    height: 95%;
-    margin: 0.2%;
     overflow: hidden;
     background-color: var(--bg_color_II);
 }

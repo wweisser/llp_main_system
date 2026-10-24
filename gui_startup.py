@@ -14,25 +14,33 @@ def create_startup_screen():
 def create_startup_callback(app, test_mode: bool):
     """listens to the heartbeat_rhythm and sends a beat to postbox for each intervall, if a frontend response
     arrives in the loading screen is hidden""" 
+    print(f'create_startup_callback -> initiated')
     @app.callback(
         Output('loading_screen', 'className'),
-        Output('postbox', 'data'),
-        # Output('heartbeat_rythm', 'disabled'),
-        State('state_ds', 'data'),
-        Input('heartbeat_rhythm', 'n_intervals'),
+        Output('state_ds', 'data', allow_duplicate=True),
+        Input('heatbeat_ds', 'data'),
         prevent_initial_call=True
     )
     def hide_loader(msg, n_intervals):
+        print(f'create_startup_callback -> {msg}')
         if test_mode:
             return 'hide', no_update
-        heartbeat_dispach = gs.beat(True, int(datetime.now().timestamp()), 'request_handshake')
-        if msg:
+        elif msg and msg['data']:
             data = msg['data']
-            if msg['id'] == 'b_heartbeat' and not data['status'] == 'error':
+            if msg['id'] == 'bcknd_heartbeat' and data['status'] == 'handshake_accepted':
                 print('create_startup_callback -> Backend active, hiding loader\n')
-                return 'hide', heartbeat_dispach
+                return 'hide', no_update
         else:
+            heartbeat_dispach = gs.beat(False, int(datetime.now().timestamp()), 'request_handshake')
             return 'loading_screen', heartbeat_dispach
+
+    # @app.callback(
+    #     Output('postbox', 'data'),
+    #     Input('heartbeat_rhythm', 'n_intervals'),
+    #     State('state_ds', 'data')
+    # )
+    # def pace_maker(ping, state_ds):
+    #     pass
 
 
 if __name__ == '__main__':
