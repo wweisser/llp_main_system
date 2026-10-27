@@ -159,6 +159,8 @@ async def create_system_tasks(db_que: dbq.Db_Que, ux_q, tx_q, cc: dict):
     try:
         # system_tasks.append(asyncio.create_task(se.connection_handler(tx_q, ux_q)))
         system_tasks.append(asyncio.create_task(su.dequeue_loop(db_que, ux_q, system_tasks, cc)))
+        system_tasks.append(asyncio.create_task(dbq.start_archive_task(db_que, cc)))
+
         # system_tasks.append(asyncio.create_task(su.system_updater(cache, key, archive_intervall, 1.0)))
 ##############################TEST TEST TEST#########################################
         # system_tasks.append(asyncio.create_task(start_cdi_test_thread(ux_q)))
@@ -184,6 +186,9 @@ async def main():
     db_que = dbq.Db_Que(db_obj=db_obj)
     ux_q = asyncio.Queue()
     tx_q = asyncio.Queue()
+    sys_state = state.create_state()
+
+    memory.put_state_to_cache(db_obj.cache, db_obj.key, sys_state)
 
     com_port_hub = None
     cc: dict[WebSocket, asyncio.Queue] = {}

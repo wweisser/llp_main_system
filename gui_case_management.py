@@ -28,122 +28,88 @@ def parse_case_id(msg: dict):
     else: 
         return None
 
-def case_manager_callbacks(app, button):
+def case_manager_callbacks(app):
+
+#opens csm modal and sends list request. Also closes mdl and sends asinged case id to backend.
+    @app.callback(
+        Output('case_mgr_mdl', 'className'),
+        Output('postbox', 'data', allow_duplicate=True),
+        Input('case_manager_btn', "n_clicks"),
+        Input('cm_confirm_btn', 'n_clicks'),
+        State('case_mgr_mdl', 'className'),
+        State('case_id_dropdown', 'value'),
+        prevent_initial_call=True,
+    )
+    def csm_button(cmb_click, ccb_click, class_name, asigned_case_id):
+        if class_name == 'hide':
+            disp_item = gu.dispatch('case_id', 'list_request')
+            return 'case_mgr_mdl', disp_item
+        else:
+            if isinstance(asigned_case_id, int):
+                disp_item = gu.dispatch('case_id', 'cn_asgn', asigned_case_id)
+                return 'hide', disp_item
+            return 'hide', no_update
+
+#reacts on list form the backend and updates the case cid_list
+    @app.callback(
+        Output('case_id_dropdown', 'options'),
+        Output('ncm_confirm_btn', 'n_clicks'),
+        Input('case_id_store', 'data'),
+        Input('ncm_confirm_btn', 'n_clicks'),
+        State('ncm_input', 'value'),
+        prevent_initial_call=True,
+    )
+    def fill_dropdown(msg, conf_new_cid_btn, new_cid):
+        case_list = []
+        if msg['id'] == 'cn_list':
+            case_list = msg['data']
+            if conf_new_cid_btn:
+                case_list.append(new_cid)
+        return case_list, 0
         
+#opens new_case_id_mdl
     @app.callback(
-        Output("postbox", "data", allow_duplicate=True),
-        Output("case_mgr_mdl", "hidden", allow_duplicate=True),
-        Input(button, "n_clicks"),
-        State("case_mgr_mdl", "hidden"),
+        Output('new_case_mld', 'className'),
+        Output('ncm_input', 'value'),
+        Input('cm_new_case_button', 'n_clicks'),
+        Input('ncm_close_btn', 'n_clicks'),
+        State('new_case_mld', 'className'),
+        State('new_case_h1', 'children'),
         prevent_initial_call=True,
     )
-    def csm_button(btn_click, hidden):
-        if hidden:
-            post_item = gu.create_postbox_item('case_number','list_request', datetime.now().strftime("%Y.%m.%d %H:%M:%S"))
-            print('csm_button -> casenumber list request : ', post_item)
-            return post_item, False
+    def new_case_mdl(open_click, close_click, ncm_class_Name, cn_validity):
+        if ncm_class_Name == 'hide':
+            return 'new_case_mdl', ''
         else:
-            print(f'case_manager_callbacks -> modal is hidden again')
-            return None, True
+            return 'hide', no_update
 
-
+    #checks and assigns new case_id to cid_list
     @app.callback(
-        Output("cm_dropdown", "options"),
-        Input("case_id_store", "data"),
+        Output('new_case_h1', 'children'),
+        Output('ncm_confirm_btn', 'disabled'),
+        Input('ncm_input', 'value'),
+        State('case_id_dropdown', 'options'),
         prevent_initial_call=True,
     )
-    def load_cm(msg):
-        print(f'load_cm -> {msg}')
-
-        if msg and isinstance(msg, dict) and msg['msg_type'] == 'cn':
-            case_id_list = parse_case_id(msg)
-            print(f'\ncase_id_list : {case_id_list}\n')
-            return case_id_list
-        elif msg and isinstance(msg, list):
-            return msg
-        else:
-            print('casenumber list in case_store item was not a list')
-            print(msg)
-            return []
-
-
-    @app.callback(
-        Output("postbox", "data", allow_duplicate=True),
-        Output("case_mgr_mdl", "hidden", allow_duplicate=True),
-        Input("cm_confirm_btn", "n_clicks"),
-        State("cm_dropdown", "value"),
-        prevent_initial_call=True,
-    )
-    def confirm_btn(confirm_btn_click, val):
-        #sends the current value of the dropdown via websocket
-        print('asinged value : ', val)
-        if val:
-            post_item = gu.create_postbox_item('case_number', 'cn_asgn', val)
-            return post_item, True
-        else:
-            return None, False
-
-    @app.callback(
-        Output("ncm_close_btn", "n_clicks"),
-        Output("new_case_mld", "hidden"),
-        Input("cm_new_case_button", "n_clicks"),
-        Input("ncm_close_btn", "n_clicks"),
-        Input("ncm_confirm_btn", "n_clicks"),
-        State("new_case_mld", "hidden"),
-        State("new_case_h1", "children"),
-        prevent_initial_call=True,
-    )
-    def close_new_case_mdl(nc_btn, nc_close_btn, nc_confirm_btn, nc_mdl_hidden, h1_child):
-        print(f'\nNew Case H1 : {h1_child}\n')
-        if not nc_mdl_hidden and nc_close_btn:
-            return 0, True
-        elif not nc_mdl_hidden and h1_child == "Number was added to ID-list. Press Close":
-            return 0, True
-        else:
-            return 0, False
-
-    @app.callback(
-        Output("case_id_store", "data", allow_duplicate=True),
-        Output("new_case_h1", "children"),
-        Input("ncm_confirm_btn", "n_clicks"),
-        State("ncm_input", "value"),
-        State("case_id_store", "data"),
-        prevent_initial_call=True,
-    )
-    def cm_new_case(ncn_confirm_btn, input_val, case_id_item):
-        if input_val.isdigit():
-            case_id_list = case_id_item['data']
-            cn_check = check_case_number(case_id_list, input_val)
-            print(f'cn check : {cn_check}')
-            if check_case_number(case_id_list, input_val):
-                return no_update, "Number already assinged"
-            elif not case_id_list:
-                return no_update, "Case number list was not updated"
+    def cid_input_parser(input, cid_list):
+        if input.isdigit():
+            new_cid = int(input)
+            if new_cid in cid_list:
+                return 'case id does already exist', True
             else:
-                case_id_list.append(input_val)
-                print(f'cm_new_case -> number {input_val} is valid\n')
-                return case_id_list, "Number was added to ID-list. Press Close"
+                return 'case id valid', False
         else:
-            return no_update, 'Entry is not a digit'
+            return 'please enter numeric value', True
 
     @app.callback(
-        Output("postbox", "data", allow_duplicate=True),
-        Input("start_case_btn", "n_clicks"),
-        State("state_data_store", "data"),
+        Output('postbox', 'data', allow_duplicate=True),
+        Input('start_case_btn', 'n_clicks'),
+        State('case_id_dropdown', 'value'),
         prevent_initial_call=True,
     )
-    def start_case(sc_btn, msg):
-        if msg['id'] == 'state':
-            cn = msg['data']['system']['case_number']
-            autosave = msg['data']['system']['autosave']
-            if cn != 0 and not autosave:
-                send_item = gu.create_postbox_item('archive', 'start_record', 10)
-                print(send_item)
-                return send_item
-            elif autosave:
-                send_item = gu.create_postbox_item('archive', 'stop_record', "")
-                return send_item 
-            else:
-                return no_update
-        else:
-            return no_update
+    def start_case(start_case_btn, case_id):
+        if case_id != None and case_id != 0:
+            disp_item = gu.dispatch('system', 'start_case')
+            return disp_item
+
+

@@ -7,7 +7,7 @@ mdl_app = dash.Dash(__name__)
 def case_manager_mdl():
     return(html.Div([
         html.Span("Please select case number", id="case_mgr_header"),
-        dcc.Dropdown(id='cm_dropdown', options=[], clearable=True, multi=False, persistence=True, placeholder="Select Case Number", className="cm_drpdwn"),
+        dcc.Dropdown(id='case_id_dropdown', options=[], clearable=True, multi=False, persistence=True, placeholder="Select Case Number", className="cm_drpdwn"),
         html.Div([
             html.Button("New Case", id="cm_new_case_button",className="case_mgr_btn"),
             html.Button("HOPE", id="hope_btn",className="case_mgr_btn"),
@@ -16,19 +16,17 @@ def case_manager_mdl():
             html.Button("Start Perfusion", id="start_case_btn",className="case_mgr_btn"),
             html.Button("NMP", id="nmp_btn",className="case_mgr_btn"),
             ], className="case_mgr_mdl_lower"),
-        ], className="case_mgr_mdl", id="case_mgr_mdl", hidden=True))
+        ], className="hide", id="case_mgr_mdl"))
 
 def new_case_mdl():
     return(html.Div([
-        html.Div([
             html.Span("Please enter new case number", id="new_case_h1"),
             dcc.Input(id='ncm_input', placeholder="Enter new case number here", className="ncm_input_style"),
             html.Div([
                 html.Button("Create New Case", id="ncm_confirm_btn", className="case_mgr_btn"),
-                html.Button("Close", id="ncm_close_btn", className="case_mgr_btn"),
+                html.Button("Close", id="ncm_close_btn", className="case_mgr_btn", n_clicks=0),
             ]),
-            ], className="new_case_mdl")
-        ], id="new_case_mld", hidden=True)
+        ], id="new_case_mld", className="hide")
     )
 
 # def note_mdl():

@@ -69,7 +69,7 @@ def create_functional_callbacks(app, graph_list: list, test_env: bool):
 
         # create page functioality
         gc.tabbar_callback(app),
-        # gcm.case_manager_callbacks(app, 'case_manager'),
+        gcm.case_manager_callbacks(app),
         # ga.create_active_callbacks(app),
         # ggc.create_graph_callbacks(app),
         # gnc.create_note_callbacks(app),
@@ -91,7 +91,7 @@ def create_app(ts_ip, test_env: bool):
 
 if __name__ == '__main__':
     tailscale_ip =  '100.122.66.59'
-    app = create_app(tailscale_ip, test_env=False)
+    app = create_app(tailscale_ip, test_env=True)
     app.run(host="0.0.0.0", port=8050, debug=True)
 
 #WS_HOST=100.94.159.38 python gui.py

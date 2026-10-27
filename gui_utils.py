@@ -9,7 +9,7 @@ def get_current_time():
     return current_time
 
 #send functions
-def dispatch(msg_type: str, id: str, data):
+def dispatch(msg_type: str, id: str, data=None):
     msg_item = {
         'msg_type': 'ux',
         'id': '',

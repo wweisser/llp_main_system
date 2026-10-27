@@ -66,7 +66,10 @@ async def parse_archive_que(q_item: Que_Item, db_obj: db.Db_Obj, cc=None):
      
     if type == 'cil': #case id list
         cn_list = db.inspect_table(db_obj, 'cases', param_list=['case_id'])
-        await oq.broadcast_item('cn', 'cn_list', cn_list['case_id'], cc)
+        await oq.broadcast_item('case_id', 'cn_list', cn_list['case_id'], cc)
+
+    elif type == 'new_cn':
+        db.create_case(db_obj, comment=None, case_id=case_id)
 
     elif type == 'stu' and isinstance(data, int):
         conf = db.update_start_time(db_obj, case_id=case_id, new_start_time=data)
@@ -97,11 +100,11 @@ async def parse_archive_que(q_item: Que_Item, db_obj: db.Db_Obj, cc=None):
             db.create_case(db_obj, data, case_id)
 
 
-async def start_archive_task(db_obj:db.Db_Obj, db_que: Db_Que, cc:list):
+async def start_archive_task(db_que: Db_Que, cc:list):
     while(True):
         qi = await db_que.get_db_item()
         if qi:
-            parse_archive_que(q_item=qi, db_obj=db_obj, cc=cc)
+            await parse_archive_que(q_item=qi, db_obj=db_que.db_obj, cc=cc)
 
 
 ### UNIT TEST ### ### UNIT TEST ### ### UNIT TEST ### ### UNIT TEST ### ### UNIT TEST ### 

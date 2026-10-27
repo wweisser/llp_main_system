@@ -25,17 +25,17 @@ async def parse_serial_input(db_que: dq.Db_Que, msg: dict, sys_state: dict, cc):
 
 async def parse_archive_request(db_que: dq.Db_Que, msg: dict, sys_state: dict):
     if msg['id'] == 'start_record' and sys_state['case_id'] != 0:
-        db_que.put_db_item(cm_type='stu', case_id=sys_state['case_id'], data=msg['data'])
+        await db_que.put_db_item(cm_type='stu', case_id=sys_state['case_id'], data=msg['data'])
         sys_state['autosave'] = True
         
     elif msg['id'] == 'stop_record':
         sys_state['autosave'] = False
 
     elif msg['id'] == 'get_note':
-        db_que.put_db_item('ent', anex='note', case_id=sys_state['case_id'], data=msg['data'])
+        await db_que.put_db_item('ent', anex='note', case_id=sys_state['case_id'], data=msg['data'])
 
     elif msg['id'] == 'get_data' and isinstance(msg['data'], dict):
-        db_que.put_db_item('ext', anex=msg['data']['table'], case_id=sys_state['case_id'], begin=msg['data']['begin'], to=msg['data']['to'], n=msg['data']['n'])
+        await db_que.put_db_item('ext', anex=msg['data']['table'], case_id=sys_state['case_id'], begin=msg['data']['begin'], to=msg['data']['to'], n=msg['data']['n'])
 
     return sys_state
 
@@ -44,7 +44,7 @@ async def parse_case_number_request(db_que: dq.Db_Que, msg: dict, sys_state: dic
         sys_state['case_id'] = msg['data']
 
     elif msg['id'] == 'list_request':
-        db_que.put_db_item('tlc')
+        await db_que.put_db_item('cil')
 
     return sys_state
 
@@ -69,6 +69,9 @@ async def parse_msg(db_que: dq.Db_Que, msg: dict, sys_state, cc):
     elif msg['msg_type'] == 'system':
         if msg['id'] == 'f_heartbeat':
             await parse_heartbeat(msg['data'], cc)
+        elif msg['id'] == 'start_case':
+            pass
+        
     else:
         print(f'parse_msg -> invalid command {msg}')
     return sys_state

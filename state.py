@@ -38,11 +38,10 @@ def pack_json(file: dict):
         print("output could not be processed")
         raise   
 
-def create_state(db_path: str):
+def create_state():
     sys_state = {
         "case_id": 0,
         "autosave": False,
-        "db_path": db_path,
         "start_time": 0,
         "start_time_hope": 0,
         "start_time_cor": 0,
@@ -50,7 +49,7 @@ def create_state(db_path: str):
         "perfusion_time": 0,
         "clock_time": 0,
         "perfusion_mode": "",
-        "respiratory_controlls": {
+        "gbm": {
             "gas_cybernation": False,
             "set_air_flow": 0,
             "set_oxygen_flow": 0,
@@ -62,7 +61,7 @@ def create_state(db_path: str):
             "air_flow": 0,
             "oxygen_flow": 0
         },
-        "gbm": {
+        "circulation": {
             "set_flow_ha": 0,
             "set_flow_pv": 0,
             "set_pressure_ha": 0,
