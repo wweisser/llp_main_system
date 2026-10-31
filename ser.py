@@ -4,7 +4,80 @@ import serial_asyncio
 import asyncio
 import ser_utils as su
 import onque as oq
-from datetime import datetime
+
+class Serial_Connection:
+
+    def __init__(self, url, bautrate):
+        self.url = url
+        self.bautrate = bautrate
+        self.reader = None
+        self.writer = None
+        self.device = None
+        self.main_loop = None
+        self.ux_loop = None
+        self.com_loop = None
+        self.active = False
+        print(f'2.) building serial port')
+
+    async def open_connection(self, ux_q, com_q):
+        try:
+            print(f'3.) url={self.url}, baudrate={self.bautrate}')
+            self.reader, self.writer = await serial_asyncio.open_serial_connection(url=self.url, baudrate=self.bautrate)
+            print(f'3.) serial port {self.url} is open')
+            self.active = True
+
+            if self.active == True:
+                self.ux_loop = asyncio.create_task(self.run_ux_loop(ux_q))
+                # self.com_loop =  asyncio.create_task(self.run_com_loop(com_q))
+
+        except Exception as e:
+            'connection was interrupetd'
+            self.active = False
+
+    def select_device(self, msg:str):
+        if not self.device and isinstance(msg, bytes) and len(msg) > 10:
+            i = msg.decode('utf-8')
+            if (i[3] == 58 and i[6] == 58 and i[9] == 9):
+                self.device = 'cdi'
+                print("cdi detcted")
+            elif i[:5] == '<gbm>':
+                self.device = 'gbm'
+                print("gbm detcted")
+
+    async def run_ux_loop(self, ux_q: asyncio.Queue):
+        print('ux_loop runns')
+        while self.active:
+            msg = None
+            try:
+                msg = await self.reader.readline()
+                if msg == None:
+                    raise ConnectionError(f'{self.url} no connection')
+                self.select_device(msg)
+                print(f'received message: {msg}')
+            except Exception as e:
+                print(e)
+                self.active = False
+                break
+            if msg != b'' and isinstance(msg, bytes):
+                msg = msg.decode('utf-8')
+                self.device = su.select_device(msg)
+                await oq.feed_q(ux_q, msg_type='serial_input', id=self.device, data=msg)
+            await asyncio.sleep(1)
+
+async def run_com_loop(com_q: asyncio.Queue, active_ports: list):
+    print('com_loop active')
+    while True:
+        com_item = await com_q.get()
+        if isinstance(com_item, dict):
+            try:
+                for port in active_ports:
+                    if port.device == com_item['device']:
+                        port.writer.write(com_item['com'].encode("utf-8"))
+                        await port.writer.drain()
+                print(f'command : {com_item} send\n')
+            except:
+                port.active = False
+                break
 
 def create_portlist():
     active_port_list = []
@@ -14,138 +87,57 @@ def create_portlist():
             continue
         else:
             active_port_list.append(port.device)
-    # print(f'create_portlist -> {active_port_list}')
     return active_port_list
 
-async def serial_connection(port, device_state, ux_q):
-    try:
-        reader, writer = await serial_asyncio.open_serial_connection(url=port, baudrate=9600)
-        # serial_port = serial.Serial(com_port, 9600, 8, "N", 1, timeout=1.0)
-        print(f'serial_connection -> serial_connection created')
-    except Exception as e:
-        print(f"{datetime.now()} serial_connection -> serial port to {port} could not be created")
-        print(e)
-        return None
-    device = None
-    while not device:
-        msg = await read_serial(reader)
-        device = su.select_device(msg)
-        print(f'serial_connection -> message : { msg}\n device : {device} detcted\n')
-    if device:
-        device_state['active'][device] = True
-        device_state['last_update'][device] = datetime.now()
-        device_state['reader'][device] = reader
-        device_state['writer'][device] = writer
-    else:
-        return None
+async def serial_connection_manager(ux_q, com_q):
+    await com_tester(com_q)
+    print(f'1.) Starting serial_connection_manager\n')
+    active_ports = []
     while True:
-        active_port_list = create_portlist()
-        if port not in active_port_list:
-            device_state['active'][device] = False
-            device_state['comports'][device] = None
-            device_state['serial_port'][device] = None
-            device_state['last_update'][device] = datetime.now()
-            print(f"{datetime.now()} serial_connection -> {device} disconected, last update : {device_state['last_update'][device]}")
-            return
-        msg = await read_serial(reader)
-        device_state['last_update'][device] = datetime.now()
-        if msg:
-            q_item = oq.create_q_item('serial_input', device, msg)
-            # print(f'serial_connection ->  {q_item}')
-            await oq.feed_queue(ux_q, q_item)
-        await asyncio.sleep(1)
+        port_list = create_portlist() 
 
-async def update_device_state(device_state, ux_q):
-    print(f'{datetime.now()} update_device_state -> task was started')
-    while True:
-        active_port_list = create_portlist()
-        # print(f'update_device_state -> {active_port_list}', device_state['connecting_ports'])
-        for port in active_port_list:
-            if not port in list(device_state['connecting_ports']):
-                device_state['connecting_ports'].append(port)
-                asyncio.create_task(serial_connection(port, device_state, ux_q))
-        for port in list(device_state['connecting_ports']): 
-            if port not in active_port_list:
-                device_state['connecting_ports'].remove(port)
-        await asyncio.sleep(1)
+        for ap in active_ports:
+            if all(ap.url != p for p in port_list) or ap.active == False:
+                active_ports.remove(ap)
+                print(f'removed {ap.url}\n')
 
-async def read_serial(reader):
-    try:
-        # msg = await loop.run_in_executor(None, serial_port.readline)
-        line = await reader.readline() 
-        if line:
-            # print(f'read_serial -> {line}')
-            return line
-    except Exception as e:
-        print(f"{datetime.now()} read_serial -> could not read from serial port")
-        print(e)
+        for port in port_list:
+            if all(port != ap.url for ap in active_ports):
+                np = Serial_Connection(port, 9600)
+                np.main_loop = asyncio.create_task(np.open_connection(ux_q, com_q))
+                active_ports.append(np)
+                print(f'added {np.url}\n')
 
-async def send_serial_task(device_state, tx_q):
-    print(f'{datetime.now()} send_serial -> task was started')
-    while True:
-        msg = await tx_q.get()
-        hub_port = device_state['serial_port']['hub']
-        if not device_state['active']['hub'] or not hub_port:
-            print(f'{datetime.now()} send_serial -> Message {msg} could not be send')
-            continue
-        try:
-            if msg and isinstance(msg, str):
-                if not hub_port.is_open:
-                    hub_port.open()
-                hub_port.write(msg.encode())
-        except Exception as e:
-            print(f'{datetime.now()} send_serial -> message could not be send')
+        await asyncio.sleep(3)
 
-async def connection_handler(tx_q, ux_q):
-    device_state = {
-        'connecting_ports': [],
-        'active': {
-            'cdi': False,
-            'hub': False,
-            'hsi': False,
-            'g_l': False,
-        },
-        'comports': {
-            'hub': None,
-            'cdi': None,
-            'g_l': None,
-            'hsi': None,
-        },
-        'serial_port': {
-            'hub': None,
-            'cdi': None,
-            'g_l': None,
-            'hsi': None,
-        },
-        'last_update':{
-            'hub': None,
-            'cdi': None,
-            'g_l': None,
-            'hsi': None,
-        },
-        'reader':{
-            'hub': None,
-            'cdi': None,
-            'g_l': None,
-            'hsi': None,
-        },
-        'writer':{
-            'hub': None,
-            'cdi': None,
-            'g_l': None,
-            'hsi': None,
-        }
-    }
-    await asyncio.gather(
-        asyncio.create_task(send_serial_task(device_state, tx_q)),
-        asyncio.create_task(update_device_state(device_state, ux_q))
-    )
+########test########test########test########test########test########test########test########test########test##########
+
+async def com_tester(com_q):
+
+    c_0 = 'test'
+    c_I = '<glm>c:0'
+    c_II = '<glm>c:1|21|406;'
+    c_III = '<glm>c:2|214|378;'
+    c_IV = '<glm>c:4'
+    c_V = '<glm>c:9'
+
+    test_command_arr = [c_0, c_I, c_II, c_III, c_IV, c_V]
+
+    for c in test_command_arr:
+        await su.send_ser_command(com_q, 'gbm', c)
+
 
 
 if __name__ == "__main__":
+
     ux_q = asyncio.Queue()
-    tx_q = asyncio.Queue()
+    com_q = asyncio.Queue()
+
     try:
-        asyncio.run(connection_handler(tx_q, ux_q))
+        asyncio.run(serial_connection_manager(ux_q, com_q))
     except KeyboardInterrupt:
         pass  # Stilles Beenden – keine Fehlermeldung
+
+########test########test########test########test########test########test########test########test########test##########
+
+

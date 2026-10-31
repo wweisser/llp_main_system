@@ -157,7 +157,7 @@ def register_ws(app, ux_q, connected_clients):
 async def create_system_tasks(db_que: dbq.Db_Que, ux_q, tx_q, cc: dict):
     system_tasks = []
     try:
-        # system_tasks.append(asyncio.create_task(se.connection_handler(tx_q, ux_q)))
+        system_tasks.append(asyncio.create_task(se.connection_handler(tx_q, ux_q)))
         system_tasks.append(asyncio.create_task(su.dequeue_loop(db_que, ux_q, system_tasks, cc)))
         system_tasks.append(asyncio.create_task(dbq.start_archive_task(db_que, cc)))
 

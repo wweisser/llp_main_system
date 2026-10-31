@@ -49,6 +49,25 @@ def build_cdi_arr(serial_read):
     cdi_data_arr = process_input(input)
     return cdi_data_arr
 
+def parse_gbm(input: str) -> list:
+    arr = []
+    l = len(input)
+    i = 0
+    if isinstance(input, bytes):
+        input = input.decode('utf_8')
+    while i < l:
+        if input[i] == '|' and i < l:
+            i += 1
+            numb = 0
+            while i < l and input[i].isdigit():
+                numb = numb * 10 + int(input[i])
+                i += 1
+            arr.append(numb)
+        else:
+            i += 1
+    return arr
+            
+
 if __name__ == '__main__':
     test =b' 09:41:33\t7.14\t ---\t ---\t 26.4\t --\t --\t ---\t -.-\t ---\t -.-\t    \t7.26\t ---\t ---\t25.5\t ---\t 25%\t  \r\n'
     # test = test.encode()

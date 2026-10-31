@@ -40,7 +40,8 @@ start_timestamp = None
 first_line = "Time/s\tCh1/nA\tCh2/nA\tCh3/nA\tCh4/nA\tCh5/nA\tCh6/nA\tT/°C"
 print(first_line)
 # file.write(first_line + "\n")
-ser = "FILL IN SERIAL PORT HERE"
+ser = "COM12"
+ser= serial.Serial('COM12', 9600)
 while(1): # Script will run until Ctrl+Z or Ctrl+C is pressed
 # Read data from serial port if available in the input buffer
     data = None
@@ -91,6 +92,6 @@ while(1): # Script will run until Ctrl+Z or Ctrl+C is pressed
                 to_insert.insert(0, str(round(delta_time, 1)))
             # printing data on screen and output file
             print("\t".join(to_insert))
-            file.write("\t".join(to_insert) + "\n")
+            # file.write("\t".join(to_insert) + "\n")
             # Next data point arrives in about 1.6 seconds
             # So, resting for 1.4 seconds should be enough 

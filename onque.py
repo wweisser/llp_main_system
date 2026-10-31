@@ -10,6 +10,15 @@ async def feed_queue(q, input: dict):
         print("could not feed item to input que")
         print(e)
 
+async def feed_q(q, msg_type: str, id: str, data = None):
+    q_item = {
+        'msg_type': msg_type,
+        'time': int(datetime.now().timestamp()),
+        'id': id,
+        'data': data
+    }
+    await q.put(q_item)
+
 async def feed_qui_queue(q, input: dict):
     try:
         if q and input:

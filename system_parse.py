@@ -9,6 +9,8 @@ import db_que as dq
 import asyncio
 from datetime import datetime
 
+
+
 async def parse_serial_input(db_que: dq.Db_Que, msg: dict, sys_state: dict, cc):
     """ditributes msg accoring to the id to parse_cdi, parse_gls... broadcasts the current state"""
     if msg['id'] == 'cdi':
@@ -19,8 +21,8 @@ async def parse_serial_input(db_que: dq.Db_Que, msg: dict, sys_state: dict, cc):
             db_que.put_db_item('ent', anex='cdi', case_id=sys_state['case_id'], data=cdi_arr)
 
     elif msg['id'] == 'gbm':
-        pass
-    # memory.put_state_to_cache(cache, key, sys_state)
+        gbm_data = cdc.parse_gbm(msg['data']) 
+        print(f'parse_serial_input -> gbm_data {gbm_data}')
     return sys_state
 
 async def parse_archive_request(db_que: dq.Db_Que, msg: dict, sys_state: dict):
@@ -55,6 +57,9 @@ async def parse_heartbeat(data, cc):
         await oq.broadcast_item('heartbeat', 'bcknd_heartbeat', data, cc)
         print(f'parse_heartbeat -> handshake accapted\n')
 
+async def parse_serial_command():
+    pass
+
 async def parse_msg(db_que: dq.Db_Que, msg: dict, sys_state, cc):
     # print(f'parse_msg -> Input parser called : {msg}\n')
     if msg['msg_type'] == 'serial_input':
@@ -71,7 +76,7 @@ async def parse_msg(db_que: dq.Db_Que, msg: dict, sys_state, cc):
             await parse_heartbeat(msg['data'], cc)
         elif msg['id'] == 'start_case':
             pass
-        
+
     else:
         print(f'parse_msg -> invalid command {msg}')
     return sys_state
