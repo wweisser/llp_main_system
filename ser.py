@@ -34,10 +34,11 @@ class Serial_Connection:
             'connection was interrupetd'
             self.active = False
 
-    def select_device(self, msg:str):
+    def select_device(self, msg: str):
         if not self.device and isinstance(msg, bytes) and len(msg) > 10:
             i = msg.decode('utf-8')
-            if (i[3] == 58 and i[6] == 58 and i[9] == 9):
+            print(f'select_device -> indicator chars: {i[1]}, {i[3]}, {i[6]}')
+            if (i[1].isdigit() and i[3] == ':' and i[6] == ':'):
                 self.device = 'cdi'
                 print("cdi detcted")
             elif i[:5] == '<gbm>':
@@ -45,21 +46,25 @@ class Serial_Connection:
                 print("gbm detcted")
 
     async def run_ux_loop(self, ux_q: asyncio.Queue):
-        print('ux_loop runns')
         while self.active:
             msg = None
+            # print(f'ux_loop runns for {self.url}, status: {self.active}')
             try:
+                # print(f'waiting for msg')
                 msg = await self.reader.readline()
                 if msg == None:
                     raise ConnectionError(f'{self.url} no connection')
                 self.select_device(msg)
-                print(f'received message: {msg}')
+                # print(f'received message: {msg}, device: {self.device}')
             except Exception as e:
-                print(e)
+                print(f'error during serial reading of {self.device}: {e}')
                 self.active = False
                 break
-            su.parse_ser_msg(self.device, msg, ux_q=ux_q)
+
+            await su.dispatch_ser_msg(self.device, msg, ux_q=ux_q)
+            # print('msg was dispatched')
             await asyncio.sleep(1)
+        print(f'{self.device}-loop was canceled')
 
 async def run_com_loop(com_q: asyncio.Queue, active_ports: list):
     print('com_loop active')
@@ -94,8 +99,9 @@ def create_portlist():
             active_port_list.append(port.device)
     return active_port_list
 
+
 async def serial_connection_manager(ux_q, com_q):
-    # await com_tester(com_q)
+    asyncio.create_task(com_tester(ux_q, com_q))
     print(f'Starting serial_connection_manager\n')
     active_ports = []
     while True:
@@ -113,11 +119,11 @@ async def serial_connection_manager(ux_q, com_q):
                 active_ports.append(np)
                 print(f'added {np.url}\n')
 
-        await asyncio.sleep(3)
+        await asyncio.sleep(1)
 
 ########test########test########test########test########test########test########test########test########test##########
 
-async def com_tester(com_q: asyncio.Queue):
+async def com_tester(ux_q: asyncio.Queue, com_q: asyncio.Queue):
     print('starting com_tester')
     # c_0 = 'test'
     # c_I = '<glm>c:0'
@@ -131,8 +137,9 @@ async def com_tester(com_q: asyncio.Queue):
     # for c in test_command_arr:
     #     await send_ser_command(com_q, 'gbm', c)
 
-    # while True:
-    #     print(f'q_item: {await com_q.get()}')
+    while True:
+        item_from_ux_q = await ux_q.get()
+        print(f'q_item: {item_from_ux_q}')
 
 if __name__ == "__main__":
 
