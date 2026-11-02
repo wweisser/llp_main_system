@@ -66,7 +66,7 @@ async def parse_archive_que(q_item: Que_Item, db_obj: db.Db_Obj, cc=None):
      
     if type == 'cil': #case id list
         cn_list = db.inspect_table(db_obj, 'cases', param_list=['case_id'])
-        await oq.broadcast_item('case_id', 'cn_list', cn_list['case_id'], cc)
+        await oq.broadcast_item('case_id', 'cn_list', cc, cn_list['case_id'])
 
     elif type == 'new_cn':
         db.create_case(db_obj, comment=None, case_id=case_id)
@@ -74,13 +74,13 @@ async def parse_archive_que(q_item: Que_Item, db_obj: db.Db_Obj, cc=None):
     elif type == 'stu' and isinstance(data, int):
         conf = db.update_start_time(db_obj, case_id=case_id, new_start_time=data)
         if conf:
-            await oq.broadcast_item('st', 'st_update', data, cc)
+            await oq.broadcast_item('st', 'st_update', cc, data)
             print(f'parse_archive_que -> new start time {data}\n')
 
     elif type == 'tlc':
         df = db.build_download_file(db_obj, case_id)
         if df:
-            await oq.broadcast_item('cd', 'total_case', 'excel file was created', cc)
+            await oq.broadcast_item('cd', 'total_case', cc, 'excel file was created')
 
     elif type == 'ext' and isinstance(case_id, int) and case_id != 0:
         print(f'parse_archive_que -> get extraction note command registered\n')
@@ -88,7 +88,7 @@ async def parse_archive_que(q_item: Que_Item, db_obj: db.Db_Obj, cc=None):
         if (anex == 'notes' or anex == 'cdi_data' or 'cases') and (not data or isinstance(data, list)):
             extct = db.inspect_table(db_obj, table=anex, case_id=case_id, param_list=data, begin=begin, to=to, n=n)
         if extct:
-            await oq.broadcast_item('ext', data, extct, cc)
+            await oq.broadcast_item('ext', cc, data, extct)
             print(f'parse_archive_que -> note brod item: {extct}\n')
 
     elif type == 'entry':

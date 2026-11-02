@@ -43,12 +43,7 @@ def create_q_item(msg_type: str, id: str, data):
         q_item['data'] = data
     return q_item
 
-def parse_input(input):
-    res = input[:9]
-    if (res[0] == 32 and res[3] == 58 and res[6] == 58):
-        return('cdi')
-
-async def broadcast_item(msg_type: str, id: str, data, cc:list):
+async def broadcast_item(msg_type: str, id: str, cc:list, data=None):
     """Adds a que item with msg_type, id and the data to every que in the client collective"""
     item = create_q_item(msg_type, id, data)
     for q in cc.values():

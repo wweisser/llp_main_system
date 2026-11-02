@@ -58,10 +58,7 @@ class Serial_Connection:
                 print(e)
                 self.active = False
                 break
-            if msg != b'' and isinstance(msg, bytes):
-                msg = msg.decode('utf-8')
-                self.device = su.select_device(msg)
-                await oq.feed_q(ux_q, msg_type='serial_input', id=self.device, data=msg)
+            su.parse_ser_msg(self.device, msg, ux_q=ux_q)
             await asyncio.sleep(1)
 
 async def run_com_loop(com_q: asyncio.Queue, active_ports: list):
@@ -79,6 +76,14 @@ async def run_com_loop(com_q: asyncio.Queue, active_ports: list):
                 port.active = False
                 break
 
+async def send_ser_command(com_q: asyncio.Queue, device: str, command: str):
+    com_item = {
+        'device': device, 
+        'com': command
+    }
+    await com_q.put(com_item)
+    print(f'puting item: {com_item}')
+
 def create_portlist():
     active_port_list = []
     port_list = serial.tools.list_ports.comports()
@@ -90,14 +95,14 @@ def create_portlist():
     return active_port_list
 
 async def serial_connection_manager(ux_q, com_q):
-    await com_tester(com_q)
-    print(f'1.) Starting serial_connection_manager\n')
+    # await com_tester(com_q)
+    print(f'Starting serial_connection_manager\n')
     active_ports = []
     while True:
         port_list = create_portlist() 
 
         for ap in active_ports:
-            if all(ap.url != p for p in port_list) or ap.active == False:
+            if all(ap.url != p for p in port_list) or (ap.device != None and ap.active == False):
                 active_ports.remove(ap)
                 print(f'removed {ap.url}\n')
 
@@ -112,21 +117,22 @@ async def serial_connection_manager(ux_q, com_q):
 
 ########test########test########test########test########test########test########test########test########test##########
 
-async def com_tester(com_q):
+async def com_tester(com_q: asyncio.Queue):
+    print('starting com_tester')
+    # c_0 = 'test'
+    # c_I = '<glm>c:0'
+    # c_II = '<glm>c:1|21|406;'
+    # c_III = '<glm>c:2|214|378;'
+    # c_IV = '<glm>c:4'
+    # c_V = '<glm>c:9'
 
-    c_0 = 'test'
-    c_I = '<glm>c:0'
-    c_II = '<glm>c:1|21|406;'
-    c_III = '<glm>c:2|214|378;'
-    c_IV = '<glm>c:4'
-    c_V = '<glm>c:9'
+    # test_command_arr = [c_0, c_I, c_II, c_III, c_IV, c_V]
 
-    test_command_arr = [c_0, c_I, c_II, c_III, c_IV, c_V]
+    # for c in test_command_arr:
+    #     await send_ser_command(com_q, 'gbm', c)
 
-    for c in test_command_arr:
-        await su.send_ser_command(com_q, 'gbm', c)
-
-
+    # while True:
+    #     print(f'q_item: {await com_q.get()}')
 
 if __name__ == "__main__":
 
@@ -141,3 +147,4 @@ if __name__ == "__main__":
 ########test########test########test########test########test########test########test########test########test##########
 
 
+# Test 2 komplettieren der programmierung des esp32
