@@ -5,15 +5,24 @@ import db_que as dq
 import asyncio
 
 
-async def parse_serial_input(db_que: dq.Db_Que, msg: dict, sys_state: dict, cc):
+
+async def parse_serial_input(db_que: dq.Db_Que, com_q: asyncio.Queue, msg: dict, sys_state: dict, cc):
+    print(f'parse_serial_input -> msg: {msg}')
     if msg['id'] == 'cdi':
-        # sys_state = su.cdi_to_state(sys_state, msg['data'])
-        await oq.broadcast_item('state', 'state', cc, data=sys_state)
-        if sys_state['autosave']:
-            db_que.put_db_item('ent', anex='cdi', case_id=sys_state['case_id'], data=msg['data'])
+        sys_state = su.cdi_to_state(sys_state=sys_state, cdi_arr=msg['data'])
+        # if sys_state['autosave']:
+        #     db_que.put_db_item('ent', anex='cdi', case_id=sys_state['case_id'], data=msg['data'])
 
     elif msg['id'] == 'gbm':
+        sys_state = su.gbm_to_state(sys_state=sys_state, glm_arr=msg['data'])
         print(f'parse_serial_input -> gbm_data {msg['data']}')
+
+    if sys_state['gbm_align']:
+        sys_state = await su.align_gbm(com_q, sys_state)
+
+    await oq.broadcast_item('state', 'state', cc, data=sys_state)
+
+
     return sys_state
 
 async def parse_archive_request(db_que: dq.Db_Que, msg: dict, sys_state: dict):
@@ -48,14 +57,15 @@ async def parse_heartbeat(data, cc):
         await oq.broadcast_item('heartbeat', 'bcknd_heartbeat', cc, data=data)
         print(f'parse_heartbeat -> handshake accapted\n')
 
-async def parse_serial_command(com_q: asyncio.Queue, msg):
+async def parse_front_end_command(com_q: asyncio.Queue, msg: dict):
+    # command to serial device
     ser.send_ser_command(com_q = com_q, device = msg['id'], command = msg['data'])
+    # command to system like on and off of automation
 
 
-async def parse_msg(db_que: dq.Db_Que, com_q: asyncio.Queue, msg: dict, sys_state, cc):
-
+async def parse_msg(db_que: dq.Db_Que, com_q: asyncio.Queue, ux_q: asyncio.Queue, msg: dict, sys_state, cc):
     if msg['msg_type'] == 'ser_data':
-        sys_state = await parse_serial_input(db_que, msg, sys_state, cc)
+        sys_state = await parse_serial_input(db_que, com_q, msg, sys_state, cc)
 
     elif msg['msg_type'] == 'archive':
         sys_state = await parse_archive_request(db_que, msg, sys_state)
@@ -70,11 +80,12 @@ async def parse_msg(db_que: dq.Db_Que, com_q: asyncio.Queue, msg: dict, sys_stat
             pass
 
     elif msg['msg_type'] == 'serial_commmand':
-        parse_serial_command(com_q, msg)
+        parse_front_end_command(com_q, msg)
     
     else:
         print(f'parse_msg -> invalid command {msg}')
     return sys_state
 
-# 3 build cdi to state
+
+# Kommunikation backend - frontend Serial -> ux_q -> parse -> cc -> gui_state -> callbacks
 # 4 Frontend commando callbacks einführen und Kommunikation testen.

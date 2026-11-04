@@ -8,18 +8,20 @@ from datetime import datetime
 
 
 # start loop that fetches itmes from the input que
-async def dequeue_loop(db_que: dbq.Db_Que, ux_q, com_q: asyncio.Queue, cc: dict):
+async def dequeue_loop(db_que: dbq.Db_Que, ux_q: asyncio.Queue, com_q: asyncio.Queue, cc: dict):
     """Starts the main loop that listens to the ux_q. If the dequed object is a dict, parse_msg is called.
     If the return of parsed_msg is an asyncio.Task, that task is added to the system_tasks"""
     print("DEQUELOOP STARTED")
     while True:
         # try:
-            msg = await ux_q.get()
-            sys_state = memory.get_state_from_cache(db_que.db_obj.cache, db_que.db_obj.key)
+        msg = await ux_q.get()
+        # print(f'dequeue_loop -> {msg}')
+        sys_state = memory.get_state_from_cache(db_que.db_obj.cache, db_que.db_obj.key)
 
-            if isinstance(msg, dict):
-                sys_state = await system_parse.parse_msg(db_que, com_q, msg, sys_state=sys_state, cc=cc)
-                memory.put_state_to_cache(db_que.db_obj.cache, db_que.db_obj.key, sys_state)
+        if isinstance(msg, dict):
+            print(f'dequeue_loop -> {cc}')
+            sys_state = await system_parse.parse_msg(db_que, com_q, ux_q, msg, sys_state, cc)
+            memory.put_state_to_cache(db_que.db_obj.cache, db_que.db_obj.key, sys_state)
 
         # except Exception as e:
         #     print('error during deque loop\n', e)

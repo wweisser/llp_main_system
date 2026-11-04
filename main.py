@@ -154,11 +154,11 @@ def register_ws(app, ux_q, connected_clients):
         except* WebSocketDisconnect:
             del connected_clients[ws]
 
-async def create_system_tasks(db_que: dbq.Db_Que, ux_q, tx_q, cc: dict):
+async def create_system_tasks(db_que: dbq.Db_Que, ux_q, com_q, cc: dict):
     system_tasks = []
     try:
-        system_tasks.append(asyncio.create_task(se.connection_handler(tx_q, ux_q)))
-        system_tasks.append(asyncio.create_task(su.dequeue_loop(db_que, ux_q, system_tasks, cc)))
+        system_tasks.append(asyncio.create_task(se.serial_connection_manager(ux_q=ux_q, com_q=com_q)))
+        system_tasks.append(asyncio.create_task(su.dequeue_loop(db_que=db_que, ux_q=ux_q, com_q=com_q, cc=cc)))
         system_tasks.append(asyncio.create_task(dbq.start_archive_task(db_que, cc)))
 
         # system_tasks.append(asyncio.create_task(su.system_updater(cache, key, archive_intervall, 1.0)))
@@ -182,45 +182,44 @@ async def main():
         db_path = 'sqlite:///data_vault.db'
     elif os == 'Linux':
         db_path = '/home/whw/mp.db'
+    
     db_obj = db.Db_Obj(db_parth=db_path, key='key')
     db_que = dbq.Db_Que(db_obj=db_obj)
     ux_q = asyncio.Queue()
-    tx_q = asyncio.Queue()
+    com_q = asyncio.Queue()
+    cc: dict[WebSocket, asyncio.Queue] = {}
+
     sys_state = state.create_state()
 
     memory.put_state_to_cache(db_obj.cache, db_obj.key, sys_state)
 
-    com_port_hub = None
-    cc: dict[WebSocket, asyncio.Queue] = {}
+    # try:
+    fast_api_app = FastAPI() # hier wird die fastAPI app erzeugt
+    print("1 - FastAPI created")
 
+    await start_ws(fast_api_app, ux_q, cc)
+    print("2 - start_ws was called")
 
-    try:
-        fast_api_app = FastAPI() # hier wird die fastAPI app erzeugt
-        print("1 - FastAPI created")
+    system_tasks = await create_system_tasks(db_que ,ux_q, com_q, cc)
+    print("3 - system tasks were created")
 
-        await start_ws(fast_api_app, ux_q, cc)
-        print("2 - start_ws was called")
+    config = uvicorn.Config(fast_api_app, host="0.0.0.0", port=8000, log_config=None)
+    print("4 - uvicorn config created")
 
-        system_tasks = await create_system_tasks(db_que ,ux_q, tx_q, cc)
-        print("3 - system tasks were created")
+    uvicorn_server = uvicorn.Server(config)
+    print("5 - uvicorn server created")
 
-        config = uvicorn.Config(fast_api_app, host="0.0.0.0", port=8000, log_config=None)
-        print("4 - uvicorn config created")
+    await asyncio.gather(uvicorn_server.serve(), *system_tasks)
 
-        server = uvicorn.Server(config)
-        print("5 - uvicorn server created")
-
-        await asyncio.gather(server.serve(), *system_tasks)
-
-    except Exception as e:
-        for task in system_tasks:
-            task.cancel()           # Beim App-Shutdown: Task abbrechen
-            try:
-                await task          # Warten bis der Task wirklich gestoppt ist
-            except asyncio.CancelledError:
-                print(f'main -> {task} was stoped')
-        print("main -> system was closed")
-        print(e)
+    # except Exception as e:
+    #     for task in system_tasks:
+    #         task.cancel()           # Beim App-Shutdown: Task abbrechen
+    #         try:
+    #             await task          # Warten bis der Task wirklich gestoppt ist
+    #         except asyncio.CancelledError:
+    #             print(f'main -> {task} was stoped')
+    #     print("main -> system was closed")
+    #     print(e)
 
 def run_async_world():
     asyncio.run(main())
@@ -230,13 +229,7 @@ if __name__ == "__main__":
         asyncio.run(main())
     except:
         print('canceled by keyboard interrupt') 
-  
-    # threading.Thread(target=run_async_world, daemon=True).start()
 
-    # app = ttk.Window(themename="darkly")
-
-    # app.after(...) Polling für ux_q -> GUI, wie vorher besprochen
-    # app.mainloop()   # läuft im Hauptthread, blockiert dort — das ist ok
 
 
 #URL : http://127.0.0.1:8050/d1/

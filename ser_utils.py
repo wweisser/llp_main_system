@@ -56,7 +56,7 @@ def process_gbm(msg: str) -> list:
             i += 1
     return arr
             
-async def dispatch_ser_msg(device:str, msg: str, ux_q=None):
+async def dispatch_ser_msg(device:str, msg: str, ux_q):
     if msg:
         if isinstance(msg, bytes):
             msg = msg.decode("utf-8")
@@ -75,12 +75,13 @@ async def dispatch_ser_msg(device:str, msg: str, ux_q=None):
 
 # if __name__ == '__main__':
 #     import asyncio
-    #         b' 18:40:34\t7.14\t ---\t ---\t33.9\t -- \t -- \t ---\t -.-\t ---\t -.-\t    \t7.30\t ---\t ---\t33.4\t ---\t ---\t -.-\r\n'
-    # test =  b' 09:41:33\t7.14\t ---\t ---\t-26.4\t --\t --\t ---\t -.-\t ---\t -.-\t    \t7.26\t ---\t ---\t25.5\t ---\t 25%\t  \r\n'
+#     #           Time      pH   CO2   O2    Temp  HCO3  BE    cSO2  K+    VO2   Q     BSA   pH    CO2   O2    Temp  SO2   HCT   HGB
+#     #         b' 18:40:34\t7.14\t ---\t ---\t33.9\t -- \t -- \t ---\t -.-\t ---\t -.-\t    \t7.30\t ---\t ---\t33.4\t ---\t ---\t -.-\r\n'
+#     test =  b' 09:41:33\t7.14\t ---\t ---\t-26.4\t --\t --\t ---\t -.-\t ---\t -.-\t    \t7.26\t ---\t ---\t25.5\t ---\t 25%\t  -.-\r\n'
 #     print(test)
 #     ux_q = asyncio.Queue()
 #     com_q = asyncio.Queue()
 
-#     asyncio.run(dispatch_ser_msg('cdi', test, com_q))
-
-# Test 1
+#     arr = asyncio.run(dispatch_ser_msg('cdi', test, com_q))
+#     print(arr)
+# # Test 1
