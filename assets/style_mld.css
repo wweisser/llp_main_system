@@ -163,11 +163,18 @@
     font-family: Arial, Helvetica, sans-serif;
 }
 
-.auto_gbm_btn{
+.align_btn_on{
+    margin: 3px;
+    border-radius: 6px;
+    background-color: var(--red_alert_color);
+    color: var(--text_color_I);
+}
+
+.align_btn_off{
     margin: 3px;
     border-radius: 6px;
     background-color: var(--text_color_I);
-    color: var(--bg_color_II);
+    color: var(--bg_color_III);
 }
 
 .download_mdl{

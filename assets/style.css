@@ -125,7 +125,7 @@ body{
     background-color: var(--active_color);
     color: var(--text_color_active);
 }
-button:disabled {
+.button:disabled {
     opacity: 0.5;
     cursor: not-allowed;
     background-color: #ccc;

@@ -1,4 +1,4 @@
-from dash import Input, Output, html, State
+from dash import Input, Output, html, State 
 from dash.exceptions import PreventUpdate
 import gui_utils as gu
 import gui_case_management as gcm
@@ -24,9 +24,7 @@ def tabbar_callbacks(app):
     def update_perfsuion_state(perfusion_time, perfusion_mode):
         clock_time = datetime.time()
         return perfusion_time, perfusion_mode, clock_time
-
     
-    # modify cm modal
 
 def heartbeat_to_button(app, parameter, btn_I, btn_II):
     @app.callback(
@@ -52,6 +50,7 @@ def heartbeat_to_button(app, parameter, btn_I, btn_II):
         except Exception as e:
             print(f'heartbeat_to_button -> error during heartbeat processing: {e}')
             raise PreventUpdate
+        
 
 def update_clocktime(app, clocktime_id):
     @app.callback(
@@ -66,83 +65,117 @@ def update_clocktime(app, clocktime_id):
             return datum_string
         else: 
             return None
-# def case_data_to_button(app, pre_text, parameter, btn):
-#     @app.callback(
-#         Output(btn, 'children'),
-#         Input('state_data_store', 'data'),
-#         prevent_initial_call=True,
-#     )
-#     def process(msg):
-#         try:
-#             if msg['msg_type'] == 'state' and msg['id'] == 'state':
-#                 data = msg['data']
-#                 val = data['system'][parameter]
-#                 if not isinstance(val, str):
-#                     val = str(val)
-#                 string = f'{pre_text} {val}'    
-#                 return string
-#             else:
-#                 return f'{pre_text}'
-#         except Exception as e:
-#             print(f'system_to_button -> {parameter} could not be linked to a button {val['system'][parameter]}\n')
-#             return ""
 
-def state_to_button(app, parameter, btn):
+def state_to_button(app):
     @app.callback(
-        Output(btn, 'children'),
+        Output('art_po2', 'children'),
+        Output('art_ph', 'children'),
+        Output('art_pco2', 'children'),
+        Output('hco3', 'children'),
+        Output('base', 'children'),
+        Output('cso2', 'children'),
+        Output('k', 'children'),
+        Output('vo2', 'children'),
+        Output('ven_ph', 'children'),
+        Output('ven_pco2', 'children'),
+        Output('ven_po2', 'children'),
+        Output('hct', 'children'),
+        Output('hb', 'children'),
+        Output('lactate', 'children'),
+        Output('glucose', 'children'),
+
         Input('state_data_store', 'data'),
         prevent_initial_call=True,
     )
-    def process(msg):
+    def cdi_callback(msg):
         try:
-            print(f'state_to_button -> processing {parameter} for button {btn} with msg : {msg['msg_type'], msg['id']}\n')
-            if isinstance(msg, dict) and msg['msg_type'] == 'state' and msg['id'] == 'state':
-                data = msg['data']
-                val = data[parameter]['val']
-                if not isinstance(val, str):
-                    val = str(val)
-                return val
+            if msg['id'] == 'state' and msg['data']['cdi']:
+                return msg['data']['cdi']
             else:
-                return ""
+                raise PreventUpdate
         except Exception as e:
-            print(f'parameter_to_button -> {parameter} could not be linked to a button')
-            return ""
+            return print(f'cdi_callback {e}')
 
-def state_to_gui(app):
-    print(f'state_to_gui -> gui updated')
-    return(html.Div([
-        # heartbeat_to_button(app, 'Clocktime:', 'clock_time', 'perfuison_time'),
+    @app.callback(
+        Output('art_flow', 'children'),
+        Output('art_pressure', 'children'),
+        Output('art_temp', 'children'),
+        Output('ven_flow', 'children'),
+        Output('ven_pressure', 'children'),
+        Output('ven_temp', 'children'),
 
-        # case_data_to_button(app, 'Case ID:    ', 'case_number', 'case_id'),
-        # case_data_to_button(app, 'Start: ', 'start_time', 'start_time'),
-        # case_data_to_button(app, 'Mode: ', 'perfusion_mode', 'perfusion_mode'),
+        Input('state_data_store', 'data'),
+        prevent_initial_call=True,
+    )
+    def pump_callback(msg):
+        try:
+            if msg['id'] == 'state' and msg['data']['pump']:
+                return msg['data']['pump']
+            else:
+                raise PreventUpdate
+        except Exception as e:
+            return print(f'cdi_callback {e}')
 
-        state_to_button(app, 'art_flow', 'art_flow'),
-        state_to_button(app, 'art_pressure', 'art_pressure'),
-        state_to_button(app, 'art_temp', 'art_temp'),
-        state_to_button(app, 'ven_flow', 'ven_flow'),
-        state_to_button(app, 'ven_pressure', 'ven_pressure'),
-        state_to_button(app, 'ven_temp', 'ven_temp'),
-        state_to_button(app, 'art_ph', 'art_ph'),
-        state_to_button(app, 'art_pco2', 'art_pco2'),
-        state_to_button(app, 'art_po2', 'art_po2'),
-        state_to_button(app, 'hco3', 'hco3'),
-        state_to_button(app, 'base', 'base'),
-        state_to_button(app, 'cso2', 'cso2'),
-        # state_to_button(app, 'na', 'btn'),
-        state_to_button(app, 'k', 'k'),
-        # state_to_button(app, 'ca', 'btn'),
-        # state_to_button(app, 'cl', 'btn'),
-        state_to_button(app, 'vo2', 'vo2'),
-        state_to_button(app, 'do2', 'do2'),
-        state_to_button(app, 'ven_ph', 'ven_ph'),
-        state_to_button(app, 'ven_pco2', 'ven_pco2'),
-        state_to_button(app, 'ven_po2', 'ven_po2'),
-        # state_to_button(app, 'hct', 'btn'),
-        # state_to_button(app, 'hb', 'btn'),
-        # state_to_button(app, 'lactate', 'btn'),
-        # state_to_button(app, 'glucose', 'btn'),
-        # state_to_button(app, 'system_volume', 'btn'),
-        # parameter_to_button(app, 'filter_flow', 'btn'),
-        # parameter_to_button(app, 'substitude_flow', 'btn'),
-    ]))
+    @app.callback(
+        Output('gbm_align_btn', 'className'),
+
+        Output('set_fio2_slider', 'disabled'),
+        Output('set_gas_flow_slider', 'disabled'),
+        Output('set_po2_slider', 'disabled'),
+        Output('set_pco2_slider', 'disabled'),
+
+        Output('set_fio2_slider', 'value'),
+        Output('set_gas_flow_slider', 'value'),
+
+        Output('set_gas_flow', 'children'),
+        Output('set_fio2', 'children'),
+        Output('set_o2_flow', 'children'),
+        Output('set_air_flow', 'children'),
+        Output('gas_flow', 'children'),
+        Output('fio2', 'children'),
+        Output('air_flow', 'children'),
+        Output('oxygen_flow', 'children'),
+
+        Input('state_data_store', 'data'),
+        prevent_initial_call=True,
+    )
+    def gbm_callback(msg):
+        try:
+            if msg['id'] == 'state' and msg['data']['gbm']:
+                data = msg['data']['gbm']
+                ret = {
+                    'gbm_align_btn': "",
+                    'set_fio2_slider': {
+                        'disabled': data['gbm_align'],
+                        'value': data['set_fio2'],
+                    },
+                    'set_gas_flow_slider': {
+                        'disabled': data['gbm_align'],
+                        'value': data['set_gas_flow'],
+                    },
+                    'set_po2_slider': {
+                        data['gbm_align'],
+                    },
+                    'set_pco2_slider': {
+                        data['gbm_align'],
+                    },
+                    'set_gas_flow': data['set_gas_flow'],
+                    'set_fio2': data['set_fio2'],
+                    'set_o2_flow': data['set_oxygen_flow'],
+                    'set_air_flow':  data['set_oxygen_flow'],
+                    'gas_flow': data['gas_flow'],
+                    'fio2': data['fio2'],
+                    'air_flow': data['air_flow'],
+                    'oxygen_flow': data['oxygen_flow'],
+                    }
+                if data['gbm_align']:
+                    ret['gbm_align_btn'] = 'align_btn_on'
+                else:
+                    ret['gbm_align_btn'] = 'align_btn_off'
+                return ret
+            else:
+                raise PreventUpdate
+        except Exception as e:
+            print(f'cdi_callback {e}')
+            raise PreventUpdate
+        

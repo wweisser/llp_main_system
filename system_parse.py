@@ -17,11 +17,18 @@ async def parse_serial_input(db_que: dq.Db_Que, com_q: asyncio.Queue, msg: dict,
         sys_state = su.gbm_to_state(sys_state=sys_state, glm_arr=msg['data'])
         print(f'parse_serial_input -> gbm_data {msg['data']}')
 
-    if sys_state['gbm_align']:
+    elif msg['id'] == 'gbm_align':
+        su.gbm_align(sys_state=sys_state, glm_arr=msg['data'])
+
+    elif msg['id'] == 'gbm_align_com':
+        sys_state['gbm']['gbm_align'] = msg['data']['gbm_align']
+        sys_state['gbm']['set_gas_flow'] = msg['data']['set_gas_flow']
+        sys_state['gbm']['set_fio2'] = msg['data']['set_fio2']
+
+    if sys_state['gbm']['gbm_align']:
         sys_state = await su.align_gbm(com_q, sys_state)
 
     await oq.broadcast_item('state', 'state', cc, data=sys_state)
-
 
     return sys_state
 
@@ -85,7 +92,6 @@ async def parse_msg(db_que: dq.Db_Que, com_q: asyncio.Queue, ux_q: asyncio.Queue
     else:
         print(f'parse_msg -> invalid command {msg}')
     return sys_state
-
 
 # Kommunikation backend - frontend Serial -> ux_q -> parse -> cc -> gui_state -> callbacks
 # 4 Frontend commando callbacks einführen und Kommunikation testen.

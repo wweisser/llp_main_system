@@ -8,27 +8,36 @@ import state
 
 def cdi_to_state(sys_state: dict, cdi_arr: list):
     if len(cdi_arr) == 18:
-        sys_state['art_ph'] =  cdi_arr[0]
-        sys_state['art_pco2'] = cdi_arr[1]
-        sys_state['art_po2'] = cdi_arr[2]
-        sys_state['art_temp'] = cdi_arr[3]
-        sys_state['hco3'] = cdi_arr[4]
-        sys_state['base'] = cdi_arr[5]
-        sys_state['cso2'] = cdi_arr[6]
-        sys_state['k'] = cdi_arr[7]
-        sys_state['vo2'] = cdi_arr[8]
-        sys_state['q'] = cdi_arr[9]
-        sys_state['bsa'] = cdi_arr[10]
-        sys_state['ven_ph'] = cdi_arr[11]
-        sys_state['ven_pco2'] = cdi_arr[12]
-        sys_state['ven_po2'] = cdi_arr[13]
-        sys_state['ven_temp'] = cdi_arr[14]
-        sys_state['so2'] = cdi_arr[15]
-        sys_state['hct'] = cdi_arr[16]
-        sys_state['hb'] = cdi_arr[17]
+        sys_state['cdi']['art_ph'] =  cdi_arr[0]
+        sys_state['cdi']['art_pco2'] = cdi_arr[1]
+        sys_state['cdi']['art_po2'] = cdi_arr[2]
+        sys_state['cdi']['art_temp'] = cdi_arr[3]
+        sys_state['cdi']['cdi']['hco3'] = cdi_arr[4]
+        sys_state['cdi']['base'] = cdi_arr[5]
+        sys_state['cdi']['cso2'] = cdi_arr[6]
+        sys_state['cdi']['k'] = cdi_arr[7]
+        sys_state['cdi']['vo2'] = cdi_arr[8]
+        sys_state['cdi']['q'] = cdi_arr[9]
+        sys_state['cdi']['bsa'] = cdi_arr[10]
+        sys_state['cdi']['ven_ph'] = cdi_arr[11]
+        sys_state['cdi']['ven_pco2'] = cdi_arr[12]
+        sys_state['cdi']['ven_po2'] = cdi_arr[13]
+        sys_state['cdi']['ven_temp'] = cdi_arr[14]
+        sys_state['cdi']['so2'] = cdi_arr[15]
+        sys_state['cdi']['hct'] = cdi_arr[16]
+        sys_state['cdi']['hb'] = cdi_arr[17]
     return sys_state
 
 #String bcst_str = "<gbm>m:state|"set_fio2"|"set_total_flow"|"set_oxygen_flow"|"set_air_flow"|"fio2"|"oxygen_flow"|"air_flow";";
+
+def gbm_seting(sys_state: dict, set_po2: int, set_pco2: int, align:bool=None):
+    if set_po2:
+        sys_state['gbm']['set_po2'] = set_po2
+    if set_pco2:
+        sys_state['gbm']['set_pco2'] = set_pco2
+    if align != None: 
+        sys_state['gbm']["gbm_align"] = align
+    return sys_state
 
 def gbm_to_state(sys_state: dict, glm_arr: list):
     if len(glm_arr) == 8:
@@ -43,14 +52,14 @@ def gbm_to_state(sys_state: dict, glm_arr: list):
         elif glm_arr[0] == 22:
             sys_state['gbm_state'] = 'error during active flow'
             
-        sys_state["set_fio2"] = glm_arr[1]
-        sys_state["set_gas_flow"] = glm_arr[2]
-        sys_state["set_oxygen_flow"] = glm_arr[3]
-        sys_state["set_air_flow"] = glm_arr[4]
-        sys_state["gas_flow"] = glm_arr[6] + glm_arr[7]
-        sys_state["fio2"] = glm_arr[5]
-        sys_state["oxygen_flow"] = glm_arr[6]
-        sys_state["air_flow"] = glm_arr[7]
+        sys_state['gbm']["set_fio2"] = glm_arr[1]
+        sys_state['gbm']["set_gas_flow"] = glm_arr[2]
+        sys_state['gbm']["set_oxygen_flow"] = glm_arr[3]
+        sys_state['gbm']["set_air_flow"] = glm_arr[4]
+        sys_state['gbm']["gas_flow"] = glm_arr[6] + glm_arr[7]
+        sys_state['gbm']["fio2"] = glm_arr[5]
+        sys_state['gbm']["oxygen_flow"] = glm_arr[6]
+        sys_state['gbm']["air_flow"] = glm_arr[7]
     return sys_state
 
 async def align_gbm(com_q: asyncio.Queue, sys_state: list):

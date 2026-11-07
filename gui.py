@@ -14,8 +14,6 @@ import gui_graph_callbacks as ggc
 import gui_note_callbacks as gnc
 import gui_download_callbacks as gdc
 
-
-
 #HIER EVTL DICT EINFÜHREN, WO ALLE STRUKTUREN VERZEICHNET SIND
 
 def build_gui_layout(test_env: bool):
@@ -70,6 +68,7 @@ def create_functional_callbacks(app, graph_list: list, test_env: bool):
         # create page functioality
         gc.tabbar_callback(app),
         gcm.case_manager_callbacks(app),
+        gpc.state_to_button(app),
         # ga.create_active_callbacks(app),
         # ggc.create_graph_callbacks(app),
         # gnc.create_note_callbacks(app),
