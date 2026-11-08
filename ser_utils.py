@@ -1,4 +1,5 @@
 import onque as oq
+import asyncio
 
 
 # "<gbm>m:state|" + set_fio2 + "|" + set_total_flow + "|" + set_oxygen_flow + "|" + set_air_flow + "|" + fio2 + "|" + oxygen_flow + "|" + air_flow;
@@ -69,8 +70,17 @@ async def dispatch_ser_msg(device:str, msg: str, ux_q):
         if serial_data != []:
             await oq.feed_q(ux_q, 'ser_data', device, serial_data)
 
+async def send_ser_command(com_q: asyncio.Queue, device: str, command: str):
+    com_item = {
+        'device': device, 
+        'com': command
+    }
+    await com_q.put(com_item)
+    print(f'puting item: {com_item}')
 
-
+async def send_gbm_command(com_q: asyncio.Queue, set_fio2: int, set_gas_flow: int, error: str = ""):
+    command_str = f':{str(set_fio2)}:{str(set_gas_flow)}:{error}'
+    await send_ser_command(com_q, 'gbm', command_str)
     
 
 # if __name__ == '__main__':

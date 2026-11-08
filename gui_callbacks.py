@@ -53,3 +53,38 @@ def tabbar_callback(app):
             return 'com_panel'
         else:
             return 'hide'
+
+def gbm_callbacks(app):
+    @app.callback(
+        Output('postbox', 'data', allow_duplicate=True),
+        Input('gbm_align_btn', 'n_clicks'),
+        prevent_initial_call=True
+    )
+    def glm_align_btn(click):
+        disp_item = gu.dispatch(msg_type='front_end_com', id='switch_align')
+        return disp_item
+
+    @app.callback(
+        Output('postbox', 'data', allow_duplicate=True),
+        Input('set_fio2_slider', 'value'),
+        Input('set_gas_flow_slider', 'value'),
+        Input('set_po2_slider', 'value'),
+        Input('set_pco2_slider', 'value'),
+        State('gbm_align_btn', 'disabled'),
+        prevent_initial_call=True
+    )
+    def glm_slider(set_fio2, set_gas_low, set_po2, set_pco2, aligned):
+        set_params = {
+            'set_fio2': None,
+            'set_gas_flow': None,
+            'set_po2': None,
+            'set_pco2': None
+        }
+        if aligned:
+            set_params['set_po2'] = set_po2
+            set_params['set_pco2'] = set_pco2
+        else:
+            set_params['set_fio2'] = set_fio2
+            set_params['set_gas_flow'] = set_gas_low
+        disp_item = gu.dispatch(msg_type='front_end_com', id='set_gbm_params', data=set_params)
+        return disp_item

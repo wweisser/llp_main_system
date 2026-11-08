@@ -34,13 +34,6 @@ def create_startup_callback(app, test_mode: bool):
             heartbeat_dispach = gs.beat(False, int(datetime.now().timestamp()), 'request_handshake')
             return 'loading_screen', heartbeat_dispach
 
-    # @app.callback(
-    #     Output('postbox', 'data'),
-    #     Input('heartbeat_rhythm', 'n_intervals'),
-    #     State('state_ds', 'data')
-    # )
-    # def pace_maker(ping, state_ds):
-    #     pass
 
 
 if __name__ == '__main__':

@@ -71,8 +71,12 @@ def create_state():
             "set_filter_flow": 0,
             "set_substitude_flow": 0,
             "set_temp": 0,
-            "inflow_temp": 0,
-            "outflow_temp": 0
+            "art_flow": 0,
+            "art_pressure": 0,
+            "ven_flow": 0,
+            "ven_pressure": 0,
+            "art_temp": 0,
+            "ven_temp": 0
         },
         "lab":{
             "ast": 0,
@@ -86,9 +90,9 @@ def create_state():
             "gamma": 0,
         },
         "cdi":{
-            "po2": 0,
-            "pco2": 0,
-            "ph": 0, 
+            "art_po2": 0,
+            "art_pco2": 0,
+            "art_ph": 0, 
             "hco3": 0, 
             "base": 0, 
             "cso2": 0, 

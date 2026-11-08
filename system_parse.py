@@ -1,4 +1,4 @@
-import ser
+import ser_utils as sru
 import state_utils as su
 import onque as oq
 import db_que as dq
@@ -17,16 +17,9 @@ async def parse_serial_input(db_que: dq.Db_Que, com_q: asyncio.Queue, msg: dict,
         sys_state = su.gbm_to_state(sys_state=sys_state, glm_arr=msg['data'])
         print(f'parse_serial_input -> gbm_data {msg['data']}')
 
-    elif msg['id'] == 'gbm_align':
-        su.gbm_align(sys_state=sys_state, glm_arr=msg['data'])
-
-    elif msg['id'] == 'gbm_align_com':
-        sys_state['gbm']['gbm_align'] = msg['data']['gbm_align']
-        sys_state['gbm']['set_gas_flow'] = msg['data']['set_gas_flow']
-        sys_state['gbm']['set_fio2'] = msg['data']['set_fio2']
-
     if sys_state['gbm']['gbm_align']:
         sys_state = await su.align_gbm(com_q, sys_state)
+        await sru.send_gbm_command(com_q, sys_state['gbm']['set_fio2'], sys_state['gbm']['set_gas_flow'])
 
     await oq.broadcast_item('state', 'state', cc, data=sys_state)
 
@@ -64,10 +57,21 @@ async def parse_heartbeat(data, cc):
         await oq.broadcast_item('heartbeat', 'bcknd_heartbeat', cc, data=data)
         print(f'parse_heartbeat -> handshake accapted\n')
 
-async def parse_front_end_command(com_q: asyncio.Queue, msg: dict):
-    # command to serial device
-    ser.send_ser_command(com_q = com_q, device = msg['id'], command = msg['data'])
-    # command to system like on and off of automation
+async def parse_front_end_command(com_q: asyncio.Queue, msg: dict, sys_state: dict, cc):
+    print(f'parse_front_end_command -> msg: {msg}')
+    if msg['id'] == 'switch_align':
+        if sys_state['gbm']['gbm_align']: sys_state['gbm']['gbm_align'] = False
+        else: sys_state['gbm']['gbm_align'] = True
+
+    elif msg['id'] == 'set_gbm_params':
+        sys_state = su.gbm_params_to_state(sys_state, msg['data'])
+        await sru.send_gbm_command(com_q, sys_state['gbm']['set_fio2'], sys_state['gbm']['set_gas_flow'])
+
+
+    await oq.broadcast_item('state', 'state', cc, data=sys_state)
+
+    return sys_state
+
 
 
 async def parse_msg(db_que: dq.Db_Que, com_q: asyncio.Queue, ux_q: asyncio.Queue, msg: dict, sys_state, cc):
@@ -86,8 +90,8 @@ async def parse_msg(db_que: dq.Db_Que, com_q: asyncio.Queue, ux_q: asyncio.Queue
         elif msg['id'] == 'start_case':
             pass
 
-    elif msg['msg_type'] == 'serial_commmand':
-        parse_front_end_command(com_q, msg)
+    elif msg['msg_type'] == 'front_end_com':
+        sys_state = await parse_front_end_command(com_q, msg, sys_state, cc)
     
     else:
         print(f'parse_msg -> invalid command {msg}')

@@ -5,7 +5,6 @@ import gui_utils as gu
 import gui_panels as gp
 import gui_modals as gm
 import gui_callbacks as gc
-import gui_gbm_callbacks as ga
 import gui_state as gs
 import gui_startup as gs_startup
 import gui_case_management as gcm
@@ -67,8 +66,10 @@ def create_functional_callbacks(app, graph_list: list, test_env: bool):
 
         # create page functioality
         gc.tabbar_callback(app),
+        gc.gbm_callbacks(app),
         gcm.case_manager_callbacks(app),
         gpc.state_to_button(app),
+
         # ga.create_active_callbacks(app),
         # ggc.create_graph_callbacks(app),
         # gnc.create_note_callbacks(app),

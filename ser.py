@@ -75,7 +75,7 @@ def create_portlist():
             active_port_list.append(port.device)
     return active_port_list
 
-async def run_com_loop(com_q: asyncio.Queue, active_ports: list):
+async def run_send_loop(com_q: asyncio.Queue, active_ports: list):
     print('com_loop active')
     while True:
         com_item = await com_q.get()
@@ -90,18 +90,10 @@ async def run_com_loop(com_q: asyncio.Queue, active_ports: list):
                 port.active = False
                 break
 
-async def send_ser_command(com_q: asyncio.Queue, device: str, command: str):
-    com_item = {
-        'device': device, 
-        'com': command
-    }
-    await com_q.put(com_item)
-    print(f'puting item: {com_item}')
-
 async def serial_connection_manager(ux_q, com_q):
     print(f'Starting serial_connection_manager\n')
     active_ports = []
-    asyncio.create_task(run_com_loop(com_q=com_q, active_ports=active_ports))
+    asyncio.create_task(run_send_loop(com_q=com_q, active_ports=active_ports))
     while True:
         port_list = create_portlist() 
 

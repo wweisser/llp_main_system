@@ -6,13 +6,15 @@ import state
 #      0 1  2   3   4    5   6   7   8  9  10 11  12 13  14  15  16   17
 #Time pH CO2 O2 Temp HCO3 BE cSO2 K+ VO2 Q BSA pH CO2 O2 Temp SO2 HCT HGB
 
+#String bcst_str = "<gbm>m:state|"set_fio2"|"set_total_flow"|"set_oxygen_flow"|"set_air_flow"|"fio2"|"oxygen_flow"|"air_flow";";
+
 def cdi_to_state(sys_state: dict, cdi_arr: list):
     if len(cdi_arr) == 18:
         sys_state['cdi']['art_ph'] =  cdi_arr[0]
         sys_state['cdi']['art_pco2'] = cdi_arr[1]
         sys_state['cdi']['art_po2'] = cdi_arr[2]
         sys_state['cdi']['art_temp'] = cdi_arr[3]
-        sys_state['cdi']['cdi']['hco3'] = cdi_arr[4]
+        sys_state['cdi']['hco3'] = cdi_arr[4]
         sys_state['cdi']['base'] = cdi_arr[5]
         sys_state['cdi']['cso2'] = cdi_arr[6]
         sys_state['cdi']['k'] = cdi_arr[7]
@@ -27,8 +29,6 @@ def cdi_to_state(sys_state: dict, cdi_arr: list):
         sys_state['cdi']['hct'] = cdi_arr[16]
         sys_state['cdi']['hb'] = cdi_arr[17]
     return sys_state
-
-#String bcst_str = "<gbm>m:state|"set_fio2"|"set_total_flow"|"set_oxygen_flow"|"set_air_flow"|"fio2"|"oxygen_flow"|"air_flow";";
 
 def gbm_seting(sys_state: dict, set_po2: int, set_pco2: int, align:bool=None):
     if set_po2:
@@ -62,36 +62,52 @@ def gbm_to_state(sys_state: dict, glm_arr: list):
         sys_state['gbm']["air_flow"] = glm_arr[7]
     return sys_state
 
-async def align_gbm(com_q: asyncio.Queue, sys_state: list):
-    com_str = ""
-    if sys_state['gbm_align']:
-        current_fio2 = sys_state['fio2']
-        current_po2 = sys_state['po2']
-        set_po2 = sys_state['set_po2']
-        set_fio2 = sys_state['set_fio2']
+def gbm_params_to_state(sys_state: dict, gbm_params: dict):
+    print(f'gbm_params_to_state -> input: {gbm_params}')
+
+    if gbm_params['set_fio2'] and gbm_params['set_gas_flow']:
+        sys_state['gbm']['set_fio2'] = gbm_params['set_fio2']
+        sys_state['gbm']['set_gas_flow'] = gbm_params['set_gas_flow']
+
+    elif gbm_params['set_po2'] and gbm_params['set_pco2']:
+        sys_state['gbm']['set_po2'] = gbm_params['set_po2']
+        sys_state['gbm']['set_pco2'] = gbm_params['set_pco2']
+
+    return sys_state
+
+
+async def align_gbm(com_q: asyncio.Queue, sys_state: dict):
+    if sys_state['gbm']['gbm_align']:
+        current_fio2 = sys_state['gbm']['fio2']
+        current_po2 = sys_state['cdi']['art_po2']
+        set_po2 = sys_state['gbm']['set_po2']
         factor_fio2 = 0;
 
-        current_flow = sys_state['gas_flow']
-        current_pco2 = sys_state['pco2']
-        set_pco2 = sys_state['set_pco2']
-        set_flow = sys_state['set_flow']
+        current_gas_flow = sys_state['gbm']['gas_flow']
+        set_pco2 = sys_state['gbm']['set_pco2']
+        current_pco2 = sys_state['cdi']['art_pco2']
         factor_flow = 0;
 
+        # calculation the offset factors for flow and fio2. Integer dertmine the gain of correction.
         if current_po2 > 0:
             factor_fio2 = (set_po2-current_po2)/(current_po2*3)
             print(round(factor_fio2, 4))
-
-        if abs(factor_fio2) > 0.03:
-            set_fio2 = ((factor_fio2) * current_fio2) + current_fio2
-            print(f'align_gbm -> set fio2: {set_fio2}')
 
         if current_po2 > 0:
             factor_flow = (current_pco2-set_pco2)/(current_pco2*2)
             print(round(factor_flow, 4))
 
+        # Calculation if set flow and set fio2
+        if abs(factor_fio2) > 0.03:
+            sys_state['gbm']['set_fio2'] = round(((factor_fio2) * current_fio2) + current_fio2, 2)
+            print(f'align_gbm -> set fio2: {sys_state['gbm']['set_fio2']}')
+
         if abs(factor_flow) > 0.04:
-            set_flow = ((factor_flow) * current_flow) + current_flow
-            print(f'align_gbm -> set_flow: {round(set_flow, 3)}')
+            sys_state['gbm']['set_flow'] = round(((factor_flow) * current_gas_flow) + current_gas_flow, 2)
+            print(f'align_gbm -> set_flow: {sys_state['gbm']['set_flow']}')
+
+    return sys_state
+
 
 
 async def tester():

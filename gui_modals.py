@@ -29,21 +29,14 @@ def new_case_mdl():
         ], id="new_case_mld", className="hide")
     )
 
-# def note_mdl():
-#     return html.Div([
-#         dcc.Textarea(value="No Notes listed", id="note_h1", className="note_mdl_notes", readOnly=True),
-#         dcc.Input(id='note_input', placeholder="Note"),
-#         dcc.Store(id='note_store'),
-#         html.Div([
-#             html.Button("Enter Note", id="enter_note_btn", className="case_mgr_btn"),
-#         ]),
-#         html.Div(id="_scroll_dummy", style={"display": "none"}),  # Dummy
-#     ], id="note_mdl", className="hide")
+
 
 def gbm_panel():
     marks_set_po2 = {80: '80', 100: '100', 120: '120', 140: '140', 160: '160'}
     marks_set_pco2 = {20: '20' , 30: '30', 40: '40', 50: '50', 60: '60'}
-    marks_gas_flow = {0: '0', 400: '400', 800: '800', 800: '1200', 1200: '1400', 1600: '1600'}
+    marks_gas_fio2 = {21: '21', 40: '40', 60: '60', 80: '80', 100: '100'}
+    marks_gas_flow = {0: '0', 500: '400', 1000: '800', 1500: '1200', 2000: '2000'}
+
     return(html.Div([
         html.Div([
             html.Div([
@@ -60,9 +53,9 @@ def gbm_panel():
                 gp.paramtr_btn_1('set_fio2_btn', 'set FiO2', '0', 'mmHg', 'set_fio2','meta', 80),
                 gp.paramtr_btn_1('set_gas_flow_btn', 'set Gas Flow', '0', 'mmHg', 'set_gas_flow','meta', 80),
                 gp.paramtr_btn_1('set_air_flow_btn', 'set air flow', '0', 'ml/min', 'set_air_flow','meta', 70),
-                gp.paramtr_btn_1('set_o2_flow_btn', 'set o2 flow', '0', 'ml/min', 'set_o2_flow','meta', 70),
-                dcc.Slider(id='set_fio2_slider', min=0, max=1600, step=1, value=45, marks=marks_gas_flow, vertical=True, verticalHeight=190, dots=False, className='input_bar'),
-                dcc.Slider(id='set_gas_flow_slider', min=0, max=1600, step=1, value=45, marks=marks_gas_flow, vertical=True, verticalHeight=190, dots=False, className='input_bar'),
+                gp.paramtr_btn_1('set_oxygen_flow_btn', 'set oxygen flow', '0', 'ml/min', 'set_oxygen_flow','meta', 70),
+                dcc.Slider(id='set_fio2_slider', min=21, max=100, step=1, value=21, marks=marks_gas_fio2, vertical=True, verticalHeight=190, dots=False, className='input_bar'),
+                dcc.Slider(id='set_gas_flow_slider', min=0, max=2000, step=1, value=100, marks=marks_gas_flow, vertical=True, verticalHeight=190, dots=False, className='input_bar'),
                 html.H4(children='FiO2', className='input_bar'),
                 html.H4(children='Flow', className='input_bar')
                 ], id="gas_flow_setings", className="ventilaton_setings"),

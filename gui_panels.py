@@ -152,7 +152,7 @@ def perfusion_panel():
             ], className="side_panel_I_middle"),
             html.Div([
                 paramtr_btn_1('hb_btn', 'hb:    ', '---', 'mg/dl', 'hb', 'meta', 100),
-                paramtr_btn_1('vo2_btn', 'hct:    ', '---', 'ml/min', 'hct', 'meta', 100),
+                paramtr_btn_1('hct_btn', 'hct:    ', '---', 'ml/min', 'hct', 'meta', 100),
                 paramtr_btn_1('ox_index_btn', 'Oxygenation Index:    ', '---', '    %', 'ox_index', 'meta', 100),
                 paramtr_btn_1('base_btn', 'Base:    ', '---', '', 'base', 'meta', 100),
                 paramtr_btn_1('vo2_btn', 'VO2:    ', '---', '    ml/min/mmHg', 'vo2', 'meta', 100),
