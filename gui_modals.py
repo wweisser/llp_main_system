@@ -29,35 +29,51 @@ def new_case_mdl():
         ], id="new_case_mld", className="hide")
     )
 
+def value_controll_module(val: str):
+    return(html.Div([
+        html.Div([
+            html.Span(id=val, children="---"),
+            html.Div([
+                html.Button(id="up"),
+                html.Button(id="down")
+
+            ])
+        ])
+
+    ], className="default"))
 
 
 def gbm_panel():
     marks_set_po2 = {80: '80', 100: '100', 120: '120', 140: '140', 160: '160'}
     marks_set_pco2 = {20: '20' , 30: '30', 40: '40', 50: '50', 60: '60'}
     marks_gas_fio2 = {21: '21', 40: '40', 60: '60', 80: '80', 100: '100'}
-    marks_gas_flow = {0: '0', 500: '400', 1000: '800', 1500: '1200', 2000: '2000'}
+    marks_gas_flow = {0: '0', 200: '200', 400: '400', 600: '600', 800: '800', 1000: '1000'}
 
     return(html.Div([
         html.Div([
             html.Div([
-                gp.paramtr_btn_1('output_gas_btn', 'Gas Flow', '0', 'ml/min', 'gas_flow','meta', 80),
-                gp.paramtr_btn_1('fio2_btn', 'FiO2', '0', '%', 'fio2','meta', 80),
-                gp.paramtr_btn_1('air_flow_btn', 'Air Flow', '0', 'ml/min', 'air_flow','meta', 70),
-                gp.paramtr_btn_1('o2_flow_btn', 'O2 Flow', '0', 'ml/min', 'oxygen_flow','meta', 70),
-                dcc.Slider(id='set_po2_slider', min=80, max=160, step=1, value=100, marks=marks_set_po2, vertical=True, verticalHeight=190, dots=False, className='input_bar', disabled=True),
-                dcc.Slider(id='set_pco2_slider', min=20, max=60, step=1, value=45, marks=marks_set_pco2, vertical=True, verticalHeight=190, dots=False, className='input_bar', disabled=True),
-                html.H4(children='pO2', className='input_bar'),
-                html.H4(children='pCO2', className='input_bar')
+                gp.paramtr_btn_1('air_flow_btn', 'air flow', '0', 'ml/min', 'air_flow','meta', 70),
+                gp.paramtr_btn_1('o2_flow_btn', 'O2 flow', '0', 'ml/min', 'oxygen_flow','meta', 70),
+                gp.paramtr_btn_1('set_po2_btn', 'set po2', '0', 'mmHg', 'set_po2','meta', 70),
+                gp.paramtr_btn_1('set_pco2_btn', 'set pco2', '0', 'mmHg', 'set_pco2','meta', 70),
+                html.Fieldset([
+                    dcc.Slider(id='set_po2_slider', min=80, max=160, step=1, value=100, marks=marks_set_po2, vertical=True, verticalHeight=180, dots=False, disabled=True, className='input_bar'),
+                    ], id='set_po2_slider_area', className='slider_area', disabled=True),
+                html.Fieldset([
+                    dcc.Slider(id='set_pco2_slider', min=20, max=60, step=1, value=45, marks=marks_set_pco2, vertical=True, verticalHeight=180, dots=False, disabled=True, className='input_bar'),
+                    ], id='set_pco2_slider_area', className='slider_area', disabled=True),
                 ], id="ventilaton_setings", className="ventilaton_setings"),
             html.Div([
-                gp.paramtr_btn_1('set_fio2_btn', 'set FiO2', '0', 'mmHg', 'set_fio2','meta', 80),
-                gp.paramtr_btn_1('set_gas_flow_btn', 'set Gas Flow', '0', 'mmHg', 'set_gas_flow','meta', 80),
-                gp.paramtr_btn_1('set_air_flow_btn', 'set air flow', '0', 'ml/min', 'set_air_flow','meta', 70),
-                gp.paramtr_btn_1('set_oxygen_flow_btn', 'set oxygen flow', '0', 'ml/min', 'set_oxygen_flow','meta', 70),
-                dcc.Slider(id='set_fio2_slider', min=21, max=100, step=1, value=21, marks=marks_gas_fio2, vertical=True, verticalHeight=190, dots=False, className='input_bar'),
-                dcc.Slider(id='set_gas_flow_slider', min=0, max=2000, step=1, value=100, marks=marks_gas_flow, vertical=True, verticalHeight=190, dots=False, className='input_bar'),
-                html.H4(children='FiO2', className='input_bar'),
-                html.H4(children='Flow', className='input_bar')
+                gp.paramtr_btn_1('fio2_btn', 'FiO2', '0', '%', 'fio2','meta', 70),
+                gp.paramtr_btn_1('output_gas_btn', 'gas flow', '0', 'ml/min', 'gas_flow','meta', 70),
+                gp.paramtr_btn_1('set_fio2_btn', 'set fiO2', '0', '%', 'set_fio2','meta', 70),
+                gp.paramtr_btn_1('set_gas_flow_btn', 'set gas flow', '0', 'mmHg', 'set_gas_flow','meta', 70),
+                html.Fieldset([
+                    dcc.Slider(id='set_fio2_slider', min=21, max=100, step=1, value=21, marks=marks_gas_fio2, vertical=True, verticalHeight=180, dots=False, disabled=True, className='input_bar'),
+                    ], id='set_fio2_slider_area', className='slider_area', disabled=True),
+                html.Fieldset([
+                    dcc.Slider(id='set_gas_flow_slider', min=0, max=1000, step=1, value=100, marks=marks_gas_flow, vertical=True, verticalHeight=180, dots=False, disabled=True, className='input_bar'),
+                    ], id='set_gas_flow_slider_area', className='slider_area', disabled=True),
                 ], id="gas_flow_setings", className="ventilaton_setings"),
             ], className='gbm_settings'),
         html.Button("AUTO", id="gbm_align_btn", className='align_btn_off'),

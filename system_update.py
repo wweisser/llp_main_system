@@ -20,8 +20,12 @@ async def dequeue_loop(db_que: dbq.Db_Que, ux_q: asyncio.Queue, com_q: asyncio.Q
 
         if isinstance(msg, dict):
             # print(f'dequeue_loop -> {msg}')
-            sys_state = await system_parse.parse_msg(db_que, com_q, ux_q, msg, sys_state, cc)
-            memory.put_state_to_cache(db_que.db_obj.cache, db_que.db_obj.key, sys_state)
+            try:
+                sys_state = await system_parse.parse_msg(db_que, com_q, ux_q, msg, sys_state, cc)
+            except Exception as e:
+                print(f'Error during system update: {e}')
+            finally:
+                memory.put_state_to_cache(db_que.db_obj.cache, db_que.db_obj.key, sys_state)
 
         # except Exception as e:
         #     print('error during deque loop\n', e)

@@ -50,6 +50,8 @@ def create_state():
         "clock_time": 0,
         "perfusion_mode": "",
         "gbm":{
+            "gbm_active" : False,
+            "last_align": 0,
             "gbm_align": False,
             "set_gas_flow": 0,
             "set_fio2": 0,

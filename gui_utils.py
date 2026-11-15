@@ -1,5 +1,5 @@
 from dash_extensions.enrich import Input, Output, no_update
-from dash import html, dcc, no_update
+from dash.exceptions import PreventUpdate
 import json
 from datetime import datetime
 
@@ -69,12 +69,14 @@ def create_recv_callbacks(app):
     @app.callback(
         Output("state_data_store", "data"), 
         Output("case_id_store", "data"), 
-        Output("note_data_store", "data"), 
         Output("metabolic_graph_store", "data"), 
+        Output("note_data_store", "data"), 
         Output("system_data_store", "data"),
         Output("state_ds", "data"),
-        Output("heatbeat_ds", "data"),
+
+        Output("heartbeat_ds", "data"),
         Output("download_store", "data"),
+
         Input("ws", "message"),
         prevent_initial_call=True
     )
@@ -86,6 +88,7 @@ def create_recv_callbacks(app):
             'notes': no_update,
             'system': no_update,
             'gui_state': no_update,
+            
             'heartbeat': no_update,
             'download': no_update
         }
@@ -108,16 +111,27 @@ def create_recv_callbacks(app):
                     elif msg_type == 'gui_state':
                         rl['gui_state'] = data
                     elif msg_type == 'heartbeat':
-                        rl['heartbeat'] = data
+                        rl['heartbeat'] = data['data']
                     elif msg_type == 'download':
                         rl['download'] = data
                     else:
                         print(f"distribute_msg -> unbekannter msg_type: {msg_type}")
-                    # print(f'create_heartbeat_callback -> {rl['heartbeat']}')
+                    # print(f'\ncreate_heartbeat_callback -> rl[heartbeat]: {rl['heartbeat']}\n')
+                    return (
+                        rl['state'], 
+                        rl['case_id'], 
+                        rl['metabolic_graph'], 
+                        rl['notes'], 
+                        rl['system'], 
+                        rl['gui_state'], 
+                        rl['heartbeat'], 
+                        rl['download']
+                    )
                 else:
                     print("distribute_msg -> corrupt msg")
+                    raise PreventUpdate
             except Exception as e:
                 print(f'distribute_msg -> error: {e} | raw: {msg}')
-            return rl['state'], rl['case_id'], rl['metabolic_graph'], rl['notes'], rl['system'], rl['gui_state'], rl['heartbeat'], rl['download']
+                raise PreventUpdate
 
 

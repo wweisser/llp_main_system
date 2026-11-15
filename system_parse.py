@@ -18,9 +18,9 @@ async def parse_serial_input(db_que: dq.Db_Que, com_q: asyncio.Queue, msg: dict,
         print(f'parse_serial_input -> gbm_data {msg['data']}')
 
     if sys_state['gbm']['gbm_align']:
-        sys_state = await su.align_gbm(com_q, sys_state)
-        await sru.send_gbm_command(com_q, sys_state['gbm']['set_fio2'], sys_state['gbm']['set_gas_flow'])
-
+        # sys_state = await su.align_gbm(com_q, sys_state)
+        # await sru.send_gbm_command(com_q, sys_state['gbm']['set_fio2'], sys_state['gbm']['set_gas_flow'])
+        pass
     await oq.broadcast_item('state', 'state', cc, data=sys_state)
 
     return sys_state
@@ -50,15 +50,19 @@ async def parse_case_number_request(db_que: dq.Db_Que, msg: dict, sys_state: dic
 
     return sys_state
 
-async def parse_heartbeat(data, cc):
+async def parse_heartbeat(data, sys_state, cc):
+    # print(f'parse_heartbeat -> {data}')
     if data and isinstance(data, dict) and data['status'] == 'request_handshake':
         data['handshake'] = True
         data['status'] = 'handshake_accepted'
+        await oq.broadcast_item('state', 'state', cc, data=sys_state)
+        # await asyncio.sleep(0.5)
         await oq.broadcast_item('heartbeat', 'bcknd_heartbeat', cc, data=data)
-        print(f'parse_heartbeat -> handshake accapted\n')
+
+        print(f'parse_heartbeat -> handshake accapted {data}\n')
 
 async def parse_front_end_command(com_q: asyncio.Queue, msg: dict, sys_state: dict, cc):
-    print(f'parse_front_end_command -> msg: {msg}')
+    # print(f'parse_front_end_command -> msg: {msg}')
     if msg['id'] == 'switch_align':
         if sys_state['gbm']['gbm_align']: sys_state['gbm']['gbm_align'] = False
         else: sys_state['gbm']['gbm_align'] = True
@@ -66,7 +70,6 @@ async def parse_front_end_command(com_q: asyncio.Queue, msg: dict, sys_state: di
     elif msg['id'] == 'set_gbm_params':
         sys_state = su.gbm_params_to_state(sys_state, msg['data'])
         await sru.send_gbm_command(com_q, sys_state['gbm']['set_fio2'], sys_state['gbm']['set_gas_flow'])
-
 
     await oq.broadcast_item('state', 'state', cc, data=sys_state)
 
@@ -86,7 +89,7 @@ async def parse_msg(db_que: dq.Db_Que, com_q: asyncio.Queue, ux_q: asyncio.Queue
 
     elif msg['msg_type'] == 'system':
         if msg['id'] == 'f_heartbeat':
-            await parse_heartbeat(msg['data'], cc)
+            await parse_heartbeat(msg['data'], sys_state, cc)
         elif msg['id'] == 'start_case':
             pass
 

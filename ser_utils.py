@@ -79,10 +79,10 @@ async def send_ser_command(com_q: asyncio.Queue, device: str, command: str):
     print(f'puting item: {com_item}')
 
 async def send_gbm_command(com_q: asyncio.Queue, set_fio2: int, set_gas_flow: int, error: str = ""):
-    command_str = f':{str(set_fio2)}:{str(set_gas_flow)}:{error}'
+    command_str = f'sys|o{str(set_fio2)}|f{str(set_gas_flow)}|{error};'
     await send_ser_command(com_q, 'gbm', command_str)
     
-
+#sys|o21|f200|;
 # if __name__ == '__main__':
 #     import asyncio
 #     #           Time      pH   CO2   O2    Temp  HCO3  BE    cSO2  K+    VO2   Q     BSA   pH    CO2   O2    Temp  SO2   HCT   HGB

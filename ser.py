@@ -32,7 +32,8 @@ class Serial_Connection:
 
     async def open_connection(self, ux_q):
         try:
-            print(f'3.) url={self.url}, baudrate={self.bautrate}')
+            print(f'open_connection url={self.url}, baudrate={self.bautrate}')
+            await asyncio.sleep(3)
             self.reader, self.writer = await serial_asyncio.open_serial_connection(url=self.url, baudrate=self.bautrate)
             print(f'3.) serial port {self.url} is open')
             self.active = True
@@ -53,7 +54,7 @@ class Serial_Connection:
                 if msg == None:
                     raise ConnectionError(f'{self.url} no connection')
                 self.select_device(msg)
-                # print(f'received message: {msg}, device: {self.device}')
+                print(f'received message: {msg}, device: {self.device}')
             except Exception as e:
                 print(f'error during serial reading of {self.device}: {e}')
                 self.active = False

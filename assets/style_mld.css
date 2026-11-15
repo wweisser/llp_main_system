@@ -103,13 +103,23 @@
     font-family: "Arial";
 }
 
-.note_mdl_notes{
-    margin: 1%;
-    height: 80%;
-    width: 96%;
-    background-color: var(--bg_color_II);
-    color: var(--text_color_I);
-    font-family: "Arial";
+.slider_area{
+    margin: 5%;
+    border-radius: 6px;
+    border-color: var(--text_color_I);
+    background-color: var(--bg_color_III);
+}
+.slider_area_active{
+    margin: 5%;
+    border-radius: 6px;
+    color: var(--text_color_active);
+    background-color: var(--text_color_I);
+}
+
+.input_bar{
+    border: 3px;
+    margin-left: 40%;
+    font-family: Arial, Helvetica, sans-serif;
 }
 
 .com_panel{
@@ -151,17 +161,11 @@
     display: grid;
     border-radius: 6px;
     margin: 4px;
-    /* position: relative; */
     background-color: var(--bg_color_III);
-    grid-template-rows: [first] 15% [line1] 15% [line2] 55% [line2];
+    grid-template-rows: [first] 15% [line1] 15% [line2] 70% [line2];
     grid-template-columns: [first] 50% [line1] 50% [end];
 }
 
-.input_bar{
-    margin-left: 30%;
-    border: 3px;
-    font-family: Arial, Helvetica, sans-serif;
-}
 
 .align_btn_on{
     margin: 3px;
@@ -175,58 +179,4 @@
     border-radius: 6px;
     background-color: var(--text_color_I);
     color: var(--bg_color_III);
-}
-
-.download_mdl{
-    top: 30%;
-    left: 30%;
-    height: 60%;
-    width: 32%;
-    border-radius: 10px;
-    position: absolute;
-    border-width: 1px;
-    z-index: 2000;
-    border-style: solid;
-    border-width: 2px;
-    display: grid;
-    grid-template-rows: [first] 20% [line1] 40% [line2] 40% [end];
-    border-color: var(--bg_color_II); 
-    background-color: var(--text_color_I);
-    color: var(--bg_color_II);
-    font-family: "Arial";
-}
-
-.bga_entry_panel{
-    top: 0%;
-    left: 0%;
-    width: 20%;
-    height: 89%;
-    position: absolute;
-    border-width: 1px;
-    border-color: var(--text_color_I);
-    background-color: var(--bg_color_II);
-    display: grid;
-    grid-template-rows: repeat(20, 1fr);
-}
-
-.bga_entry_element{
-    border-color: var(--text_color_I);
-    background-color: var(--bg_color_II);
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-}
-
-.bga_entry_btn{
-    background-color: var(--bg_color_II);
-    color: var(--text_color_I);
-    transition: background-color 0.4s ease;
-}
-
-.bga_entry_btn:hover {
-    background-color: var(--hover_color);
-}
-
-.bga_entry_btn:active {
-    background-color: var(--active_color);
-    color: var(--text_color_active);
 }

@@ -9,7 +9,7 @@ import state
 #String bcst_str = "<gbm>m:state|"set_fio2"|"set_total_flow"|"set_oxygen_flow"|"set_air_flow"|"fio2"|"oxygen_flow"|"air_flow";";
 
 def cdi_to_state(sys_state: dict, cdi_arr: list):
-    if len(cdi_arr) == 18:
+    if len(cdi_arr) == 18 and cdi_arr[1] != 2 and not all(v is None for v in cdi_arr):
         sys_state['cdi']['art_ph'] =  cdi_arr[0]
         sys_state['cdi']['art_pco2'] = cdi_arr[1]
         sys_state['cdi']['art_po2'] = cdi_arr[2]
@@ -65,18 +65,24 @@ def gbm_to_state(sys_state: dict, glm_arr: list):
 def gbm_params_to_state(sys_state: dict, gbm_params: dict):
     print(f'gbm_params_to_state -> input: {gbm_params}')
 
-    if gbm_params['set_fio2'] and gbm_params['set_gas_flow']:
+    if gbm_params['set_fio2']:
         sys_state['gbm']['set_fio2'] = gbm_params['set_fio2']
+        
+    if gbm_params['set_gas_flow']:
         sys_state['gbm']['set_gas_flow'] = gbm_params['set_gas_flow']
 
-    elif gbm_params['set_po2'] and gbm_params['set_pco2']:
-        sys_state['gbm']['set_po2'] = gbm_params['set_po2']
+    if gbm_params['set_pco2']:
         sys_state['gbm']['set_pco2'] = gbm_params['set_pco2']
+
+    if gbm_params['set_po2'] and gbm_params['set_pco2']:
+        sys_state['gbm']['set_po2'] = gbm_params['set_po2']
 
     return sys_state
 
 
 async def align_gbm(com_q: asyncio.Queue, sys_state: dict):
+    """If gbm_align is True it, calculates a flow factor and a fio2 factor from 
+    current po2, pco2 and adjusts set_flow and fio2 with it. Result is saved in sys_state """
     if sys_state['gbm']['gbm_align']:
         current_fio2 = sys_state['gbm']['fio2']
         current_po2 = sys_state['cdi']['art_po2']

@@ -1,9 +1,7 @@
 from dash import Input, Output, State, no_update
 from dash.exceptions import PreventUpdate
-import gui_utils as gu
-import gui_case_management as gcm
-import gui_panels as gp
 import datetime
+
 
 def tabbar_callbacks(app):
     @app.callback(
@@ -79,6 +77,7 @@ def state_to_button(app):
         Output('ven_po2', 'children'),
         Output('hct', 'children'),
         Output('hb', 'children'),
+        Output('so2', 'children'),
         Output('lactate', 'children'),
         Output('glucose', 'children'),
 
@@ -90,9 +89,9 @@ def state_to_button(app):
             if msg['id'] == 'state' and msg['data']['cdi']:
                 data = msg['data']['cdi']
                 return [
-                    data['art_po2'],       # art_po2.children
-                    data['art_pco2'],        # art_ph.children
-                    data['art_ph'],      # art_pco2.children
+                    data['art_po2'],   # art_po2.children
+                    data['art_pco2'],  # art_ph.children
+                    data['art_ph'],    # art_pco2.children
                     data['hco3'],      # hco3.children
                     data['base'],      # base.children
                     data['cso2'],      # cso2.children
@@ -103,6 +102,7 @@ def state_to_button(app):
                     data['ven_po2'],   # ven_po2.children
                     data['hct'],       # hct.children
                     data['hb'],        # hb.children
+                    data['so2'],       # so2.children
                     data['lactate'],   # lactate.children
                     data['glucose']    # glucose.children
                 ]
@@ -110,6 +110,72 @@ def state_to_button(app):
                 raise PreventUpdate
         except Exception as e:
             print(f'cdi_callback error {e}')
+            raise PreventUpdate
+
+    @app.callback(
+        Output('gbm_align_btn', 'className'),
+
+        Output('set_fio2_slider', 'value'),
+        Output('set_gas_flow_slider', 'value'),
+        Output('set_po2_slider', 'value'),
+        Output('set_pco2_slider', 'value'),
+
+        Output('set_gas_flow', 'children'),
+        Output('set_fio2', 'children'),
+        Output('set_po2', 'children'),
+        Output('set_pco2', 'children'),
+
+        Output('gas_flow', 'children'),
+        Output('fio2', 'children'),
+        Output('air_flow', 'children'),
+        Output('oxygen_flow', 'children'),
+
+        Input('state_data_store', 'data'),
+
+        State('set_fio2_slider', 'disabled'),
+        State('set_gas_flow_slider', 'disabled'),
+        State('set_po2_slider', 'disabled'),
+        State('set_pco2_slider', 'disabled'),
+        prevent_initial_call=True,
+    )
+    def gbm_callback(msg, set_fio2_slider, set_gas_flow_slider, set_po2_slider, set_pco2_slider):
+        try:
+            if msg['id'] == 'state' and msg['data']['gbm']:
+                data = msg['data']['gbm']
+                print(f'gbm_callback-> {data}')
+                ret = [
+                    'align_btn_on',
+
+                    int(data['set_fio2']),      # set_fio2.value
+                    int(data['set_gas_flow']),  # set_gas_flow.value
+                    int(data['set_po2']),       # set_po2.value
+                    int(data['set_pco2']),      # set_pco2.value
+
+                    data['set_gas_flow'],       # set_gas_flow.children
+                    data['set_fio2'],           # set_fio2.children
+                    data['set_po2'],            # set_o2_flow.children
+                    data['set_pco2'],           # set_air_flow.children
+                    data['gas_flow'],
+                    data['fio2'],               # fio2.children
+                    data['air_flow'],           # air_flow.children
+                    data['oxygen_flow']         # oxygen_flow.children
+                ]
+                
+                if not data['gbm_align']:
+                    ret[0] = 'align_btn_off'
+                if set_fio2_slider == False:
+                    ret[1] = no_update
+                if set_gas_flow_slider == False:
+                    ret[2] = no_update
+                if set_po2_slider == False:
+                    ret[3] = no_update
+                if set_pco2_slider == False:
+                    ret[4] = no_update
+                return ret
+            else:
+                raise PreventUpdate
+        except Exception as e:
+            print(f'gbm_callback error: {e}')
             raise PreventUpdate
 
     # @app.callback(
@@ -131,64 +197,3 @@ def state_to_button(app):
     #             raise PreventUpdate
     #     except Exception as e:
     #         return print(f'cdi_callback {e}')
-
-    @app.callback(
-        Output('gbm_align_btn', 'className'),
-
-        Output('set_fio2_slider', 'disabled'),
-        Output('set_gas_flow_slider', 'disabled'),
-        Output('set_po2_slider', 'disabled'),
-        Output('set_pco2_slider', 'disabled'),
-
-        Output('set_fio2_slider', 'value'),
-        Output('set_gas_flow_slider', 'value'),
-
-        Output('set_gas_flow', 'children'),
-        Output('set_fio2', 'children'),
-        Output('set_oxygen_flow', 'children'),
-        Output('set_air_flow', 'children'),
-
-        Output('gas_flow', 'children'),
-        Output('fio2', 'children'),
-        Output('air_flow', 'children'),
-        Output('oxygen_flow', 'children'),
-
-        Input('state_data_store', 'data'),
-        prevent_initial_call=True,
-    )
-    def gbm_callback(msg):
-        try:
-            if msg['id'] == 'state' and msg['data']['gbm']:
-                data = msg['data']['gbm']
-                ret = [
-                    'align_btn_on',
-                    data['gbm_align'],          # set_fio2_slider.disabled
-                    data['gbm_align'],          # set_gas_flow_slider.disabled
-                    not data['gbm_align'],      # set_po2_slider.disabled
-                    not data['gbm_align'],      # set_pco2_slider.disabled
-
-                    int(data['set_fio2']),      # set_fio2.value
-                    int(data['set_gas_flow']),  # set_gas_flow.value
-
-                    data['set_gas_flow'],       # set_gas_flow.children
-                    data['set_fio2'],           # set_fio2.children
-                    data['set_oxygen_flow'],    # set_o2_flow.children
-                    data['set_air_flow'],       # set_air_flow.children
-                    data['gas_flow'],
-                    data['fio2'],               # fio2.children
-                    data['air_flow'],           # air_flow.children
-                    data['oxygen_flow']         # oxygen_flow.children
-                ]
-                
-                if not data['gbm_align']:
-                    ret[0] = 'align_btn_off'
-                    ret[5] = no_update
-                    ret[6] = no_update
-
-                return ret
-            else:
-                raise PreventUpdate
-        except Exception as e:
-            print(f'gbm_callback error: {e}')
-            raise PreventUpdate
-        
