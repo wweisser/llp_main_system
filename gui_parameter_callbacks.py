@@ -142,7 +142,7 @@ def state_to_button(app):
         try:
             if msg['id'] == 'state' and msg['data']['gbm']:
                 data = msg['data']['gbm']
-                print(f'gbm_callback-> {data}')
+                # print(f'gbm_callback-> {data}')
                 ret = [
                     'align_btn_on',
 

@@ -159,7 +159,7 @@ async def create_system_tasks(db_que: dbq.Db_Que, ux_q, com_q, cc: dict):
     try:
         system_tasks.append(asyncio.create_task(se.serial_connection_manager(ux_q=ux_q, com_q=com_q)))
         system_tasks.append(asyncio.create_task(su.dequeue_loop(db_que=db_que, ux_q=ux_q, com_q=com_q, cc=cc)))
-        system_tasks.append(asyncio.create_task(dbq.start_archive_task(db_que, cc)))
+        system_tasks.append(asyncio.create_task(dbq.start_archive_task(db_que, ux_q, cc)))
 
         # system_tasks.append(asyncio.create_task(su.system_updater(cache, key, archive_intervall, 1.0)))
 ##############################TEST TEST TEST#########################################

@@ -34,12 +34,12 @@
     position: relative;
 }
 
-.case_mgr_btn:hover{
+.case_mgr_btn:hover:not(:disabled){
     background-color: var(--active_color);
     color: var(--bg_color_II);
 }
 
-.case_mgr_btn:active{
+.case_mgr_btn:active:not(:disabled){
     background-color: var(--hover_color);
     color: var(--text_color_I);
 }

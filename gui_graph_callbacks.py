@@ -8,10 +8,11 @@ import gui_graphs as gg
 def data_to_figure(app, graph, left_axis, lax_name, lax_color, right_axis, rax_name, rax_color):
     @app.callback(
         Output(graph, "figure"),
-        Input("metabolic_graph_store", "data"),
+        Input("graphs_store", "data"),
         prevent_initial_call=True
     )
     def dtf(msg):
+        print(f'data_to_figure -> {msg}')
         if msg['msg_type'] == 'metabolic_graph_store':
             data = msg['data']
             figure = make_subplots(specs=[[{"secondary_y": True}]])

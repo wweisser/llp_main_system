@@ -86,7 +86,7 @@ async def run_send_loop(com_q: asyncio.Queue, active_ports: list):
                     if port.device == com_item['device']:
                         port.writer.write(com_item['com'].encode("utf-8"))
                         await port.writer.drain()
-                print(f'command : {com_item} send\n')
+                # print(f'command : {com_item} send\n')
             except:
                 port.active = False
                 break

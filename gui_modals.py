@@ -9,7 +9,7 @@ def case_manager_mdl():
         html.Span("Please select case number", id="case_mgr_header"),
         dcc.Dropdown(id='case_id_dropdown', options=[], clearable=True, multi=False, persistence=True, placeholder="Select Case Number", className="cm_drpdwn"),
         html.Div([
-            html.Button("New Case", id="cm_new_case_button",className="case_mgr_btn"),
+            html.Button("New Case", id="cm_new_case_btn",className="case_mgr_btn"),
             html.Button("HOPE", id="hope_btn",className="case_mgr_btn"),
             html.Button("Confirm", id="cm_confirm_btn", className="case_mgr_btn"),
             html.Button("COR", id="cor_btn",className="case_mgr_btn"),

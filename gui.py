@@ -61,8 +61,6 @@ def create_communication(app, talescale_ip):
 def create_functional_callbacks(app, graph_list: list, test_env: bool):
     return(html.Div([
         gs.gui_state_parser(app),
-        # create communication with back end
-        # gpc.state_to_gui(app),
 
         # create page functioality
         gc.tabbar_callback(app),
@@ -70,7 +68,7 @@ def create_functional_callbacks(app, graph_list: list, test_env: bool):
         gcm.case_manager_callbacks(app),
         gpc.state_to_button(app),
 
-        # ga.create_active_callbacks(app),
+        gc.timer_callbacks(app)
         # ggc.create_graph_callbacks(app),
         # gnc.create_note_callbacks(app),
         # gdc.create_active_callbacks(app),
@@ -91,7 +89,7 @@ def create_app(ts_ip, test_env: bool):
 
 if __name__ == '__main__':
     tailscale_ip =  '100.122.66.59'
-    app = create_app(tailscale_ip, test_env=False)
+    app = create_app(tailscale_ip, test_env=True)
     app.run(host="0.0.0.0", port=8050, debug=True)
 
 #WS_HOST=100.94.159.38 python gui.py

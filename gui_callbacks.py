@@ -1,23 +1,45 @@
 from dash import Input, Output, State, no_update
 from dash.exceptions import PreventUpdate
-import gui_panels as gp
 import gui_utils as gu
+from datetime import datetime
 
-# def slider_contoll(app, btn: str, slider_area: str):
+def fromat_time(time_delta: int):
 
-#     @app.callback(
-#         Output(slider_area, 'className'),
-#         Input(btn, 'n_clicks'),
+    hours = time_delta // 3600
+    minutes = (time_delta % 3600) // 60
+    seconds = time_delta % 60
 
-#         State(slider_area, 'className'),
-#         prevent_initial_call=True
-#     )
-#     def set_slider(click, class_name):
-#         print(class_name)
-#         if class_name == 'slider_area':
-#             return 'slider_area_active'
-#         elif class_name == 'slider_area_active':
-#             return 'slider_area'
+    return f"{hours:02d}:{minutes:02d}:{seconds:02d}"
+
+def timer_callbacks(app):
+
+    @app.callback(
+        Output('start_time', 'children'),
+        Output('clock_time', 'children'),
+        Output('case_id', 'children'),
+        Output('perfusion_mode', 'children'),
+        Output('perfuison_time', 'children'),
+
+        Input('clock', 'n_intervals'),
+        State('state_data_store', 'data'),
+        prevent_initial_call=True
+
+    )
+    def set_times(n_intervals, msg):
+        ret = {'start_time': 'Start Time: ---',
+               'clock_time': f'Clock Time: {datetime.now().strftime("%H:%M:%S")}',
+               'case_id': 'Case ID: ---',
+               'perfusion_mode': 'Perfusion Mode: ---',
+               'perfuison_time': 'Perfusion Time: ---',
+               }
+        clock_time = int(datetime.now().timestamp())
+        if msg and isinstance(msg, dict):
+            state = msg['data']
+            if state['start_time'] != 0: ret['start_time'] = f'Start Time: {datetime.fromtimestamp(state['start_time']).strftime("%H:%M:%S")}'
+            if state['case_id'] != 0: ret['case_id'] = f'Case ID: {str(state['case_id'])}'
+            if state['perfusion_mode'] != '': ret['perfusion_mode'] = f'Perfusion Mode: {state['start_time']}'
+            if state['autosave']: ret['perfuison_time'] = f'Perfusion Time: {(fromat_time(clock_time-state['start_time']))}'
+        return ret['start_time'], ret['clock_time'], ret['case_id'], ret['perfusion_mode'], ret['perfuison_time']
 
 def tabbar_callback(app):
 
@@ -150,7 +172,6 @@ def gbm_callbacks(app):
             'set_po2': None,
             'set_pco2': None
         }
-        # print(f'glm_slider -> set_fio2: {set_fio2}, set_gas_low:{set_gas_low} set_fio2_slider: {set_fio2_slider}, set_gas_flow_slider:{set_gas_flow_slider}')
 
         if not set_fio2_slider:
             set_params['set_fio2'] = set_fio2
@@ -160,6 +181,7 @@ def gbm_callbacks(app):
             set_params['set_po2'] = set_po2
         elif not set_pco2_slider:
             set_params['set_pco2'] = set_pco2
-        # print(f'glm_slider -> fio2: {set_fio2}, set_params:{set_params}')
+            
         disp_item = gu.dispatch(msg_type='front_end_com', id='set_gbm_params', data=set_params)
         return disp_item
+

@@ -1,6 +1,6 @@
 from dash import Input, Output, State, no_update
 import gui_utils as gu
-from datetime import datetime
+from dash.exceptions import PreventUpdate
 
 def check_case_number(cn_arr, numb):
     if cn_arr:
@@ -71,7 +71,7 @@ def case_manager_callbacks(app):
     @app.callback(
         Output('new_case_mld', 'className'),
         Output('ncm_input', 'value'),
-        Input('cm_new_case_button', 'n_clicks'),
+        Input('cm_new_case_btn', 'n_clicks'),
         Input('ncm_close_btn', 'n_clicks'),
         State('new_case_mld', 'className'),
         State('new_case_h1', 'children'),
@@ -105,11 +105,53 @@ def case_manager_callbacks(app):
         Output('postbox', 'data', allow_duplicate=True),
         Input('start_case_btn', 'n_clicks'),
         State('case_id_dropdown', 'value'),
+        State('state_data_store', 'data'),
         prevent_initial_call=True,
     )
-    def start_case(start_case_btn, case_id):
-        if case_id != None and case_id != 0:
-            disp_item = gu.dispatch('system', 'start_case')
-            return disp_item
+    def start_case(start_case_btn, case_id, msg):
+        if msg:
+            state = msg['data']
+            if case_id != None and case_id != 0 and not state['autosave']:
+                disp_item = gu.dispatch('system', 'start_record')
+                return disp_item
+            elif state['autosave']:
+                disp_item = gu.dispatch('system', 'stop_record')
+                return disp_item               
+        else:
+            raise PreventUpdate
+        
+
+    @app.callback(
+        Output('start_case_btn', 'children'),
+        Output('start_case_btn', 'disabled'),
+
+        Output('cm_new_case_btn', 'disabled'),
+        Output('case_id_dropdown', 'disabled'),
+
+        Output('hope_btn', 'disabled'),
+        Output('cor_btn', 'disabled'),
+        Output('nmp_btn', 'disabled'),
+
+        Input('state_data_store', 'data'),
+        prevent_initial_call=True,
+    )
+    def disable_ncm_btn(msg):
+        state = msg['data']
+        if not state['autosave'] and state['case_id'] == 0:
+            print(f'disable_ncm_btn -> option I')
+            return 'Select Case ID', True, False, False, True, True, True
+        
+        elif not state['autosave'] and state['case_id'] != 0:
+            print(f'disable_ncm_btn -> option II')
+            return 'Start Recording', False, False, False, True, True, True
+
+        elif state['autosave']: 
+            print(f'disable_ncm_btn -> option III')
+            return 'Stop Recording', False, True, True, False, False, False
+
+        else:
+            print(f'disable_ncm_btn -> option IV')
+            raise PreventUpdate
+            
 
 

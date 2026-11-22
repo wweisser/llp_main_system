@@ -69,7 +69,10 @@ def create_recv_callbacks(app):
     @app.callback(
         Output("state_data_store", "data"), 
         Output("case_id_store", "data"), 
-        Output("metabolic_graph_store", "data"), 
+
+        Output("graphs_store", "data"), 
+        Output("plot_store", "data"),
+
         Output("note_data_store", "data"), 
         Output("system_data_store", "data"),
         Output("state_ds", "data"),
@@ -84,7 +87,10 @@ def create_recv_callbacks(app):
         rl = {
             'state': no_update,
             'case_id': no_update,
-            'metabolic_graph': no_update,
+
+            'graphs': no_update,
+            'plot': no_update,
+
             'notes': no_update,
             'system': no_update,
             'gui_state': no_update,
@@ -102,8 +108,12 @@ def create_recv_callbacks(app):
                         rl['system'] = data
                     elif msg_type == 'case_id':
                         rl['case_id'] = data
-                    elif msg_type == 'metabolic_graph':
-                        rl['metabolic_graph'] = data
+
+                    elif msg_type == 'graphs':
+                        rl['graphs'] = data
+                    elif msg_type == 'plot':
+                        rl['plot'] = data
+
                     elif msg_type == 'notes':
                         rl['notes'] = data
                     elif msg_type == 'state':
@@ -112,15 +122,17 @@ def create_recv_callbacks(app):
                         rl['gui_state'] = data
                     elif msg_type == 'heartbeat':
                         rl['heartbeat'] = data['data']
+
                     elif msg_type == 'download':
                         rl['download'] = data
                     else:
-                        print(f"distribute_msg -> unbekannter msg_type: {msg_type}")
+                        print(f"distribute_msg -> unbekannter msg_type: {msg}")
                     # print(f'\ncreate_heartbeat_callback -> rl[heartbeat]: {rl['heartbeat']}\n')
                     return (
                         rl['state'], 
                         rl['case_id'], 
-                        rl['metabolic_graph'], 
+                        rl['graphs'], 
+                        rl['plot'],
                         rl['notes'], 
                         rl['system'], 
                         rl['gui_state'], 

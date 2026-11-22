@@ -63,19 +63,19 @@ def gbm_to_state(sys_state: dict, glm_arr: list):
     return sys_state
 
 def gbm_params_to_state(sys_state: dict, gbm_params: dict):
-    print(f'gbm_params_to_state -> input: {gbm_params}')
+    # print(f'gbm_params_to_state -> input: {gbm_params}')
 
     if gbm_params['set_fio2']:
         sys_state['gbm']['set_fio2'] = gbm_params['set_fio2']
-        
-    if gbm_params['set_gas_flow']:
+
+    elif gbm_params['set_gas_flow']:
         sys_state['gbm']['set_gas_flow'] = gbm_params['set_gas_flow']
 
-    if gbm_params['set_pco2']:
-        sys_state['gbm']['set_pco2'] = gbm_params['set_pco2']
-
-    if gbm_params['set_po2'] and gbm_params['set_pco2']:
+    elif gbm_params['set_po2']:
         sys_state['gbm']['set_po2'] = gbm_params['set_po2']
+
+    elif gbm_params['set_pco2']:
+        sys_state['gbm']['set_pco2'] = gbm_params['set_pco2']
 
     return sys_state
 

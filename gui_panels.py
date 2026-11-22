@@ -67,41 +67,8 @@ def value_entry_element(val: str):
     return(html.Div([
         dcc.Input(id=f'{val}_entry_field', placeholder=f"enter {val} value", className='bga_entry_field'),
         html.Button(id=f'{val}_entry_btn', children='Store', className='bga_entry_btn'),
-    ], className='bga_entry_element'))
-
-# Daten für Plotly vorbereiten
-    df = pd.DataFrame([
-        {"Datum": pd.to_datetime(datum), "Event": text, "Y": 0}  # Alle Punkte auf Y=0 für einen Zeitstrahl
-        for datum, text in timeline_data.items()
-    ])
-    fig = go.Figure()
-
-    fig.add_trace(go.Scatter(
-        mode="markers+lines",  # Linie verbindet die Punkte auf dem Zeitstrahl
-        line=dict(color="#d3d3d3", width=3),  # Dezente graue Zeitachse
-        text=df["Event"],  # Der Text aus dem Dictionary
-        hoverinfo="text",  # Sorgt dafür, dass NUR der Text beim Hovern angezeigt wird
-        hovertemplate="<b>%{text}</b><br><extra></extra>"  # Schickes sauberes Hover-Layout
-    ))
-
-    # Layout anpassen, um es wie eine Zeitachse aussehen zu lassen
-    fig.update_layout(
-        title=dict(font=dict(size=18)),
-        xaxis=dict(
-            type="date",
-            showgrid=True,
-            title="Datum"
-        ),
-        yaxis=dict(
-            showgrid=False,
-            zeroline=False,
-            showticklabels=False,  # Y-Achsen-Beschriftung ausblenden
-            range=[-0.5, 0.5]      # Vertikalen Raum begrenzen
-        ),
-        height=300,
-        margin=dict(l=40, r=40, t=60, b=40)
+        ], className='bga_entry_element')
     )
-    return(dcc.Graph(id="note_timeline", figure=fig, config={'staticPlot': True}))
 
 def permanent_panel():
     return(html.Div([

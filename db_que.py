@@ -55,7 +55,7 @@ class Db_Que:
     async def get_db_item(self):
         return await self.que.get()
 
-async def parse_archive_que(q_item: Que_Item, db_obj: db.Db_Obj, cc=None):
+async def parse_archive_que(q_item: Que_Item, db_obj: db.Db_Obj, ux_q: asyncio.Queue = None, cc=None):
     type = q_item.get_cm_type()
     data = q_item.get_data()
     anex = q_item.get_anex()
@@ -71,11 +71,11 @@ async def parse_archive_que(q_item: Que_Item, db_obj: db.Db_Obj, cc=None):
     elif type == 'new_cn':
         db.create_case(db_obj, comment=None, case_id=case_id)
 
-    elif type == 'stu' and isinstance(data, int):
+    elif type == 'stu' and isinstance(data, int): # start time update
         conf = db.update_start_time(db_obj, case_id=case_id, new_start_time=data)
+        print(f'parse_archive_que -> new start time {data}\n')
         if conf:
             await oq.broadcast_item('st', 'st_update', cc, data)
-            print(f'parse_archive_que -> new start time {data}\n')
 
     elif type == 'tlc':
         df = db.build_download_file(db_obj, case_id)
@@ -84,12 +84,19 @@ async def parse_archive_que(q_item: Que_Item, db_obj: db.Db_Obj, cc=None):
 
     elif type == 'ext' and isinstance(case_id, int) and case_id != 0:
         print(f'parse_archive_que -> get extraction note command registered\n')
-        extct = None
-        if (anex == 'notes' or anex == 'cdi_data' or 'cases') and (not data or isinstance(data, list)):
-            extct = db.inspect_table(db_obj, table=anex, case_id=case_id, param_list=data, begin=begin, to=to, n=n)
-        if extct:
-            await oq.broadcast_item('ext', cc, data, extct)
-            print(f'parse_archive_que -> note brod item: {extct}\n')
+        extracted_data = None
+        if (anex == 'notes'):
+            ext_data = db.inspect_table(db_obj, table=anex, case_id=case_id, param_list=data, begin=begin, to=to, n=n)
+            await oq.broadcast_item('notes', 'update', cc, ext_data)
+
+        elif (anex == 'graphs'):
+            ext_data = db.inspect_table(db_obj, table='cdi_data', case_id=case_id, param_list=['art_po2', 'art_pco2', 'so2', 'hb', 'gluc', 'lac'], n=1200)
+            await oq.broadcast_item('graphs', 'update', cc, ext_data)
+
+        elif (anex == 'start_time' and case_id != 0):
+            ext_data = db.inspect_table(db_obj, 'cases', case_id, ['start_time'])
+            if ext_data:
+                await oq.feed_q(ux_q, 'system', 'start_time', ext_data)
 
     elif type == 'entry':
         if anex == 'note':
@@ -100,11 +107,11 @@ async def parse_archive_que(q_item: Que_Item, db_obj: db.Db_Obj, cc=None):
             db.create_case(db_obj, data, case_id)
 
 
-async def start_archive_task(db_que: Db_Que, cc:list):
+async def start_archive_task(db_que: Db_Que, ux_q: asyncio.Queue, cc:list):
     while(True):
         qi = await db_que.get_db_item()
         if qi:
-            await parse_archive_que(q_item=qi, db_obj=db_que.db_obj, cc=cc)
+            await parse_archive_que(q_item=qi, db_obj=db_que.db_obj, ux_q=ux_q, cc=cc)
 
 
 ### UNIT TEST ### ### UNIT TEST ### ### UNIT TEST ### ### UNIT TEST ### ### UNIT TEST ### 

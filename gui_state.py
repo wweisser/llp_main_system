@@ -17,16 +17,20 @@ def create_msg_distribution():
         dcc.Store(id='heartbeat_ds', storage_type='memory', data=initial_state),
         dcc.Store(id='state_ds', storage_type='memory'),
 
-        dcc.Store(id='metabolic_graph_store', storage_type='memory'),
+        dcc.Store(id='graphs_store', storage_type='memory'),
+        dcc.Store(id='plot_store', storage_type='memory'),
+
         dcc.Store(id='state_data_store', storage_type='memory'),
         dcc.Store(id='case_id_store', storage_type='memory'),
         dcc.Store(id='note_data_store', storage_type='memory'),
         dcc.Store(id='system_data_store', storage_type='memory'),
+
+        dcc.Interval(id='clock', interval=1000)
     ]))
 
 def create_heartbeat_intervall(hb_rythm:int = None):
     if not hb_rythm:
-        hb_rythm = 5000
+        hb_rythm = 10000
     intervall = (html.Div([
         dcc.Interval(id='heartbeat_rhythm', interval=hb_rythm)
     ]))
@@ -95,45 +99,5 @@ def hide_looding_screen(app):
 def gui_state_parser(app):
     create_heartbeat_callback(app)
     hide_looding_screen(app)
-
-
-
-    # @app.callback(
-    #     Output('clock_time', 'children'),
-    #     Output('state_ds', 'data', allow_duplicate=True),
-    #     Output('loading_screen', 'className'),
-    #     Input('heartbeat_ds', 'data'),
-    #     prevent_initial_call=True
-    # )
-    # def up(msg):
-    #     print(f'create_heartbeat_callback -> {msg}')
-    #     if msg['data']['handshake']:
-    #         return f'Heartbeat: {msg}', msg['data'],'hide'
-    #     else:
-    #         return f'Heartbeat: {msg}', msg['data'],'loading_screen'
-
-# def create_startup_callback(app):    
-#     @app.callback(
-#         Output('loading_screen', 'className'),
-#         Input('heartbeat_ds', 'n_intervals'),
-#         prevent_initial_call=True
-#     )
-#     def hide_loader(msg, n_intervals):
-#         if not msg:
-#             heartbeat_item = gs.build_heart_beat_item(True, datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'request_handshake', 'no_error')
-#             item = gu.create_postbox_item('system', 'f_heartbeat', heartbeat_item)
-#             print('create_startup_callback -> Sending initial heartbeat\n')
-#             return 'loading_screen', item, False
-#         else:
-#             data = msg['data']
-#             if msg['id'] == 'b_heartbeat' and data['status'] == 'backend_active':
-#                 print('create_startup_callback -> Backend active, hiding loader\n')
-#                 raise PreventUpdate
-#             elif msg['id'] == 'b_heartbeat' and data['status'] == 'handshake_accepted':
-#                 print('create_startup_callback -> Handshake accepted, hiding loader\n')
-#                 return 'hide', no_update, True
-#             else:
-#                 raise PreventUpdate
-
 
 

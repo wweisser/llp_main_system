@@ -76,7 +76,7 @@ async def send_ser_command(com_q: asyncio.Queue, device: str, command: str):
         'com': command
     }
     await com_q.put(com_item)
-    print(f'puting item: {com_item}')
+    # print(f'puting item: {com_item}')
 
 async def send_gbm_command(com_q: asyncio.Queue, set_fio2: int, set_gas_flow: int, error: str = ""):
     command_str = f'sys|o{str(set_fio2)}|f{str(set_gas_flow)}|{error};'

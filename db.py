@@ -209,7 +209,7 @@ def transpone(table_dict:dict):
 #     # print(f'build_result_dict -> result_dict: {result_dict}\n')
 #     return result_dict
  
-def inspect_table(db: Db_Obj, table: str, case_id=None, param_list=None, begin=None, to=None, n=None):
+def inspect_table(db: Db_Obj, table: str, case_id:int=None, param_list:list=None, begin:int=None, to:int=None, n:int=None):
     """returns a dictionary in which each item of the param_list acts as an identifier 
     to a list of values. param_list is not given, all parameters of the table are added to the return dict"""
     if db == None or table == None:
@@ -347,8 +347,10 @@ if __name__ == "__main__":
     db = Db_Obj(db_parth, 'key')
 
     create_case(db, 'test case II', 4)
-    print(inspect_table(db, 'cases', param_list=['case_id', 'start_time']))
+    print(f'inspect_table: {inspect_table(db, 'cases', 2, param_list=['start_time'])}\n')
+    # print(f'inspect_table select: {inspect_table(db, 'cdi_data', case_id=1, param_list=['ts', 'art_po2', 'hb', 'cso2'], n=3)}')
+
     update_start_time(db, 1, int(time.time()))
 
-    print(inspect_table(db, 'cases', param_list=['case_id', 'start_time']))
+    # print(inspect_table(db, 'cases', param_list=['case_id', 'start_time']))
    
