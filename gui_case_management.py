@@ -138,15 +138,12 @@ def case_manager_callbacks(app):
     def disable_ncm_btn(msg):
         state = msg['data']
         if not state['autosave'] and state['case_id'] == 0:
-            print(f'disable_ncm_btn -> option I')
             return 'Select Case ID', True, False, False, True, True, True
         
         elif not state['autosave'] and state['case_id'] != 0:
-            print(f'disable_ncm_btn -> option II')
             return 'Start Recording', False, False, False, True, True, True
 
         elif state['autosave']: 
-            print(f'disable_ncm_btn -> option III')
             return 'Stop Recording', False, True, True, False, False, False
 
         else:

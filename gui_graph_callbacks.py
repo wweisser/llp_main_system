@@ -4,6 +4,7 @@ from dash.exceptions import PreventUpdate
 import plotly.graph_objects as go
 import gui_graphs as gg
 
+#HIER WEITERMACHEN GRAPF DATA AUS DB LOOP ENTGEGENNEHMEN UND VERARBEITEN
 
 def data_to_figure(app, graph, left_axis, lax_name, lax_color, right_axis, rax_name, rax_color):
     @app.callback(

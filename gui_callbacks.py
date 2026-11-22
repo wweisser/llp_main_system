@@ -29,16 +29,19 @@ def timer_callbacks(app):
         ret = {'start_time': 'Start Time: ---',
                'clock_time': f'Clock Time: {datetime.now().strftime("%H:%M:%S")}',
                'case_id': 'Case ID: ---',
-               'perfusion_mode': 'Perfusion Mode: ---',
+               'perfusion_mode': 'recording offline',
                'perfuison_time': 'Perfusion Time: ---',
                }
         clock_time = int(datetime.now().timestamp())
         if msg and isinstance(msg, dict):
             state = msg['data']
-            if state['start_time'] != 0: ret['start_time'] = f'Start Time: {datetime.fromtimestamp(state['start_time']).strftime("%H:%M:%S")}'
-            if state['case_id'] != 0: ret['case_id'] = f'Case ID: {str(state['case_id'])}'
-            if state['perfusion_mode'] != '': ret['perfusion_mode'] = f'Perfusion Mode: {state['start_time']}'
-            if state['autosave']: ret['perfuison_time'] = f'Perfusion Time: {(fromat_time(clock_time-state['start_time']))}'
+            if state['start_time'] != 0: 
+                ret['start_time'] = f'Start Time: {datetime.fromtimestamp(state['start_time']).strftime("%H:%M:%S")}'
+            if state['case_id'] != 0: 
+                ret['case_id'] = f'Case ID: {str(state['case_id'])}'
+            if state['autosave']: 
+                ret['perfusion_mode'] = f'recoding active'
+                ret['perfuison_time'] = f'Perfusion Time: {(fromat_time(clock_time-state['start_time']))}'
         return ret['start_time'], ret['clock_time'], ret['case_id'], ret['perfusion_mode'], ret['perfuison_time']
 
 def tabbar_callback(app):
