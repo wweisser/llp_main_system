@@ -83,14 +83,14 @@ async def parse_archive_que(q_item: Que_Item, db_obj: db.Db_Obj, ux_q: asyncio.Q
             await oq.broadcast_item('cd', 'total_case', cc, 'excel file was created')
 
     elif type == 'ext' and isinstance(case_id, int) and case_id != 0:
-        print(f'parse_archive_que -> get extraction note command registered\n')
+        # print(f'parse_archive_que -> get extraction note command registered\n')
         extracted_data = None
         if (anex == 'notes'):
             ext_data = db.inspect_table(db_obj, table=anex, case_id=case_id, param_list=data, begin=begin, to=to, n=n)
             await oq.broadcast_item('notes', 'update', cc, ext_data)
 
         elif (anex == 'graphs'):
-            ext_data = db.inspect_table(db_obj, table='cdi_data', case_id=case_id, param_list=['art_po2', 'art_pco2', 'so2', 'hb', 'gluc', 'lac'], n=1200)
+            ext_data = db.inspect_table(db_obj, table='cdi_data', case_id=case_id, param_list=['ts', 'art_po2', 'art_pco2', 'so2', 'hb', 'glu', 'lac'], n=1200)
             await oq.broadcast_item('graphs', 'update', cc, ext_data)
 
         elif (anex == 'start_time' and case_id != 0):

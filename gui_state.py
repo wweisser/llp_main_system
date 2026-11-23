@@ -30,7 +30,7 @@ def create_msg_distribution():
 
 def create_heartbeat_intervall(hb_rythm:int = None):
     if not hb_rythm:
-        hb_rythm = 10000
+        hb_rythm = 5000
     intervall = (html.Div([
         dcc.Interval(id='heartbeat_rhythm', interval=hb_rythm)
     ]))

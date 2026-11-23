@@ -73,11 +73,11 @@ async def parse_heartbeat(data, sys_state, cc):
     if data and isinstance(data, dict) and data['status'] == 'request_handshake':
         data['handshake'] = True
         data['status'] = 'handshake_accepted'
-        await asyncio.sleep(0.5)
+        await asyncio.sleep(1)
 
-        await oq.broadcast_item('state', 'state', cc, data=sys_state)
-        await asyncio.sleep(0.5)
         await oq.broadcast_item('heartbeat', 'bcknd_heartbeat', cc, data=data)
+        await asyncio.sleep(1)
+        await oq.broadcast_item('state', 'state', cc, data=sys_state)
 
         print(f'parse_heartbeat -> handshake accapted {data}\n')
 

@@ -67,7 +67,7 @@ def create_functional_callbacks(app, graph_list: list, test_env: bool):
         gc.gbm_callbacks(app),
         gcm.case_manager_callbacks(app),
         gpc.state_to_button(app),
-
+        ggc.create_graph_callbacks(app),
         gc.timer_callbacks(app)
         # ggc.create_graph_callbacks(app),
         # gnc.create_note_callbacks(app),
@@ -81,7 +81,7 @@ def create_app(ts_ip, test_env: bool):
     gui_app.layout = build_gui_layout(test_env)
     create_communication(gui_app, ts_ip),
     create_functional_callbacks(gui_app, graph_list, test_env)
-    # create_callbacks(gui_app)
+
     # WebSocket-URL dynamisch anhand von window.location setzen
     return gui_app
 

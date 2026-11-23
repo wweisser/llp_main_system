@@ -161,11 +161,8 @@ async def create_system_tasks(db_que: dbq.Db_Que, ux_q, com_q, cc: dict):
         system_tasks.append(asyncio.create_task(su.dequeue_loop(db_que=db_que, ux_q=ux_q, com_q=com_q, cc=cc)))
         system_tasks.append(asyncio.create_task(dbq.start_archive_task(db_que, ux_q, cc)))
 
-        # system_tasks.append(asyncio.create_task(su.system_updater(cache, key, archive_intervall, 1.0)))
-##############################TEST TEST TEST#########################################
-        # system_tasks.append(asyncio.create_task(start_cdi_test_thread(ux_q)))
-##############################TEST TEST TEST#########################################
         return system_tasks
+    
     except Exception as e:
         for task in system_tasks:
             task.cancel()           # Beim App-Shutdown: Task abbrechen
@@ -173,6 +170,7 @@ async def create_system_tasks(db_que: dbq.Db_Que, ux_q, com_q, cc: dict):
                 await task          # Warten bis der Task wirklich gestoppt ist
             except asyncio.CancelledError:
                 print(f'create_system_tasks -> {task} was stoped')
+
         print(f'create_system_tasks -> error on system task setup\n', e)
         return None
 
@@ -193,7 +191,6 @@ async def main():
 
     memory.put_state_to_cache(db_obj.cache, db_obj.key, sys_state)
 
-    # try:
     fast_api_app = FastAPI() # hier wird die fastAPI app erzeugt
     print("1 - FastAPI created")
 
@@ -211,15 +208,6 @@ async def main():
 
     await asyncio.gather(uvicorn_server.serve(), *system_tasks)
 
-    # except Exception as e:
-    #     for task in system_tasks:
-    #         task.cancel()           # Beim App-Shutdown: Task abbrechen
-    #         try:
-    #             await task          # Warten bis der Task wirklich gestoppt ist
-    #         except asyncio.CancelledError:
-    #             print(f'main -> {task} was stoped')
-    #     print("main -> system was closed")
-    #     print(e)
 
 def run_async_world():
     asyncio.run(main())
@@ -231,5 +219,14 @@ if __name__ == "__main__":
         print('canceled by keyboard interrupt') 
 
 
+    # except Exception as e:
+    #     for task in system_tasks:
+    #         task.cancel()           # Beim App-Shutdown: Task abbrechen
+    #         try:
+    #             await task          # Warten bis der Task wirklich gestoppt ist
+    #         except asyncio.CancelledError:
+    #             print(f'main -> {task} was stoped')
+    #     print("main -> system was closed")
+    #     print(e)
 
 #URL : http://127.0.0.1:8050/d1/

@@ -241,7 +241,7 @@ def inspect_table(db: Db_Obj, table: str, case_id:int=None, param_list:list=None
 
     rows = db.session.execute(sdi).all()
 
-    print(f'inspect_table -> rows: {rows} \n')
+    # print(f'inspect_table -> rows: {rows} \n')
 
     for row in rows:
         i = 0

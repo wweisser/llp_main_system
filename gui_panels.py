@@ -145,8 +145,8 @@ def protocol_page():
 
 def data_panel():
     return(html.Div([
-            gg.create_graph_panel("upper_plot_I", "upper_plot_II", "upper_plot_III"),
-            gg.create_graph_panel("lower_plot_I", "lower_plot_II", "lower_plot_III"),
+            gg.create_graph_panel("art_po2_graph", "art_pco2_graph", "so2_graph"),
+            gg.create_graph_panel("hb_graph", "glu_graph", "lac_graph"),
         ], id='data_panel', className="hide")
     )
 
