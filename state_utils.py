@@ -40,26 +40,15 @@ def gbm_seting(sys_state: dict, set_po2: int, set_pco2: int, align:bool=None):
     return sys_state
 
 def gbm_to_state(sys_state: dict, glm_arr: list):
-    if len(glm_arr) == 8:
-        if glm_arr[0] == 0:
-            sys_state['gbm_state'] = 'before selftest'
-        elif glm_arr[0] == 1:
-            sys_state['gbm_state'] = 'selftest passed'
-        elif glm_arr[0] == 11:
-            sys_state['gbm_state'] = 'active flow'
-        elif glm_arr[0] == 12:
-            sys_state['gbm_state'] = 'error during selftest'
-        elif glm_arr[0] == 22:
-            sys_state['gbm_state'] = 'error during active flow'
-            
-        sys_state['gbm']["set_fio2"] = glm_arr[1]
-        sys_state['gbm']["set_gas_flow"] = glm_arr[2]
-        sys_state['gbm']["set_oxygen_flow"] = glm_arr[3]
-        sys_state['gbm']["set_air_flow"] = glm_arr[4]
-        sys_state['gbm']["gas_flow"] = glm_arr[6] + glm_arr[7]
-        sys_state['gbm']["fio2"] = glm_arr[5]
-        sys_state['gbm']["oxygen_flow"] = glm_arr[6]
-        sys_state['gbm']["air_flow"] = glm_arr[7]
+    if len(glm_arr) == 7:
+        # sys_state['gbm']["set_fio2"] = glm_arr[0]
+        # sys_state['gbm']["set_gas_flow"] = glm_arr[1]
+        # sys_state['gbm']["set_oxygen_flow"] = glm_arr[2]
+        # sys_state['gbm']["set_air_flow"] = glm_arr[3]
+        sys_state['gbm']["gas_flow"] = glm_arr[5] + glm_arr[6]
+        sys_state['gbm']["fio2"] = glm_arr[4]
+        sys_state['gbm']["oxygen_flow"] = glm_arr[5]
+        sys_state['gbm']["air_flow"] = glm_arr[6]
     return sys_state
 
 def gbm_params_to_state(sys_state: dict, gbm_params: dict):
@@ -83,6 +72,9 @@ def gbm_params_to_state(sys_state: dict, gbm_params: dict):
 async def align_gbm(com_q: asyncio.Queue, sys_state: dict):
     """If gbm_align is True it, calculates a flow factor and a fio2 factor from 
     current po2, pco2 and adjusts set_flow and fio2 with it. Result is saved in sys_state """
+
+    print(f'align_gbm -> before claculation{sys_state['gbm']}')
+
     if sys_state['gbm']['gbm_align']:
         current_fio2 = sys_state['gbm']['fio2']
         current_po2 = sys_state['cdi']['art_po2']
@@ -95,22 +87,24 @@ async def align_gbm(com_q: asyncio.Queue, sys_state: dict):
         factor_flow = 0;
 
         # calculation the offset factors for flow and fio2. Integer dertmine the gain of correction.
-        if current_po2 > 0:
+        if current_po2 and current_po2 > 0:
             factor_fio2 = (set_po2-current_po2)/(current_po2*3)
             print(round(factor_fio2, 4))
 
-        if current_po2 > 0:
+            if abs(factor_fio2) > 0.03:
+                sys_state['gbm']['set_fio2'] = round(((factor_fio2) * current_fio2) + current_fio2, 2)
+                print(f'align_gbm -> set fio2: {sys_state['gbm']['set_fio2']}')
+
+        if current_pco2 and current_pco2 > 0:
             factor_flow = (current_pco2-set_pco2)/(current_pco2*2)
             print(round(factor_flow, 4))
 
+            if abs(factor_flow) > 0.04:
+                sys_state['gbm']['set_gas_flow'] = round(((factor_flow) * current_gas_flow) + current_gas_flow, 2)
+                print(f'align_gbm -> set_flow: {sys_state['gbm']['set_gas_flow']}')
         # Calculation if set flow and set fio2
-        if abs(factor_fio2) > 0.03:
-            sys_state['gbm']['set_fio2'] = round(((factor_fio2) * current_fio2) + current_fio2, 2)
-            print(f'align_gbm -> set fio2: {sys_state['gbm']['set_fio2']}')
 
-        if abs(factor_flow) > 0.04:
-            sys_state['gbm']['set_flow'] = round(((factor_flow) * current_gas_flow) + current_gas_flow, 2)
-            print(f'align_gbm -> set_flow: {sys_state['gbm']['set_flow']}')
+    print(f'align_gbm -> after calculation {sys_state['gbm']}')
 
     return sys_state
 

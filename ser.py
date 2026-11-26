@@ -49,19 +49,21 @@ class Serial_Connection:
         while self.active:
             msg = None
             # print(f'ux_loop runns for {self.url}, status: {self.active}')
+
             try:
                 msg = await self.reader.readline()
                 if msg == None:
                     raise ConnectionError(f'{self.url} no connection')
                 self.select_device(msg)
-                print(f'received message: {msg}, device: {self.device}')
+                # print(f'received message: {msg}, device: {self.device}')
             except Exception as e:
                 print(f'error during serial reading of {self.device}: {e}')
                 self.active = False
                 break
-
-            await su.dispatch_ser_msg(self.device, msg, ux_q=ux_q)
-            # print('msg was dispatched')
+            # print('milestone')
+            
+            if self.device:
+                await su.dispatch_ser_msg(self.device, msg, ux_q=ux_q)
             await asyncio.sleep(1)
         print(f'{self.device}-loop was canceled')
 

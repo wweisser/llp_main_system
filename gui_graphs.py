@@ -3,6 +3,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 
 
+
 def update_graph_layout(figure):
     if isinstance(figure, dict):
         figure = go.Figure(figure)

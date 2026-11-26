@@ -1,8 +1,9 @@
 from dash import Input, Output, html, no_update
-from plotly.subplots import make_subplots
+import plotly.express as px
 from dash.exceptions import PreventUpdate
 import plotly.graph_objects as go
 import gui_graphs as gg
+from gui_callbacks import fromat_time
 
 #HIER WEITERMACHEN GRAPH DATA AUS DB LOOP ENTGEGENNEHMEN UND VERARBEITEN
 
@@ -15,19 +16,29 @@ def data_to_figure(app, graph, left_axis, lax_name, lax_color, right_axis, rax_n
     def dtf(msg):
         if msg:
             data = msg['data']
+            timeline = []
+
+            for tp in data['ts']:
+                timeline.append(fromat_time(tp))
+
             print(f'data_to_figure -> data: {data}')
-            figure = make_subplots(specs=[[{"secondary_y": True}]])
+
+            figure = px.scatter(x=None, y=None)
 
             figure.add_trace(
                 go.Scatter(
-                    x=data['ts'],
+                    x=timeline,
                     y=data[left_axis],
-                    name=lax_name,
+                    name=left_axis,
                     line=dict(dash='solid', width=1, color=lax_color),
                     mode="markers+lines"
                 ),
                 secondary_y=False,
             )
+            
+
+            figure = gg.update_graph_layout(figure)
+
             return figure
         else:
             raise PreventUpdate

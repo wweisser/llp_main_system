@@ -6,6 +6,7 @@ from datetime import datetime
 def fromat_time(time_delta: int):
 
     hours = time_delta // 3600
+    hours = hours % 24
     minutes = (time_delta % 3600) // 60
     seconds = time_delta % 60
 
@@ -168,7 +169,11 @@ def gbm_callbacks(app):
 
         prevent_initial_call=True
     )
-    def glm_slider(set_fio2, set_gas_low, set_po2, set_pco2, set_fio2_slider, set_gas_flow_slider, set_po2_slider, set_pco2_slider):
+    def glm_slider(set_fio2, set_gas_flow, set_po2, set_pco2, set_fio2_slider, set_gas_flow_slider, set_po2_slider, set_pco2_slider):
+        
+        if set_fio2_slider and set_gas_flow_slider and set_po2_slider and set_pco2_slider:
+            raise PreventUpdate
+        
         set_params = {
             'set_fio2': None,
             'set_gas_flow': None,
@@ -179,11 +184,13 @@ def gbm_callbacks(app):
         if not set_fio2_slider:
             set_params['set_fio2'] = set_fio2
         elif not set_gas_flow_slider:
-            set_params['set_gas_flow'] = set_gas_low
+            set_params['set_gas_flow'] = set_gas_flow
         elif not set_po2_slider:
             set_params['set_po2'] = set_po2
         elif not set_pco2_slider:
             set_params['set_pco2'] = set_pco2
+
+        print(f'glm_slider -> {set_params}')
             
         disp_item = gu.dispatch(msg_type='front_end_com', id='set_gbm_params', data=set_params)
         return disp_item

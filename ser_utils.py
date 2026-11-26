@@ -5,43 +5,53 @@ import asyncio
 # "<gbm>m:state|" + set_fio2 + "|" + set_total_flow + "|" + set_oxygen_flow + "|" + set_air_flow + "|" + fio2 + "|" + oxygen_flow + "|" + air_flow;
 
 def process_cdi_msg(msg):
-    i = 0
     cdi_arr = []
     l = len(msg)
+    i = 0
+    if l > 8:
+        i = 8
 
     while i < l:
-        
-        if(msg[i] == '\t'):
-            numb_var = None
-            sign = 1
-            dec = 1
-            i += 1
-            while not (i >= l or msg[i] == '\t'):
-
-                if msg[i] == '-' and msg[i+1].isdigit():
-                    sign *= -1
-
-                if numb_var == None and msg[i].isdigit():
-                    numb_var = int(msg[i])
-
-                elif numb_var and msg[i].isdigit():
-                    numb_var = numb_var* 10 + int(msg[i])
-
-                if numb_var and msg[i] == '.' and msg[i+2].isdigit():
-                    dec = 0.01
-
-                elif numb_var and msg[i] == '.' :
-                    dec = 0.1
-
+        try:    
+            if(msg[i] == '\t' ):
+                numb_var = None
+                sign = 1
+                dec = 1
                 i += 1
-            if numb_var:
-                numb_var = round((numb_var*sign*dec), 2)
-            cdi_arr.append(numb_var)
-        else:
-            i += 1
+                while not (i >= l or msg[i] == '\t'):
+
+                    if msg[i] == '0' and not msg[i-1].isdigit():
+                        i += 1
+
+                    if msg[i] == '-' and msg[i+1].isdigit():
+                        sign *= -1
+
+                    if numb_var == None and msg[i].isdigit():
+                        numb_var = int(msg[i])
+
+                    elif numb_var and msg[i].isdigit():
+                        numb_var = numb_var* 10 + int(msg[i])
+
+                    if numb_var and msg[i] == '.' and msg[i+2].isdigit():
+                        dec = 0.01
+
+                    elif numb_var and msg[i] == '.' :
+                        dec = 0.1
+
+                    i += 1
+                if numb_var:
+                    numb_var = round((numb_var*sign*dec), 2)
+                cdi_arr.append(numb_var)
+            else:
+                i += 1
+            print(msg[i])
+        except Exception as e:
+            print(f'process_cdi_msg -> Error while processing cdi_data {e}')
     return cdi_arr
 
 def process_gbm(msg: str) -> list:
+    # print(f'process_gbm -> process_gbm input: {msg}')
+
     arr = []
     l = len(msg)
     i = 0
@@ -55,6 +65,7 @@ def process_gbm(msg: str) -> list:
             arr.append(numb)
         else:
             i += 1
+    # print(f'process_gbm -> process_gbm arr: {arr}')
     return arr
             
 async def dispatch_ser_msg(device:str, msg: str, ux_q):
@@ -76,22 +87,23 @@ async def send_ser_command(com_q: asyncio.Queue, device: str, command: str):
         'com': command
     }
     await com_q.put(com_item)
-    # print(f'puting item: {com_item}')
+    print(f'puting item: {com_item}')
 
-async def send_gbm_command(com_q: asyncio.Queue, set_fio2: int, set_gas_flow: int, error: str = ""):
-    command_str = f'sys|o{str(set_fio2)}|f{str(set_gas_flow)}|{error};'
+async def send_gbm_command(com_q: asyncio.Queue, gbm: dict):
+    command_str = f'<sys>m:aut|{gbm['set_fio2']:04d}|{gbm['set_gas_flow']:04d}|'
+    print(f'send_gbm_command -> command_str: {command_str}')
     await send_ser_command(com_q, 'gbm', command_str)
     
 #sys|o21|f200|;
-# if __name__ == '__main__':
+if __name__ == '__main__':
 #     import asyncio
 #     #           Time      pH   CO2   O2    Temp  HCO3  BE    cSO2  K+    VO2   Q     BSA   pH    CO2   O2    Temp  SO2   HCT   HGB
 #     #         b' 18:40:34\t7.14\t ---\t ---\t33.9\t -- \t -- \t ---\t -.-\t ---\t -.-\t    \t7.30\t ---\t ---\t33.4\t ---\t ---\t -.-\r\n'
-#     test =  b' 09:41:33\t7.14\t ---\t ---\t-26.4\t --\t --\t ---\t -.-\t ---\t -.-\t    \t7.26\t ---\t ---\t25.5\t ---\t 25%\t  -.-\r\n'
+    test =  ' 09:41:33\t7.14\t 018\t ---\t-26.4\t --\t --\t ---\t -.-\t ---\t -.-\t    \t7.26\t ---\t ---\t25.5\t ---\t 25%\t  -.-\r\n'
 #     print(test)
 #     ux_q = asyncio.Queue()
 #     com_q = asyncio.Queue()
 
 #     arr = asyncio.run(dispatch_ser_msg('cdi', test, com_q))
-#     print(arr)
+    print(process_cdi_msg(test))
 # # Test 1

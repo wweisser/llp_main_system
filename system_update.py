@@ -30,17 +30,17 @@ async def dequeue_loop(db_que: dbq.Db_Que, ux_q: asyncio.Queue, com_q: asyncio.Q
             sys_state['last_graphs_update'] = now
 
         try:
-            msg = await asyncio.wait_for(ux_q.get(), timeout=2.0)
+            msg = await asyncio.wait_for(ux_q.get(), timeout=0.5)
         except TimeoutError:
                 pass
         except Exception as e:
                 print(f'Error during system update: {e}')
 
         if msg != None and isinstance(msg, dict):
-            try:
-                sys_state = await system_parse.parse_msg(db_que, com_q, ux_q, msg, sys_state, cc)
-            except Exception as e:
-                print(f'Error during system parse: {e}')
+            # try:
+            sys_state = await system_parse.parse_msg(db_que, com_q, ux_q, msg, sys_state, cc)
+            # except Exception as e:
+            #     print(f'Error during system parse: {e}')
 
         memory.put_state_to_cache(db_que.db_obj.cache, db_que.db_obj.key, sys_state)
 

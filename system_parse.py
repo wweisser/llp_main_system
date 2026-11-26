@@ -11,17 +11,17 @@ async def parse_serial_input(db_que: dq.Db_Que, com_q: asyncio.Queue, msg: dict,
     print(f'parse_serial_input -> msg: {msg}')
     if msg['id'] == 'cdi':
         sys_state = su.cdi_to_state(sys_state=sys_state, cdi_arr=msg['data'])
-        # if sys_state['autosave']:
-        #     db_que.put_db_item('ent', anex='cdi', case_id=sys_state['case_id'], data=msg['data'])
+        if sys_state['autosave']:
+            db_que.put_db_item('ent', anex='cdi', case_id=sys_state['case_id'], data=msg['data'])
 
     elif msg['id'] == 'gbm':
         sys_state = su.gbm_to_state(sys_state=sys_state, glm_arr=msg['data'])
-        print(f'parse_serial_input -> gbm_data {msg['data']}')
+        # print(f'parse_serial_input -> gbm_data {sys_state['gbm']}')
 
     if sys_state['gbm']['gbm_align']:
-        # sys_state = await su.align_gbm(com_q, sys_state)
-        # await sru.send_gbm_command(com_q, sys_state['gbm']['set_fio2'], sys_state['gbm']['set_gas_flow'])
-        pass
+        sys_state = await su.align_gbm(com_q, sys_state)
+    #     await sru.send_gbm_command(com_q, sys_state['gbm'])
+
     await oq.broadcast_item('state', 'state', cc, data=sys_state)
 
     return sys_state
@@ -58,7 +58,8 @@ async def parse_system_command(db_que: dq.Db_Que, msg: dict, sys_state: dict, cc
 
     elif msg['id'] == 'start_record':
         sys_state['autosave'] = True
-        await db_que.put_db_item(cm_type='stu', case_id=sys_state['case_id'], data=int(datetime.now().timestamp()))
+        sys_state['start_time'] = int(datetime.now().timestamp())
+        await db_que.put_db_item(cm_type='stu', case_id=sys_state['case_id'], data=sys_state['start_time'])
         await oq.broadcast_item('state', 'state', cc, data=sys_state)
         print(f'parse_system_command -> case was started')
     
@@ -89,13 +90,17 @@ async def parse_front_end_command(com_q: asyncio.Queue, msg: dict, sys_state: di
 
     elif msg['id'] == 'set_gbm_params':
         sys_state = su.gbm_params_to_state(sys_state, msg['data'])
-        await sru.send_gbm_command(com_q, sys_state['gbm']['set_fio2'], sys_state['gbm']['set_gas_flow'])
+        if not sys_state['gbm']['gbm_align']:
+            await sru.send_gbm_command(com_q, sys_state['gbm'])
+
+        print(f'parse_front_end_command -> gbm command was send {sys_state['gbm']}')
 
     await oq.broadcast_item('state', 'state', cc, data=sys_state)
 
     return sys_state
 
 async def parse_msg(db_que: dq.Db_Que, com_q: asyncio.Queue, ux_q: asyncio.Queue, msg: dict, sys_state, cc):
+    print(f'')
     if msg['msg_type'] == 'ser_data':
         sys_state = await parse_serial_input(db_que, com_q, msg, sys_state, cc)
 
