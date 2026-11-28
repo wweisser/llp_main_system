@@ -32,7 +32,7 @@ def build_gui_layout(test_env: bool):
         gs.create_heartbeat_intervall(),
 
         # create page template and websocket communication
-        dcc.Location(id='location', href='http://localhost:8050/'),
+        dcc.Location(id='location'),
         WebSocket(id="ws"),
     ], className="background"))
 
@@ -42,7 +42,7 @@ def create_communication(app, talescale_ip):
         gu.create_recv_callbacks(app),
     ]))
     @app.callback(
-        Output('ws', 'url'),
+        Output('ws', 'url'),        
         Input('location', 'href')
     )
     def set_ws_url(href):
@@ -88,9 +88,9 @@ def create_app(ts_ip, test_env: bool):
 
 
 if __name__ == '__main__':
-    tailscale_ip =  '100.122.66.59'
+    tailscale_ip =  '100.94.159.38'
     app = create_app(tailscale_ip, test_env=True)
-    app.run(host="0.0.0.0", port=8050, debug=True)
+    app.run(host="0.0.0.0", port=8050, debug=False)
 
 #WS_HOST=100.94.159.38 python gui.py
 

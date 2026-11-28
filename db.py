@@ -339,8 +339,8 @@ def build_download_file(db: Db_Obj, case_id: int):
 
 
 if __name__ == "__main__":
-    db_parth = 'sqlite:///data_vault.db'
-    engine = create_engine('sqlite:///data_vault.db')
+    db_parth = 'sqlite:////home/whw/mp.db'
+    engine = create_engine('sqlite:////home/whw/mp.db')
     metadata = MetaData()
     metadata.reflect(bind=engine)
     Base.metadata.create_all(engine)

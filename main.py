@@ -179,7 +179,7 @@ async def main():
     if os == 'Windows':
         db_path = 'sqlite:///data_vault.db'
     elif os == 'Linux':
-        db_path = '/home/whw/mp.db'
+        db_path = 'sqlite:////home/whw/mp.db'
     
     db_obj = db.Db_Obj(db_parth=db_path, key='key')
     db_que = dbq.Db_Que(db_obj=db_obj)
@@ -213,10 +213,10 @@ def run_async_world():
     asyncio.run(main())
 
 if __name__ == "__main__":
-    try:
+    # try:
         asyncio.run(main())
-    except:
-        print('canceled by keyboard interrupt') 
+    # except:
+    #     print('canceled by keyboard interrupt') 
 
 
     # except Exception as e:
